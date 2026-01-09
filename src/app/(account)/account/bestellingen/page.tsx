@@ -9,7 +9,7 @@ import { useAuth } from '@/context/auth-context';
 import { Order, OrderStatus, PaymentStatus } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 
-interface OrderWithItems extends Order {
+interface OrderWithItems extends Omit<Order, 'items'> {
   items?: { name: string; quantity: number; price: number }[];
 }
 
