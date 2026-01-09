@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
+import { InstagramFeed } from '@/components/ui/instagram-feed';
 import { ProductCard } from '@/components/products/product-card';
 import { getFeaturedProducts, getCategoriesWithCount } from '@/lib/supabase/products';
 
@@ -572,6 +573,9 @@ export default async function HomePage() {
           </div>
         </Container>
       </section>
+
+      {/* Instagram Feed Section */}
+      <InstagramFeed />
     </>
   );
 }
