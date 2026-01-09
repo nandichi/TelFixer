@@ -5,19 +5,6 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import {
-  ArrowLeft,
-  ArrowRight,
-  Upload,
-  X,
-  Smartphone,
-  Laptop,
-  Tablet,
-  Headphones,
-  Check,
-  AlertCircle,
-  AlertTriangle,
-} from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,10 +41,42 @@ const submissionSchema = z.object({
 type SubmissionFormData = z.infer<typeof submissionSchema>;
 
 const deviceTypes = [
-  { value: "telefoon", label: "Telefoon", icon: Smartphone },
-  { value: "laptop", label: "Laptop", icon: Laptop },
-  { value: "tablet", label: "Tablet", icon: Tablet },
-  { value: "accessoire", label: "Accessoire", icon: Headphones },
+  { 
+    value: "telefoon", 
+    label: "Telefoon", 
+    icon: (
+      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+      </svg>
+    )
+  },
+  { 
+    value: "laptop", 
+    label: "Laptop", 
+    icon: (
+      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    )
+  },
+  { 
+    value: "tablet", 
+    label: "Tablet", 
+    icon: (
+      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+      </svg>
+    )
+  },
+  { 
+    value: "accessoire", 
+    label: "Accessoire", 
+    icon: (
+      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+      </svg>
+    )
+  },
 ];
 
 const brandsByType: Record<string, { value: string; label: string }[]> = {
@@ -92,6 +111,8 @@ const brandsByType: Record<string, { value: string; label: string }[]> = {
     { value: "anders", label: "Anders" },
   ],
 };
+
+const stepLabels = ["Apparaat", "Conditie", "Gegevens", "Overzicht"];
 
 export default function SubmitDevicePage() {
   const router = useRouter();
@@ -243,15 +264,19 @@ export default function SubmitDevicePage() {
 
   if (!isConfigured) {
     return (
-      <div className="py-8 lg:py-12">
+      <div className="py-16 lg:py-24 bg-cream">
         <Container>
           <div className="max-w-2xl mx-auto text-center">
-            <div className="bg-amber-50 rounded-xl p-8">
-              <AlertTriangle className="h-12 w-12 text-amber-600 mx-auto mb-4" />
-              <h1 className="text-xl font-bold text-[#2C3E48] mb-2">
+            <div className="bg-white rounded-3xl border border-sand p-12">
+              <div className="w-20 h-20 rounded-2xl bg-amber-50 flex items-center justify-center mx-auto mb-6">
+                <svg className="w-10 h-10 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h1 className="text-2xl font-display font-bold text-soft-black mb-3">
                 Database niet geconfigureerd
               </h1>
-              <p className="text-gray-600">
+              <p className="text-muted">
                 Configureer je Supabase credentials in de .env.local file om
                 apparaten in te kunnen leveren.
               </p>
@@ -263,68 +288,79 @@ export default function SubmitDevicePage() {
   }
 
   return (
-    <div className="py-8 lg:py-12">
+    <div className="py-16 lg:py-24 bg-cream min-h-[80vh]">
       <Container>
         <div className="max-w-2xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-[#2C3E48]">
-              Apparaat Inleveren
+          <div className="text-center mb-12">
+            <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+              Inleveren
+            </span>
+            <h1 className="text-4xl lg:text-5xl font-display font-bold text-soft-black mb-4">
+              Apparaat inleveren
             </h1>
-            <p className="mt-2 text-gray-600">
-              Lever je oude apparaat in en ontvang een eerlijk bod
+            <p className="text-lg text-muted max-w-lg mx-auto">
+              Lever je oude apparaat in en ontvang een eerlijk bod.
+              Wij zorgen voor duurzame verwerking.
             </p>
           </div>
 
           {/* Progress Steps */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between">
+          <div className="mb-10">
+            <div className="flex items-center justify-between relative">
+              {/* Progress Line */}
+              <div className="absolute top-5 left-0 right-0 h-0.5 bg-sand">
+                <div 
+                  className="h-full bg-gradient-to-r from-copper to-gold transition-all duration-500"
+                  style={{ width: `${((step - 1) / 3) * 100}%` }}
+                />
+              </div>
+              
               {[1, 2, 3, 4].map((s) => (
-                <div key={s} className="flex items-center">
+                <div key={s} className="relative z-10 flex flex-col items-center">
                   <div
                     className={cn(
-                      "flex items-center justify-center w-10 h-10 rounded-full text-sm font-medium",
-                      step >= s
-                        ? "bg-[#094543] text-white"
-                        : "bg-gray-200 text-gray-600"
+                      "flex items-center justify-center w-10 h-10 rounded-full text-sm font-semibold transition-all duration-300",
+                      step > s
+                        ? "bg-gradient-to-br from-copper to-gold text-white"
+                        : step === s
+                        ? "bg-primary text-white"
+                        : "bg-white border-2 border-sand text-muted"
                     )}
                   >
-                    {step > s ? <Check className="h-5 w-5" /> : s}
+                    {step > s ? (
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      s
+                    )}
                   </div>
-                  {s < 4 && (
-                    <div
-                      className={cn(
-                        "w-full h-1 mx-2",
-                        step > s ? "bg-[#094543]" : "bg-gray-200"
-                      )}
-                      style={{ width: "60px" }}
-                    />
-                  )}
+                  <span className={cn(
+                    "mt-2 text-xs font-medium transition-colors",
+                    step >= s ? "text-soft-black" : "text-muted"
+                  )}>
+                    {stepLabels[s - 1]}
+                  </span>
                 </div>
               ))}
-            </div>
-            <div className="flex justify-between mt-2 text-xs text-gray-500">
-              <span>Apparaat</span>
-              <span>Conditie</span>
-              <span>Gegevens</span>
-              <span>Bevestig</span>
             </div>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)}>
             {/* Step 1: Device Selection */}
             {step === 1 && (
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-[#2C3E48] mb-6">
+              <div className="bg-white rounded-3xl border border-sand p-8 lg:p-10 animate-fade-in">
+                <h2 className="text-2xl font-display font-semibold text-soft-black mb-8">
                   Wat voor apparaat wil je inleveren?
                 </h2>
 
                 {/* Device Type Selection */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-[#2C3E48] mb-3">
+                <div className="mb-8">
+                  <label className="block text-sm font-medium text-soft-black mb-4">
                     Type apparaat *
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     {deviceTypes.map((type) => (
                       <button
                         key={type.value}
@@ -334,26 +370,28 @@ export default function SubmitDevicePage() {
                           setValue("deviceBrand", "");
                         }}
                         className={cn(
-                          "flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-colors",
+                          "flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200",
                           selectedType === type.value
-                            ? "border-[#094543] bg-[#094543]/5"
-                            : "border-gray-200 hover:border-gray-300"
+                            ? "border-primary bg-primary/5 shadow-md"
+                            : "border-sand bg-white hover:border-primary/30 hover:shadow-sm"
                         )}
                       >
-                        <type.icon
-                          className={cn(
-                            "h-8 w-8",
-                            selectedType === type.value
-                              ? "text-[#094543]"
-                              : "text-gray-400"
-                          )}
-                        />
                         <span
                           className={cn(
-                            "text-sm font-medium",
+                            "transition-colors",
                             selectedType === type.value
-                              ? "text-[#094543]"
-                              : "text-gray-600"
+                              ? "text-primary"
+                              : "text-muted"
+                          )}
+                        >
+                          {type.icon}
+                        </span>
+                        <span
+                          className={cn(
+                            "text-sm font-semibold transition-colors",
+                            selectedType === type.value
+                              ? "text-primary"
+                              : "text-soft-black"
                           )}
                         >
                           {type.label}
@@ -362,7 +400,10 @@ export default function SubmitDevicePage() {
                     ))}
                   </div>
                   {errors.deviceType && (
-                    <p className="mt-2 text-sm text-red-500">
+                    <p className="mt-3 text-sm text-red-500 flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                       {errors.deviceType.message}
                     </p>
                   )}
@@ -370,7 +411,7 @@ export default function SubmitDevicePage() {
 
                 {/* Brand Selection */}
                 {selectedType && (
-                  <div className="mb-6">
+                  <div className="mb-6 animate-fade-in">
                     <Select
                       label="Merk"
                       options={brands}
@@ -395,8 +436,8 @@ export default function SubmitDevicePage() {
 
             {/* Step 2: Condition & Photos */}
             {step === 2 && (
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-[#2C3E48] mb-6">
+              <div className="bg-white rounded-3xl border border-sand p-8 lg:p-10 animate-fade-in">
+                <h2 className="text-2xl font-display font-semibold text-soft-black mb-8">
                   Beschrijf de conditie
                 </h2>
 
@@ -410,20 +451,31 @@ export default function SubmitDevicePage() {
                 />
 
                 {/* Photo Upload */}
-                <div className="mt-6">
-                  <label className="block text-sm font-medium text-[#2C3E48] mb-3">
-                    Foto's uploaden (optioneel, max 5)
+                <div className="mt-8">
+                  <label className="block text-sm font-medium text-soft-black mb-4">
+                    Foto&apos;s uploaden (optioneel, max 5)
                   </label>
 
                   {/* Upload Area */}
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#094543] transition-colors">
-                    <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                    <span className="text-sm text-gray-500">
-                      Klik om foto's te uploaden
-                    </span>
-                    <span className="text-xs text-gray-400 mt-1">
-                      JPG, PNG of WebP (max 5MB)
-                    </span>
+                  <label className={cn(
+                    "flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-200",
+                    photos.length >= 5
+                      ? "border-sand bg-champagne/50 cursor-not-allowed"
+                      : "border-sand bg-cream hover:border-primary hover:bg-primary/5"
+                  )}>
+                    <div className="flex flex-col items-center">
+                      <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
+                        <svg className="w-7 h-7 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium text-soft-black">
+                        Klik om foto&apos;s te uploaden
+                      </span>
+                      <span className="text-xs text-muted mt-1">
+                        JPG, PNG of WebP (max 5MB per bestand)
+                      </span>
+                    </div>
                     <input
                       type="file"
                       accept="image/*"
@@ -436,20 +488,22 @@ export default function SubmitDevicePage() {
 
                   {/* Photo Preview */}
                   {photos.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="mt-6 flex flex-wrap gap-3">
                       {photos.map((photo, index) => (
-                        <div key={index} className="relative">
+                        <div key={index} className="relative group">
                           <img
                             src={URL.createObjectURL(photo)}
                             alt={`Upload ${index + 1}`}
-                            className="w-20 h-20 object-cover rounded-lg"
+                            className="w-24 h-24 object-cover rounded-xl border border-sand"
                           />
                           <button
                             type="button"
                             onClick={() => removePhoto(index)}
-                            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center"
+                            className="absolute -top-2 -right-2 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
                           >
-                            <X className="h-4 w-4" />
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
                           </button>
                         </div>
                       ))}
@@ -461,14 +515,15 @@ export default function SubmitDevicePage() {
 
             {/* Step 3: Personal Info */}
             {step === 3 && (
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-[#2C3E48] mb-6">
-                  Je gegevens
+              <div className="bg-white rounded-3xl border border-sand p-8 lg:p-10 animate-fade-in">
+                <h2 className="text-2xl font-display font-semibold text-soft-black mb-8">
+                  Je contactgegevens
                 </h2>
 
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <Input
                     label="Volledige naam"
+                    placeholder="Jan Jansen"
                     {...register("customerName")}
                     error={errors.customerName?.message}
                     required
@@ -476,6 +531,7 @@ export default function SubmitDevicePage() {
                   <Input
                     label="E-mailadres"
                     type="email"
+                    placeholder="jan@voorbeeld.nl"
                     {...register("customerEmail")}
                     error={errors.customerEmail?.message}
                     required
@@ -483,6 +539,7 @@ export default function SubmitDevicePage() {
                   <Input
                     label="Telefoonnummer"
                     type="tel"
+                    placeholder="06 12345678"
                     {...register("customerPhone")}
                     error={errors.customerPhone?.message}
                     required
@@ -490,29 +547,37 @@ export default function SubmitDevicePage() {
 
                   {/* Terms */}
                   <div className="pt-4">
-                    <label className="flex items-start gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        {...register("termsAccepted")}
-                        className="w-5 h-5 rounded text-[#094543] focus:ring-[#094543] mt-0.5"
-                      />
-                      <span className="text-sm text-gray-600">
+                    <label className="flex items-start gap-4 cursor-pointer group">
+                      <div className="relative mt-0.5">
+                        <input
+                          type="checkbox"
+                          {...register("termsAccepted")}
+                          className="w-5 h-5 rounded-md border-2 border-sand text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer"
+                        />
+                      </div>
+                      <span className="text-sm text-slate group-hover:text-soft-black transition-colors">
                         Ik ga akkoord met de{" "}
                         <a
                           href="/voorwaarden"
-                          className="text-[#094543] underline"
+                          className="text-primary underline underline-offset-2 hover:text-primary-light"
                         >
                           algemene voorwaarden
                         </a>{" "}
                         en het{" "}
-                        <a href="/privacy" className="text-[#094543] underline">
+                        <a 
+                          href="/privacy" 
+                          className="text-primary underline underline-offset-2 hover:text-primary-light"
+                        >
                           privacybeleid
                         </a>
                         . *
                       </span>
                     </label>
                     {errors.termsAccepted && (
-                      <p className="mt-2 text-sm text-red-500">
+                      <p className="mt-3 text-sm text-red-500 flex items-center gap-2">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                         {errors.termsAccepted.message}
                       </p>
                     )}
@@ -523,89 +588,87 @@ export default function SubmitDevicePage() {
 
             {/* Step 4: Review */}
             {step === 4 && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-xl border border-gray-200 p-6">
-                  <h2 className="text-xl font-semibold text-[#2C3E48] mb-6">
+              <div className="space-y-6 animate-fade-in">
+                <div className="bg-white rounded-3xl border border-sand p-8 lg:p-10">
+                  <h2 className="text-2xl font-display font-semibold text-soft-black mb-8">
                     Controleer je gegevens
                   </h2>
 
-                  <dl className="space-y-4">
-                    <div className="flex justify-between py-2 border-b border-gray-100">
-                      <dt className="text-gray-500">Apparaat</dt>
-                      <dd className="font-medium text-[#2C3E48]">
-                        {
-                          deviceTypes.find(
-                            (t) => t.value === watch("deviceType")
-                          )?.label
-                        }
+                  <dl className="space-y-5">
+                    <div className="flex justify-between py-3 border-b border-sand">
+                      <dt className="text-muted">Apparaat</dt>
+                      <dd className="font-semibold text-soft-black">
+                        {deviceTypes.find((t) => t.value === watch("deviceType"))?.label}
                       </dd>
                     </div>
-                    <div className="flex justify-between py-2 border-b border-gray-100">
-                      <dt className="text-gray-500">Merk</dt>
-                      <dd className="font-medium text-[#2C3E48]">
-                        {
-                          brands.find((b) => b.value === watch("deviceBrand"))
-                            ?.label
-                        }
+                    <div className="flex justify-between py-3 border-b border-sand">
+                      <dt className="text-muted">Merk</dt>
+                      <dd className="font-semibold text-soft-black">
+                        {brands.find((b) => b.value === watch("deviceBrand"))?.label}
                       </dd>
                     </div>
-                    <div className="flex justify-between py-2 border-b border-gray-100">
-                      <dt className="text-gray-500">Model</dt>
-                      <dd className="font-medium text-[#2C3E48]">
+                    <div className="flex justify-between py-3 border-b border-sand">
+                      <dt className="text-muted">Model</dt>
+                      <dd className="font-semibold text-soft-black">
                         {watch("deviceModel")}
                       </dd>
                     </div>
-                    <div className="py-2 border-b border-gray-100">
-                      <dt className="text-gray-500 mb-1">Conditie</dt>
-                      <dd className="text-[#2C3E48]">
+                    <div className="py-3 border-b border-sand">
+                      <dt className="text-muted mb-2">Conditie</dt>
+                      <dd className="text-soft-black bg-cream rounded-xl p-4 text-sm">
                         {watch("conditionDescription")}
                       </dd>
                     </div>
                     {photos.length > 0 && (
-                      <div className="py-2 border-b border-gray-100">
-                        <dt className="text-gray-500 mb-2">Foto's</dt>
-                        <dd className="flex gap-2">
+                      <div className="py-3 border-b border-sand">
+                        <dt className="text-muted mb-3">Foto&apos;s ({photos.length})</dt>
+                        <dd className="flex gap-3">
                           {photos.map((photo, index) => (
                             <img
                               key={index}
                               src={URL.createObjectURL(photo)}
                               alt={`Upload ${index + 1}`}
-                              className="w-16 h-16 object-cover rounded"
+                              className="w-16 h-16 object-cover rounded-lg border border-sand"
                             />
                           ))}
                         </dd>
                       </div>
                     )}
-                    <div className="flex justify-between py-2 border-b border-gray-100">
-                      <dt className="text-gray-500">Naam</dt>
-                      <dd className="font-medium text-[#2C3E48]">
+                    <div className="flex justify-between py-3 border-b border-sand">
+                      <dt className="text-muted">Naam</dt>
+                      <dd className="font-semibold text-soft-black">
                         {watch("customerName")}
                       </dd>
                     </div>
-                    <div className="flex justify-between py-2 border-b border-gray-100">
-                      <dt className="text-gray-500">E-mail</dt>
-                      <dd className="font-medium text-[#2C3E48]">
+                    <div className="flex justify-between py-3 border-b border-sand">
+                      <dt className="text-muted">E-mail</dt>
+                      <dd className="font-semibold text-soft-black">
                         {watch("customerEmail")}
                       </dd>
                     </div>
-                    <div className="flex justify-between py-2">
-                      <dt className="text-gray-500">Telefoon</dt>
-                      <dd className="font-medium text-[#2C3E48]">
+                    <div className="flex justify-between py-3">
+                      <dt className="text-muted">Telefoon</dt>
+                      <dd className="font-semibold text-soft-black">
                         {watch("customerPhone")}
                       </dd>
                     </div>
                   </dl>
                 </div>
 
-                <div className="bg-amber-50 rounded-xl p-4 flex gap-3">
-                  <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-                  <div className="text-sm text-amber-800">
-                    <p className="font-medium">
+                {/* Info Box */}
+                <div className="bg-primary/5 rounded-2xl p-6 flex gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-soft-black mb-1">
                       Wat gebeurt er na het indienen?
                     </p>
-                    <p className="mt-1">
+                    <p className="text-sm text-slate">
                       Je ontvangt binnen 2 werkdagen een prijsaanbod per e-mail.
-                      Als je akkoord gaat, ontvang je verzendlabels om het
+                      Als je akkoord gaat, ontvang je gratis verzendlabels om het
                       apparaat naar ons toe te sturen.
                     </p>
                   </div>
@@ -614,27 +677,35 @@ export default function SubmitDevicePage() {
             )}
 
             {/* Navigation */}
-            <div className="flex items-center justify-between mt-6">
+            <div className="flex items-center justify-between mt-8">
               {step > 1 ? (
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handlePrevStep}
+                  className="gap-2"
                 >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                  </svg>
                   Terug
                 </Button>
               ) : (
                 <div />
               )}
               {step < 4 ? (
-                <Button type="button" onClick={handleNextStep}>
+                <Button type="button" onClick={handleNextStep} className="gap-2">
                   Volgende
-                  <ArrowRight className="h-4 w-4 ml-2" />
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
                 </Button>
               ) : (
-                <Button type="submit" isLoading={isSubmitting}>
+                <Button type="submit" isLoading={isSubmitting} className="gap-2">
                   Inlevering indienen
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
                 </Button>
               )}
             </div>

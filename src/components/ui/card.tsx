@@ -3,8 +3,9 @@ import { cn } from '@/lib/utils';
 export interface CardProps {
   children: React.ReactNode;
   className?: string;
-  padding?: 'none' | 'sm' | 'md' | 'lg';
+  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   hover?: boolean;
+  glass?: boolean;
 }
 
 const paddingStyles = {
@@ -12,6 +13,7 @@ const paddingStyles = {
   sm: 'p-4',
   md: 'p-6',
   lg: 'p-8',
+  xl: 'p-10',
 };
 
 export function Card({
@@ -19,15 +21,22 @@ export function Card({
   className,
   padding = 'md',
   hover = false,
+  glass = false,
 }: CardProps) {
   return (
     <div
       className={cn(
-        'bg-white rounded-xl border border-gray-200 shadow-sm',
+        'rounded-2xl border transition-all duration-300',
+        glass
+          ? 'bg-white/80 backdrop-blur-md border-white/20'
+          : 'bg-white border-sand',
         paddingStyles[padding],
-        hover && 'transition-shadow duration-200 hover:shadow-md',
+        hover && 'hover:shadow-lg hover:-translate-y-1 hover:border-primary/20',
         className
       )}
+      style={{
+        boxShadow: 'var(--shadow-sm)',
+      }}
     >
       {children}
     </div>
@@ -42,7 +51,7 @@ export function CardHeader({
   className?: string;
 }) {
   return (
-    <div className={cn('pb-4 border-b border-gray-200', className)}>
+    <div className={cn('pb-5 border-b border-sand', className)}>
       {children}
     </div>
   );
@@ -56,7 +65,7 @@ export function CardTitle({
   className?: string;
 }) {
   return (
-    <h3 className={cn('text-lg font-semibold text-[#2C3E48]', className)}>
+    <h3 className={cn('text-xl font-semibold text-soft-black font-display', className)}>
       {children}
     </h3>
   );
@@ -70,7 +79,7 @@ export function CardDescription({
   className?: string;
 }) {
   return (
-    <p className={cn('text-sm text-gray-500 mt-1', className)}>{children}</p>
+    <p className={cn('text-sm text-muted mt-1.5', className)}>{children}</p>
   );
 }
 
@@ -81,7 +90,7 @@ export function CardContent({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <div className={cn('pt-4', className)}>{children}</div>;
+  return <div className={cn('pt-5', className)}>{children}</div>;
 }
 
 export function CardFooter({
@@ -92,7 +101,7 @@ export function CardFooter({
   className?: string;
 }) {
   return (
-    <div className={cn('pt-4 border-t border-gray-200 mt-4', className)}>
+    <div className={cn('pt-5 border-t border-sand mt-5', className)}>
       {children}
     </div>
   );

@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronRight, Shield, Truck, RotateCcw, Package } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { ConditionBadge } from '@/components/ui/badge';
 import { ImageGallery } from '@/components/products/image-gallery';
@@ -55,60 +54,99 @@ export default async function ProductDetailPage({ params }: PageProps) {
     sterk_gebruikt: 'Dit product heeft zichtbare gebruikssporen maar functioneert perfect.',
   };
 
+  const trustPoints = [
+    { 
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      ),
+      text: `${product.warranty_months} maanden garantie`
+    },
+    { 
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+        </svg>
+      ),
+      text: 'Gratis verzending vanaf 50 euro'
+    },
+    { 
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      ),
+      text: '30 dagen retourrecht'
+    },
+    { 
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+      ),
+      text: '2-4 werkdagen levering'
+    },
+  ];
+
   return (
-    <div className="py-8 lg:py-12">
+    <div className="py-12 lg:py-20 bg-cream">
       <Container>
         {/* Breadcrumbs */}
-        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-          <Link href="/" className="hover:text-[#094543]">
+        <nav className="flex items-center gap-2 text-sm text-muted mb-8">
+          <Link href="/" className="hover:text-primary transition-colors">
             Home
           </Link>
-          <ChevronRight className="h-4 w-4" />
-          <Link href="/producten" className="hover:text-[#094543]">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          <Link href="/producten" className="hover:text-primary transition-colors">
             Producten
           </Link>
-          <ChevronRight className="h-4 w-4" />
-          <span className="text-gray-900 truncate">{product.name}</span>
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+          <span className="text-soft-black truncate">{product.name}</span>
         </nav>
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
           {/* Image Gallery */}
           <div>
             <ImageGallery images={product.image_urls} productName={product.name} />
           </div>
 
           {/* Product Info */}
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* Brand */}
-            <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+            <p className="text-sm font-semibold text-copper uppercase tracking-widest">
               {product.brand}
             </p>
 
             {/* Name */}
-            <h1 className="text-2xl lg:text-3xl font-bold text-[#2C3E48]">
+            <h1 className="text-3xl lg:text-4xl font-display font-bold text-soft-black leading-tight">
               {product.name}
             </h1>
 
             {/* Condition Badge */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <ConditionBadge grade={product.condition_grade} />
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-muted">
                 {conditionDescription[product.condition_grade]}
               </span>
             </div>
 
             {/* Price */}
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-bold text-[#094543]">
+            <div className="flex items-baseline gap-4">
+              <span className="text-4xl font-display font-bold text-primary">
                 {formatPrice(product.price)}
               </span>
               {product.original_price && product.original_price > product.price && (
                 <>
-                  <span className="text-xl text-gray-400 line-through">
+                  <span className="text-xl text-muted line-through">
                     {formatPrice(product.original_price)}
                   </span>
-                  <span className="px-2 py-1 text-sm font-bold bg-red-100 text-red-600 rounded">
-                    -{savings}% korting
+                  <span className="px-3 py-1.5 text-sm font-bold bg-gradient-to-r from-copper to-gold text-white rounded-full">
+                    -{savings}%
                   </span>
                 </>
               )}
@@ -116,8 +154,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
             {/* Stock Status */}
             {product.stock_quantity > 0 ? (
-              <div className="flex items-center gap-2 text-emerald-600">
-                <Package className="h-5 w-5" />
+              <div className="flex items-center gap-3 text-[#0D9488]">
+                <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#0D9488]/10">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </span>
                 <span className="font-medium">
                   {product.stock_quantity <= 3
                     ? `Nog ${product.stock_quantity} beschikbaar`
@@ -125,8 +167,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 </span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 text-red-600">
-                <Package className="h-5 w-5" />
+              <div className="flex items-center gap-3 text-[#DC2626]">
+                <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#DC2626]/10">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </span>
                 <span className="font-medium">Uitverkocht</span>
               </div>
             )}
@@ -135,44 +181,30 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <AddToCartButton product={product} />
 
             {/* Trust Points */}
-            <div className="grid grid-cols-2 gap-4 pt-6 border-t border-gray-200">
-              {[
-                { icon: Shield, text: `${product.warranty_months} maanden garantie` },
-                { icon: Truck, text: 'Gratis verzending vanaf 50 euro' },
-                { icon: RotateCcw, text: '30 dagen retourrecht' },
-                { icon: Package, text: '2-4 werkdagen levering' },
-              ].map((item) => (
-                <div key={item.text} className="flex items-center gap-2">
-                  <item.icon className="h-5 w-5 text-[#094543]" />
-                  <span className="text-sm text-gray-600">{item.text}</span>
+            <div className="grid grid-cols-2 gap-4 pt-8 border-t border-sand">
+              {trustPoints.map((item) => (
+                <div key={item.text} className="flex items-center gap-3">
+                  <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/5 text-primary">
+                    {item.icon}
+                  </span>
+                  <span className="text-sm text-slate">{item.text}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Product Details Tabs */}
-        <div className="mt-12 lg:mt-16">
-          <div className="border-b border-gray-200">
-            <div className="flex gap-8">
-              <button className="pb-4 border-b-2 border-[#094543] text-[#094543] font-medium">
-                Beschrijving
-              </button>
-              <button className="pb-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700">
-                Specificaties
-              </button>
-            </div>
-          </div>
-
-          <div className="py-8 grid lg:grid-cols-2 gap-8">
+        {/* Product Details */}
+        <div className="mt-16 lg:mt-24">
+          <div className="grid lg:grid-cols-2 gap-12">
             {/* Description */}
-            <div>
-              <h2 className="text-xl font-semibold text-[#2C3E48] mb-4">
+            <div className="bg-white rounded-3xl border border-sand p-8 lg:p-10" style={{ boxShadow: 'var(--shadow-sm)' }}>
+              <h2 className="text-2xl font-display font-semibold text-soft-black mb-6">
                 Over dit product
               </h2>
-              <div className="prose prose-gray max-w-none">
+              <div className="prose-luxury">
                 {product.description?.split('\n').map((paragraph, index) => (
-                  <p key={index} className="text-gray-600 mb-3">
+                  <p key={index} className="text-slate mb-4 leading-relaxed">
                     {paragraph}
                   </p>
                 ))}
@@ -180,34 +212,48 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
 
             {/* Specifications */}
-            <div>
-              <h2 className="text-xl font-semibold text-[#2C3E48] mb-4">
+            <div className="bg-white rounded-3xl border border-sand p-8 lg:p-10" style={{ boxShadow: 'var(--shadow-sm)' }}>
+              <h2 className="text-2xl font-display font-semibold text-soft-black mb-6">
                 Specificaties
               </h2>
-              <div className="bg-gray-50 rounded-xl p-6">
-                <dl className="space-y-4">
-                  {Object.entries(product.specifications || {}).map(([key, value]) => (
-                    <div
-                      key={key}
-                      className="flex justify-between py-2 border-b border-gray-200 last:border-0"
-                    >
-                      <dt className="text-gray-600">{key}</dt>
-                      <dd className="font-medium text-[#2C3E48]">{value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
+              <dl className="space-y-4">
+                {Object.entries(product.specifications || {}).map(([key, value]) => (
+                  <div
+                    key={key}
+                    className="flex justify-between py-3 border-b border-sand last:border-0"
+                  >
+                    <dt className="text-muted">{key}</dt>
+                    <dd className="font-medium text-soft-black text-right">{value}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           </div>
         </div>
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <div className="mt-12 lg:mt-16">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-6">
-              Gerelateerde producten
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mt-16 lg:mt-24">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+                  Gerelateerd
+                </span>
+                <h2 className="text-3xl lg:text-4xl font-display font-bold text-soft-black">
+                  Vergelijkbare producten
+                </h2>
+              </div>
+              <Link
+                href="/producten"
+                className="hidden sm:flex items-center gap-2 text-primary font-medium hover:gap-4 transition-all duration-300"
+              >
+                Bekijk meer
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {relatedProducts.map((relatedProduct) => (
                 <ProductCard key={relatedProduct.id} product={relatedProduct} />
               ))}

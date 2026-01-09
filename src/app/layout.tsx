@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Manrope, Playfair_Display, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
@@ -8,14 +8,25 @@ import { CartProvider } from '@/context/cart-context';
 import { AuthProvider } from '@/context/auth-context';
 import { ToastProvider } from '@/components/ui/toast';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+// Premium body font - clean, modern, highly legible
+const manrope = Manrope({
+  variable: '--font-sans',
   subsets: ['latin'],
+  display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+// Elegant display font for headings - sophisticated serif
+const playfair = Playfair_Display({
+  variable: '--font-display',
   subsets: ['latin'],
+  display: 'swap',
+});
+
+// Monospace for technical details
+const jetbrainsMono = JetBrains_Mono({
+  variable: '--font-mono',
+  subsets: ['latin'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -58,7 +69,7 @@ export default function RootLayout({
   return (
     <html lang="nl">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+        className={`${manrope.variable} ${playfair.variable} ${jetbrainsMono.variable} antialiased min-h-screen flex flex-col bg-cream`}
       >
         <AuthProvider>
           <CartProvider>

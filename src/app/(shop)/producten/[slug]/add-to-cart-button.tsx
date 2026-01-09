@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { ShoppingCart, Plus, Minus, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/cart-context';
 import { useToast } from '@/components/ui/toast';
@@ -48,33 +47,37 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Quantity Selector */}
-      <div className="flex items-center gap-4">
-        <span className="text-sm font-medium text-gray-700">Aantal:</span>
-        <div className="flex items-center border border-gray-300 rounded-lg">
+      <div className="flex items-center gap-6">
+        <span className="text-sm font-medium text-soft-black">Aantal:</span>
+        <div className="flex items-center bg-champagne rounded-xl">
           <button
             onClick={decrementQuantity}
             disabled={quantity <= 1}
-            className="p-3 text-gray-500 hover:text-[#094543] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="p-4 text-muted hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             aria-label="Verminderen"
           >
-            <Minus className="h-4 w-4" />
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+            </svg>
           </button>
-          <span className="px-4 py-2 min-w-[50px] text-center font-medium">
+          <span className="px-6 py-3 min-w-[60px] text-center font-semibold text-soft-black text-lg">
             {quantity}
           </span>
           <button
             onClick={incrementQuantity}
             disabled={quantity >= product.stock_quantity}
-            className="p-3 text-gray-500 hover:text-[#094543] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="p-4 text-muted hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             aria-label="Verhogen"
           >
-            <Plus className="h-4 w-4" />
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
           </button>
         </div>
         {product.stock_quantity <= 5 && (
-          <span className="text-sm text-amber-600">
+          <span className="text-sm text-[#D97706] font-medium">
             Nog {product.stock_quantity} beschikbaar
           </span>
         )}
@@ -84,18 +87,22 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
       <Button
         onClick={handleAddToCart}
         fullWidth
-        size="lg"
+        size="xl"
         disabled={isAdded}
-        className={isAdded ? 'bg-emerald-500 hover:bg-emerald-500' : ''}
+        className={isAdded ? 'bg-[#0D9488] hover:bg-[#0D9488]' : ''}
       >
         {isAdded ? (
           <>
-            <Check className="h-5 w-5 mr-2" />
+            <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
             Toegevoegd!
           </>
         ) : (
           <>
-            <ShoppingCart className="h-5 w-5 mr-2" />
+            <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
             In winkelwagen
           </>
         )}

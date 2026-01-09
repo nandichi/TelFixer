@@ -8,7 +8,7 @@ export function Skeleton({ className }: SkeletonProps) {
   return (
     <div
       className={cn(
-        'animate-pulse bg-gray-200 rounded-lg',
+        'rounded-xl animate-shimmer',
         className
       )}
     />
@@ -17,15 +17,15 @@ export function Skeleton({ className }: SkeletonProps) {
 
 export function ProductCardSkeleton() {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-2xl border border-sand overflow-hidden" style={{ boxShadow: 'var(--shadow-sm)' }}>
       <Skeleton className="aspect-square w-full rounded-none" />
-      <div className="p-4 space-y-3">
+      <div className="p-5 space-y-4">
         <Skeleton className="h-4 w-20" />
-        <Skeleton className="h-5 w-full" />
+        <Skeleton className="h-6 w-full" />
         <Skeleton className="h-4 w-3/4" />
         <div className="flex items-center justify-between pt-2">
-          <Skeleton className="h-6 w-24" />
-          <Skeleton className="h-10 w-10 rounded-full" />
+          <Skeleton className="h-7 w-28" />
+          <Skeleton className="h-12 w-12 rounded-xl" />
         </div>
       </div>
     </div>
@@ -34,7 +34,7 @@ export function ProductCardSkeleton() {
 
 export function ProductGridSkeleton({ count = 6 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
       {Array.from({ length: count }).map((_, i) => (
         <ProductCardSkeleton key={i} />
       ))}
@@ -44,25 +44,25 @@ export function ProductGridSkeleton({ count = 6 }: { count?: number }) {
 
 export function ProductDetailSkeleton() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
       <div className="space-y-4">
-        <Skeleton className="aspect-square w-full rounded-xl" />
-        <div className="flex gap-2">
+        <Skeleton className="aspect-square w-full rounded-2xl" />
+        <div className="flex gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="w-20 h-20 rounded-lg" />
+            <Skeleton key={i} className="w-24 h-24 rounded-xl" />
           ))}
         </div>
       </div>
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-3/4" />
+      <div className="space-y-6">
+        <Skeleton className="h-10 w-3/4" />
         <Skeleton className="h-6 w-1/4" />
-        <Skeleton className="h-10 w-32" />
-        <div className="space-y-2 pt-4">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-12 w-40" />
+        <div className="space-y-3 pt-6">
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-full" />
+          <Skeleton className="h-5 w-3/4" />
         </div>
-        <Skeleton className="h-12 w-full mt-6" />
+        <Skeleton className="h-14 w-full mt-8 rounded-xl" />
       </div>
     </div>
   );
@@ -72,7 +72,7 @@ export function TableRowSkeleton({ columns = 5 }: { columns?: number }) {
   return (
     <tr>
       {Array.from({ length: columns }).map((_, i) => (
-        <td key={i} className="px-4 py-3">
+        <td key={i} className="px-5 py-4">
           <Skeleton className="h-5 w-full" />
         </td>
       ))}

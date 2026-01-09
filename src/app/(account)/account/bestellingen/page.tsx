@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Package, ChevronRight } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { StatusBadge } from '@/components/ui/badge';
 import { formatPrice, formatDate } from '@/lib/utils';
@@ -66,11 +65,11 @@ export default function OrdersPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="py-12">
+      <div className="py-16 lg:py-24 bg-cream min-h-[80vh]">
         <Container>
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-48" />
-            <div className="h-64 bg-gray-200 rounded-xl" />
+          <div className="animate-pulse space-y-8">
+            <div className="h-10 bg-sand rounded-lg w-48" />
+            <div className="h-64 bg-sand rounded-3xl" />
           </div>
         </Container>
       </div>
@@ -79,13 +78,18 @@ export default function OrdersPage() {
 
   if (!user) {
     return (
-      <div className="py-12">
+      <div className="py-16 lg:py-24 bg-cream min-h-[80vh]">
         <Container>
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-[#2C3E48] mb-4">
+          <div className="text-center max-w-md mx-auto">
+            <div className="w-20 h-20 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-display font-bold text-soft-black mb-3">
               Log in om je bestellingen te bekijken
             </h1>
-            <Link href="/login" className="text-[#094543] hover:underline">
+            <Link href="/login" className="text-primary font-medium hover:text-primary-light transition-colors">
               Naar inloggen
             </Link>
           </div>
@@ -95,18 +99,22 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="py-8 lg:py-12">
+    <div className="py-16 lg:py-24 bg-cream min-h-[80vh]">
       <Container>
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-10">
           <Link
             href="/account"
-            className="text-sm text-gray-600 hover:text-[#094543] flex items-center gap-1 mb-4"
+            className="inline-flex items-center gap-2 text-sm text-muted hover:text-primary font-medium mb-4 transition-colors"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+            </svg>
             Terug naar account
           </Link>
-          <h1 className="text-3xl font-bold text-[#2C3E48]">Mijn bestellingen</h1>
+          <h1 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">
+            Mijn bestellingen
+          </h1>
         </div>
 
         {orders.length > 0 ? (
@@ -114,27 +122,27 @@ export default function OrdersPage() {
             {orders.map((order) => (
               <div
                 key={order.id}
-                className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+                className="bg-white rounded-3xl border border-sand overflow-hidden"
               >
                 {/* Order Header */}
-                <div className="p-4 bg-gray-50 border-b border-gray-200">
+                <div className="p-6 bg-champagne/50 border-b border-sand">
                   <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-6">
                       <div>
-                        <p className="text-sm text-gray-500">Bestelnummer</p>
-                        <p className="font-semibold text-[#2C3E48]">
+                        <p className="text-xs font-medium text-muted uppercase tracking-wider">Bestelnummer</p>
+                        <p className="font-display font-semibold text-soft-black">
                           {order.order_number}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Datum</p>
-                        <p className="font-medium text-[#2C3E48]">
+                        <p className="text-xs font-medium text-muted uppercase tracking-wider">Datum</p>
+                        <p className="font-medium text-soft-black">
                           {formatDate(order.created_at)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Totaal</p>
-                        <p className="font-semibold text-[#094543]">
+                        <p className="text-xs font-medium text-muted uppercase tracking-wider">Totaal</p>
+                        <p className="font-display font-semibold text-primary">
                           {formatPrice(order.total_price)}
                         </p>
                       </div>
@@ -144,27 +152,29 @@ export default function OrdersPage() {
                 </div>
 
                 {/* Order Items */}
-                <div className="p-4">
-                  <div className="space-y-3">
+                <div className="p-6">
+                  <div className="space-y-4">
                     {order.items?.map((item, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between py-2"
+                        className="flex items-center justify-between py-3"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                            <Package className="h-6 w-6 text-gray-400" />
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 bg-cream rounded-xl flex items-center justify-center">
+                            <svg className="w-7 h-7 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
                           </div>
                           <div>
-                            <p className="font-medium text-[#2C3E48]">
+                            <p className="font-semibold text-soft-black">
                               {item.name}
                             </p>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-muted">
                               Aantal: {item.quantity}
                             </p>
                           </div>
                         </div>
-                        <p className="font-medium text-[#094543]">
+                        <p className="font-semibold text-primary">
                           {formatPrice(item.price)}
                         </p>
                       </div>
@@ -173,22 +183,24 @@ export default function OrdersPage() {
                 </div>
 
                 {/* Order Actions */}
-                <div className="p-4 bg-gray-50 border-t border-gray-200">
+                <div className="p-6 bg-champagne/30 border-t border-sand">
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     {order.tracking_number && (
                       <div>
-                        <p className="text-sm text-gray-500">Track & Trace</p>
-                        <p className="font-medium text-[#094543]">
+                        <p className="text-xs font-medium text-muted uppercase tracking-wider">Track & Trace</p>
+                        <p className="font-mono font-medium text-primary">
                           {order.tracking_number}
                         </p>
                       </div>
                     )}
                     <Link
                       href={`/account/bestellingen/${order.id}`}
-                      className="text-sm text-[#094543] hover:underline flex items-center"
+                      className="ml-auto inline-flex items-center gap-2 text-sm text-primary font-medium hover:text-primary-light transition-colors"
                     >
                       Bekijk details
-                      <ChevronRight className="h-4 w-4" />
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </Link>
                   </div>
                 </div>
@@ -196,20 +208,26 @@ export default function OrdersPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-            <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-[#2C3E48] mb-2">
+          <div className="text-center py-20 bg-white rounded-3xl border border-sand">
+            <div className="w-20 h-20 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-display font-semibold text-soft-black mb-3">
               Nog geen bestellingen
             </h2>
-            <p className="text-gray-500 mb-6">
+            <p className="text-muted mb-8">
               Je hebt nog geen bestellingen geplaatst
             </p>
             <Link
               href="/producten"
-              className="inline-flex items-center text-[#094543] font-medium hover:underline"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-medium rounded-xl hover:bg-primary-light transition-colors"
             >
               Bekijk producten
-              <ChevronRight className="h-4 w-4" />
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
             </Link>
           </div>
         )}

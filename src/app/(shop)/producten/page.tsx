@@ -72,23 +72,35 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     : null;
 
   return (
-    <div className="py-8 lg:py-12">
+    <div className="py-12 lg:py-20 bg-cream min-h-screen">
       <Container>
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl lg:text-4xl font-bold text-[#2C3E48]">
+        <div className="mb-12">
+          <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+            Collectie
+          </span>
+          <h1 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">
             {categoryName || 'Alle producten'}
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-4 text-lg text-muted">
             {totalItems} {totalItems === 1 ? 'product' : 'producten'} gevonden
           </p>
         </div>
 
-        <div className="lg:grid lg:grid-cols-4 lg:gap-8">
+        <div className="lg:grid lg:grid-cols-4 lg:gap-12">
           {/* Filters Sidebar */}
-          <aside className="lg:col-span-1">
-            <div className="sticky top-24">
-              <Suspense fallback={<div>Laden...</div>}>
+          <aside className="lg:col-span-1 mb-8 lg:mb-0">
+            <div className="sticky top-28">
+              <Suspense fallback={
+                <div className="bg-white rounded-3xl border border-sand p-6 animate-shimmer">
+                  <div className="h-6 w-24 bg-champagne rounded mb-6" />
+                  <div className="space-y-4">
+                    {[1,2,3,4].map(i => (
+                      <div key={i} className="h-10 bg-champagne rounded-xl" />
+                    ))}
+                  </div>
+                </div>
+              }>
                 <ProductFilters
                   categories={categories}
                   brands={brands}
@@ -100,7 +112,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           {/* Products Grid */}
           <div className="lg:col-span-3">
             {/* Sort and View Options */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-8 bg-white rounded-2xl border border-sand p-4" style={{ boxShadow: 'var(--shadow-sm)' }}>
               <Suspense fallback={null}>
                 <ProductSort />
               </Suspense>
@@ -110,7 +122,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
             <Suspense fallback={<ProductGridSkeleton count={9} />}>
               {products.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {products.map((product) => (
                       <ProductCard key={product.id} product={product} />
                     ))}
@@ -124,12 +136,17 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                   />
                 </>
               ) : (
-                <div className="text-center py-12">
-                  <p className="text-gray-500 text-lg">
-                    Geen producten gevonden die aan je criteria voldoen.
-                  </p>
-                  <p className="text-gray-400 mt-2">
-                    Probeer je filters aan te passen.
+                <div className="text-center py-20 bg-white rounded-3xl border border-sand">
+                  <div className="w-20 h-20 rounded-3xl bg-champagne flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-10 h-10 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-display font-semibold text-soft-black mb-2">
+                    Geen producten gevonden
+                  </h3>
+                  <p className="text-muted max-w-md mx-auto">
+                    Er zijn geen producten die aan je criteria voldoen. Probeer je filters aan te passen.
                   </p>
                 </div>
               )}

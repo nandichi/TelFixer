@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { ShoppingCart, User, Menu, X, Search, ChevronDown } from 'lucide-react';
 import { Container } from './container';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/context/cart-context';
@@ -28,9 +27,19 @@ const categories = [
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [productsMenuOpen, setProductsMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const { itemCount, openCart } = useCart();
   const { user } = useAuth();
+
+  // Handle scroll for glass effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/';
@@ -38,23 +47,30 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+    <header 
+      className={cn(
+        'sticky top-0 z-50 transition-all duration-300',
+        scrolled 
+          ? 'bg-white/90 backdrop-blur-xl border-b border-sand shadow-sm' 
+          : 'bg-white border-b border-transparent'
+      )}
+    >
       <Container>
-        <nav className="flex items-center justify-between h-16 lg:h-20">
+        <nav className="flex items-center justify-between h-20 lg:h-24">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center group">
             <Image
               src="/telfixer-logo.png"
               alt="TelFixer"
-              width={200}
-              height={80}
-              className="h-16 lg:h-20 w-auto"
+              width={180}
+              height={72}
+              className="h-14 lg:h-16 w-auto transition-transform duration-300 group-hover:scale-105"
               priority
             />
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-1">
             {navigation.map((item) => (
               item.name === 'Producten' ? (
                 <div
@@ -66,42 +82,59 @@ export function Header() {
                   <Link
                     href={item.href}
                     className={cn(
-                      'flex items-center gap-1 text-sm font-medium transition-colors',
+                      'flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
                       isActive(item.href)
-                        ? 'text-[#094543]'
-                        : 'text-[#2C3E48] hover:text-[#094543]'
+                        ? 'text-primary bg-primary/5'
+                        : 'text-soft-black hover:text-primary hover:bg-champagne'
                     )}
                   >
                     {item.name}
-                    <ChevronDown className="h-4 w-4" />
+                    <svg 
+                      className={cn(
+                        'h-4 w-4 transition-transform duration-200',
+                        productsMenuOpen && 'rotate-180'
+                      )} 
+                      fill="none" 
+                      viewBox="0 0 24 24" 
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                   </Link>
                   
                   {/* Dropdown */}
-                  {productsMenuOpen && (
-                    <div className="absolute top-full left-0 pt-2">
-                      <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[180px]">
-                        {categories.map((cat) => (
-                          <Link
-                            key={cat.name}
-                            href={cat.href}
-                            className="block px-4 py-2 text-sm text-[#2C3E48] hover:bg-gray-50 hover:text-[#094543]"
-                          >
-                            {cat.name}
-                          </Link>
-                        ))}
-                      </div>
+                  <div 
+                    className={cn(
+                      'absolute top-full left-0 pt-2 transition-all duration-200',
+                      productsMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
+                    )}
+                  >
+                    <div 
+                      className="bg-white rounded-2xl border border-sand py-3 min-w-[220px]"
+                      style={{ boxShadow: 'var(--shadow-lg)' }}
+                    >
+                      {categories.map((cat) => (
+                        <Link
+                          key={cat.name}
+                          href={cat.href}
+                          className="flex items-center gap-3 px-5 py-3 text-sm text-soft-black hover:bg-champagne hover:text-primary transition-colors"
+                        >
+                          <span className="w-2 h-2 rounded-full bg-copper/30" />
+                          {cat.name}
+                        </Link>
+                      ))}
                     </div>
-                  )}
+                  </div>
                 </div>
               ) : (
                 <Link
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    'text-sm font-medium transition-colors',
+                    'px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
                     isActive(item.href)
-                      ? 'text-[#094543]'
-                      : 'text-[#2C3E48] hover:text-[#094543]'
+                      ? 'text-primary bg-primary/5'
+                      : 'text-soft-black hover:text-primary hover:bg-champagne'
                   )}
                 >
                   {item.name}
@@ -111,34 +144,40 @@ export function Header() {
           </div>
 
           {/* Right Side Actions */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             {/* Search Button */}
             <Link
               href="/producten"
-              className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full text-[#2C3E48] hover:bg-gray-100 transition-colors"
+              className="hidden sm:flex items-center justify-center w-11 h-11 rounded-xl text-soft-black hover:text-primary hover:bg-champagne transition-all duration-200"
               aria-label="Zoeken"
             >
-              <Search className="h-5 w-5" />
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
             </Link>
 
             {/* User Account */}
             <Link
               href={user ? '/account' : '/login'}
-              className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full text-[#2C3E48] hover:bg-gray-100 transition-colors"
+              className="hidden sm:flex items-center justify-center w-11 h-11 rounded-xl text-soft-black hover:text-primary hover:bg-champagne transition-all duration-200"
               aria-label={user ? 'Mijn account' : 'Inloggen'}
             >
-              <User className="h-5 w-5" />
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
             </Link>
 
             {/* Cart */}
             <button
               onClick={openCart}
-              className="relative flex items-center justify-center w-10 h-10 rounded-full text-[#2C3E48] hover:bg-gray-100 transition-colors"
+              className="relative flex items-center justify-center w-11 h-11 rounded-xl text-soft-black hover:text-primary hover:bg-champagne transition-all duration-200"
               aria-label={`Winkelwagen (${itemCount} items)`}
             >
-              <ShoppingCart className="h-5 w-5" />
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-[#094543] rounded-full">
+                <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-bold text-white bg-gradient-to-r from-copper to-gold rounded-full">
                   {itemCount > 99 ? '99+' : itemCount}
                 </span>
               )}
@@ -147,32 +186,52 @@ export function Header() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden flex items-center justify-center w-10 h-10 rounded-full text-[#2C3E48] hover:bg-gray-100 transition-colors"
+              className="lg:hidden flex items-center justify-center w-11 h-11 rounded-xl text-soft-black hover:text-primary hover:bg-champagne transition-all duration-200"
               aria-label="Menu"
             >
-              {mobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
-                <Menu className="h-6 w-6" />
-              )}
+              <div className="relative w-5 h-5">
+                <span 
+                  className={cn(
+                    'absolute left-0 w-5 h-0.5 bg-current rounded-full transition-all duration-300',
+                    mobileMenuOpen ? 'top-[9px] rotate-45' : 'top-1'
+                  )}
+                />
+                <span 
+                  className={cn(
+                    'absolute left-0 top-[9px] w-5 h-0.5 bg-current rounded-full transition-all duration-300',
+                    mobileMenuOpen && 'opacity-0'
+                  )}
+                />
+                <span 
+                  className={cn(
+                    'absolute left-0 w-5 h-0.5 bg-current rounded-full transition-all duration-300',
+                    mobileMenuOpen ? 'top-[9px] -rotate-45' : 'top-[17px]'
+                  )}
+                />
+              </div>
             </button>
           </div>
         </nav>
 
         {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-gray-200">
-            <div className="flex flex-col gap-2">
+        <div 
+          className={cn(
+            'lg:hidden overflow-hidden transition-all duration-300',
+            mobileMenuOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
+          )}
+        >
+          <div className="py-4 border-t border-sand">
+            <div className="flex flex-col gap-1">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
-                    'px-4 py-3 rounded-lg text-base font-medium transition-colors',
+                    'px-4 py-3.5 rounded-xl text-base font-medium transition-all duration-200',
                     isActive(item.href)
-                      ? 'bg-[#094543]/10 text-[#094543]'
-                      : 'text-[#2C3E48] hover:bg-gray-100'
+                      ? 'bg-primary/5 text-primary'
+                      : 'text-soft-black hover:bg-champagne'
                   )}
                 >
                   {item.name}
@@ -180,8 +239,8 @@ export function Header() {
               ))}
               
               {/* Mobile Category Links */}
-              <div className="mt-2 pt-2 border-t border-gray-200">
-                <p className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <div className="mt-4 pt-4 border-t border-sand">
+                <p className="px-4 py-2 text-xs font-semibold text-muted uppercase tracking-widest">
                   Categorieen
                 </p>
                 {categories.map((cat) => (
@@ -189,27 +248,30 @@ export function Header() {
                     key={cat.name}
                     href={cat.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block px-4 py-2 text-sm text-[#2C3E48] hover:bg-gray-100"
+                    className="flex items-center gap-3 px-4 py-3 text-sm text-soft-black hover:bg-champagne rounded-xl transition-colors"
                   >
+                    <span className="w-2 h-2 rounded-full bg-copper/30" />
                     {cat.name}
                   </Link>
                 ))}
               </div>
 
               {/* Mobile Account Links */}
-              <div className="mt-2 pt-2 border-t border-gray-200">
+              <div className="mt-4 pt-4 border-t border-sand">
                 <Link
                   href={user ? '/account' : '/login'}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-3 rounded-lg text-base font-medium text-[#2C3E48] hover:bg-gray-100 flex items-center gap-2"
+                  className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-medium text-soft-black hover:bg-champagne transition-all duration-200"
                 >
-                  <User className="h-5 w-5" />
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
                   {user ? 'Mijn Account' : 'Inloggen'}
                 </Link>
               </div>
             </div>
           </div>
-        )}
+        </div>
       </Container>
     </header>
   );

@@ -2,23 +2,23 @@ import { cn } from '@/lib/utils';
 
 export interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'condition';
+  variant?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'premium';
   size?: 'sm' | 'md';
   className?: string;
 }
 
 const variantStyles = {
-  default: 'bg-gray-100 text-gray-800',
-  success: 'bg-emerald-100 text-emerald-800',
-  warning: 'bg-amber-100 text-amber-800',
-  error: 'bg-red-100 text-red-800',
-  info: 'bg-blue-100 text-blue-800',
-  condition: 'bg-[#094543] text-white',
+  default: 'bg-sand text-soft-black',
+  success: 'bg-[#0D9488]/10 text-[#0D9488]',
+  warning: 'bg-[#D97706]/10 text-[#D97706]',
+  error: 'bg-[#DC2626]/10 text-[#DC2626]',
+  info: 'bg-[#0284C7]/10 text-[#0284C7]',
+  premium: 'bg-gradient-to-r from-copper to-gold text-white',
 };
 
 const sizeStyles = {
-  sm: 'px-2 py-0.5 text-xs',
-  md: 'px-2.5 py-1 text-sm',
+  sm: 'px-2.5 py-1 text-xs',
+  md: 'px-3 py-1.5 text-sm',
 };
 
 export function Badge({
@@ -49,10 +49,10 @@ export interface ConditionBadgeProps {
 }
 
 const conditionStyles = {
-  als_nieuw: 'bg-emerald-500 text-white',
-  zeer_goed: 'bg-emerald-400 text-white',
-  goed: 'bg-amber-500 text-white',
-  sterk_gebruikt: 'bg-orange-500 text-white',
+  als_nieuw: 'bg-gradient-to-r from-[#0D9488] to-[#14B8A6] text-white',
+  zeer_goed: 'bg-[#14B8A6] text-white',
+  goed: 'bg-[#D97706] text-white',
+  sterk_gebruikt: 'bg-[#EA580C] text-white',
 };
 
 const conditionLabels = {
@@ -70,7 +70,7 @@ export function ConditionBadge({
   return (
     <span
       className={cn(
-        'inline-flex items-center font-medium rounded-full',
+        'inline-flex items-center font-semibold rounded-full shadow-sm',
         conditionStyles[grade],
         sizeStyles[size],
         className
@@ -90,23 +90,23 @@ export interface StatusBadgeProps {
 
 const statusStyles: Record<string, string> = {
   // Order statuses
-  in_behandeling: 'bg-amber-100 text-amber-800',
-  betaald: 'bg-emerald-100 text-emerald-800',
-  verzonden: 'bg-blue-100 text-blue-800',
-  afgeleverd: 'bg-emerald-100 text-emerald-800',
-  geannuleerd: 'bg-red-100 text-red-800',
+  in_behandeling: 'bg-[#D97706]/10 text-[#D97706]',
+  betaald: 'bg-[#0D9488]/10 text-[#0D9488]',
+  verzonden: 'bg-[#0284C7]/10 text-[#0284C7]',
+  afgeleverd: 'bg-[#0D9488]/10 text-[#0D9488]',
+  geannuleerd: 'bg-[#DC2626]/10 text-[#DC2626]',
   // Submission statuses
-  ontvangen: 'bg-blue-100 text-blue-800',
-  evaluatie: 'bg-amber-100 text-amber-800',
-  aanbieding_gemaakt: 'bg-purple-100 text-purple-800',
-  aanbieding_geaccepteerd: 'bg-emerald-100 text-emerald-800',
-  aanbieding_afgewezen: 'bg-red-100 text-red-800',
-  afgehandeld: 'bg-gray-100 text-gray-800',
+  ontvangen: 'bg-[#0284C7]/10 text-[#0284C7]',
+  evaluatie: 'bg-[#D97706]/10 text-[#D97706]',
+  aanbieding_gemaakt: 'bg-copper/10 text-copper',
+  aanbieding_geaccepteerd: 'bg-[#0D9488]/10 text-[#0D9488]',
+  aanbieding_afgewezen: 'bg-[#DC2626]/10 text-[#DC2626]',
+  afgehandeld: 'bg-sand text-slate',
   // Payment statuses
-  pending: 'bg-amber-100 text-amber-800',
-  paid: 'bg-emerald-100 text-emerald-800',
-  failed: 'bg-red-100 text-red-800',
-  refunded: 'bg-gray-100 text-gray-800',
+  pending: 'bg-[#D97706]/10 text-[#D97706]',
+  paid: 'bg-[#0D9488]/10 text-[#0D9488]',
+  failed: 'bg-[#DC2626]/10 text-[#DC2626]',
+  refunded: 'bg-sand text-slate',
 };
 
 const statusLabels: Record<string, string> = {
@@ -132,7 +132,7 @@ export function StatusBadge({ status, size = 'md', className }: StatusBadgeProps
     <span
       className={cn(
         'inline-flex items-center font-medium rounded-full',
-        statusStyles[status] || 'bg-gray-100 text-gray-800',
+        statusStyles[status] || 'bg-sand text-slate',
         sizeStyles[size],
         className
       )}

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, RefreshCw, ChevronRight } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/badge';
@@ -102,11 +101,11 @@ export default function SubmissionsPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="py-12">
+      <div className="py-16 lg:py-24 bg-cream min-h-[80vh]">
         <Container>
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-48" />
-            <div className="h-64 bg-gray-200 rounded-xl" />
+          <div className="animate-pulse space-y-8">
+            <div className="h-10 bg-sand rounded-lg w-48" />
+            <div className="h-64 bg-sand rounded-3xl" />
           </div>
         </Container>
       </div>
@@ -115,13 +114,18 @@ export default function SubmissionsPage() {
 
   if (!user) {
     return (
-      <div className="py-12">
+      <div className="py-16 lg:py-24 bg-cream min-h-[80vh]">
         <Container>
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-[#2C3E48] mb-4">
+          <div className="text-center max-w-md mx-auto">
+            <div className="w-20 h-20 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-display font-bold text-soft-black mb-3">
               Log in om je inleveringen te bekijken
             </h1>
-            <Link href="/login" className="text-[#094543] hover:underline">
+            <Link href="/login" className="text-primary font-medium hover:text-primary-light transition-colors">
               Naar inloggen
             </Link>
           </div>
@@ -131,22 +135,31 @@ export default function SubmissionsPage() {
   }
 
   return (
-    <div className="py-8 lg:py-12">
+    <div className="py-16 lg:py-24 bg-cream min-h-[80vh]">
       <Container>
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-10">
           <div>
             <Link
               href="/account"
-              className="text-sm text-gray-600 hover:text-[#094543] flex items-center gap-1 mb-4"
+              className="inline-flex items-center gap-2 text-sm text-muted hover:text-primary font-medium mb-4 transition-colors"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+              </svg>
               Terug naar account
             </Link>
-            <h1 className="text-3xl font-bold text-[#2C3E48]">Mijn inleveringen</h1>
+            <h1 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">
+              Mijn inleveringen
+            </h1>
           </div>
-          <Link href="/inleveren">
-            <Button>Nieuw inleveren</Button>
+          <Link href="/inleveren" className="hidden sm:block">
+            <Button className="gap-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Nieuw inleveren
+            </Button>
           </Link>
         </div>
 
@@ -155,21 +168,21 @@ export default function SubmissionsPage() {
             {submissions.map((submission) => (
               <div
                 key={submission.id}
-                className="bg-white rounded-xl border border-gray-200 overflow-hidden"
+                className="bg-white rounded-3xl border border-sand overflow-hidden"
               >
                 {/* Submission Header */}
-                <div className="p-4 bg-gray-50 border-b border-gray-200">
+                <div className="p-6 bg-champagne/50 border-b border-sand">
                   <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-6">
                       <div>
-                        <p className="text-sm text-gray-500">Referentie</p>
-                        <p className="font-semibold text-[#2C3E48]">
+                        <p className="text-xs font-medium text-muted uppercase tracking-wider">Referentie</p>
+                        <p className="font-mono font-semibold text-soft-black">
                           {submission.reference_number}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Ingediend op</p>
-                        <p className="font-medium text-[#2C3E48]">
+                        <p className="text-xs font-medium text-muted uppercase tracking-wider">Ingediend op</p>
+                        <p className="font-medium text-soft-black">
                           {formatDate(submission.created_at)}
                         </p>
                       </div>
@@ -179,21 +192,23 @@ export default function SubmissionsPage() {
                 </div>
 
                 {/* Submission Details */}
-                <div className="p-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <RefreshCw className="h-8 w-8 text-gray-400" />
+                <div className="p-6">
+                  <div className="flex items-center gap-5">
+                    <div className="w-16 h-16 bg-cream rounded-2xl flex items-center justify-center">
+                      <svg className="w-8 h-8 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-[#2C3E48]">
+                      <p className="font-display font-semibold text-lg text-soft-black">
                         {submission.device_brand} {submission.device_model}
                       </p>
-                      <p className="text-sm text-gray-500">{submission.device_type}</p>
+                      <p className="text-sm text-muted capitalize">{submission.device_type}</p>
                     </div>
                     {submission.offered_price && (
                       <div className="text-right">
-                        <p className="text-sm text-gray-500">Aanbod</p>
-                        <p className="text-xl font-bold text-emerald-600">
+                        <p className="text-xs font-medium text-muted uppercase tracking-wider">Aanbod</p>
+                        <p className="text-2xl font-display font-bold text-gradient-primary">
                           {formatPrice(submission.offered_price)}
                         </p>
                       </div>
@@ -202,31 +217,41 @@ export default function SubmissionsPage() {
                 </div>
 
                 {/* Submission Actions */}
-                <div className="p-4 bg-gray-50 border-t border-gray-200">
+                <div className="p-6 bg-champagne/30 border-t border-sand">
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     {submission.status === 'aanbieding_gemaakt' && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-3">
                         <Button
                           size="sm"
                           onClick={() => handleAcceptOffer(submission.id)}
+                          className="gap-2"
                         >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
                           Accepteren
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleRejectOffer(submission.id)}
+                          className="gap-2"
                         >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
                           Afwijzen
                         </Button>
                       </div>
                     )}
                     <Link
                       href={`/tracking?ref=${submission.reference_number}`}
-                      className="text-sm text-[#094543] hover:underline flex items-center ml-auto"
+                      className="ml-auto inline-flex items-center gap-2 text-sm text-primary font-medium hover:text-primary-light transition-colors"
                     >
                       Bekijk status
-                      <ChevronRight className="h-4 w-4" />
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </Link>
                   </div>
                 </div>
@@ -234,16 +259,25 @@ export default function SubmissionsPage() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-            <RefreshCw className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-[#2C3E48] mb-2">
+          <div className="text-center py-20 bg-white rounded-3xl border border-sand">
+            <div className="w-20 h-20 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-display font-semibold text-soft-black mb-3">
               Nog geen inleveringen
             </h2>
-            <p className="text-gray-500 mb-6">
+            <p className="text-muted mb-8">
               Je hebt nog geen apparaten ingeleverd
             </p>
             <Link href="/inleveren">
-              <Button>Apparaat inleveren</Button>
+              <Button className="gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Apparaat inleveren
+              </Button>
             </Link>
           </div>
         )}

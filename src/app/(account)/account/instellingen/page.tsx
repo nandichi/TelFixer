@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, User, Mail, Phone, Lock, LogOut } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -66,30 +65,45 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="py-8 lg:py-12">
+    <div className="py-16 lg:py-24 bg-cream min-h-[80vh]">
       <Container>
         <div className="max-w-2xl mx-auto">
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-10">
             <Link
               href="/account"
-              className="text-sm text-gray-600 hover:text-[#094543] flex items-center gap-1 mb-4"
+              className="inline-flex items-center gap-2 text-sm text-muted hover:text-primary font-medium mb-4 transition-colors"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+              </svg>
               Terug naar account
             </Link>
-            <h1 className="text-3xl font-bold text-[#2C3E48]">Instellingen</h1>
+            <h1 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">
+              Instellingen
+            </h1>
           </div>
 
           {/* Profile Form */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="text-lg font-semibold text-[#2C3E48] mb-4 flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Persoonlijke gegevens
-            </h2>
+          <div className="bg-white rounded-3xl border border-sand p-8 mb-6">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center text-primary">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-display font-semibold text-soft-black">
+                  Persoonlijke gegevens
+                </h2>
+                <p className="text-sm text-muted">
+                  Wijzig je naam en contactgegevens
+                </p>
+              </div>
+            </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <div className="grid sm:grid-cols-2 gap-5">
                 <Input
                   label="Voornaam"
                   {...register('firstName')}
@@ -115,43 +129,82 @@ export default function SettingsPage() {
           </div>
 
           {/* Email (read-only) */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="text-lg font-semibold text-[#2C3E48] mb-4 flex items-center gap-2">
-              <Mail className="h-5 w-5" />
-              E-mailadres
-            </h2>
-            <div className="flex items-center justify-between">
+          <div className="bg-white rounded-3xl border border-sand p-8 mb-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-copper/5 flex items-center justify-center text-copper">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
               <div>
-                <p className="font-medium text-[#2C3E48]">{profile?.email}</p>
-                <p className="text-sm text-gray-500">
-                  E-mailadres kan niet worden gewijzigd
+                <h2 className="text-xl font-display font-semibold text-soft-black">
+                  E-mailadres
+                </h2>
+                <p className="text-sm text-muted">
+                  Je inloggegevens
                 </p>
               </div>
+            </div>
+            <div className="bg-cream rounded-2xl p-5">
+              <p className="font-medium text-soft-black">{profile?.email}</p>
+              <p className="text-sm text-muted mt-1">
+                E-mailadres kan niet worden gewijzigd
+              </p>
             </div>
           </div>
 
           {/* Password */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
-            <h2 className="text-lg font-semibold text-[#2C3E48] mb-4 flex items-center gap-2">
-              <Lock className="h-5 w-5" />
-              Wachtwoord
-            </h2>
-            <p className="text-gray-600 mb-4">
+          <div className="bg-white rounded-3xl border border-sand p-8 mb-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-slate/5 flex items-center justify-center text-slate">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-display font-semibold text-soft-black">
+                  Wachtwoord
+                </h2>
+                <p className="text-sm text-muted">
+                  Beveilig je account
+                </p>
+              </div>
+            </div>
+            <p className="text-slate mb-5">
               Om je wachtwoord te wijzigen, klik op de knop hieronder.
             </p>
-            <Button variant="outline">Wachtwoord wijzigen</Button>
+            <Button variant="outline" className="gap-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+              Wachtwoord wijzigen
+            </Button>
           </div>
 
           {/* Sign Out */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-[#2C3E48] mb-4 flex items-center gap-2">
-              <LogOut className="h-5 w-5" />
-              Uitloggen
-            </h2>
-            <p className="text-gray-600 mb-4">
+          <div className="bg-white rounded-3xl border border-sand p-8">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-500">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-xl font-display font-semibold text-soft-black">
+                  Uitloggen
+                </h2>
+                <p className="text-sm text-muted">
+                  Beeindig je sessie
+                </p>
+              </div>
+            </div>
+            <p className="text-slate mb-5">
               Log uit van je TelFixer account op dit apparaat.
             </p>
-            <Button variant="outline" onClick={handleSignOut}>
+            <Button variant="outline" onClick={handleSignOut} className="gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
               Uitloggen
             </Button>
           </div>

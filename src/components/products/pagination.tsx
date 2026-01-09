@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PaginationProps {
@@ -32,70 +31,64 @@ export function Pagination({ currentPage, totalPages, totalItems }: PaginationPr
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
-    // Always show first page
     pages.push(1);
 
-    // Calculate range around current page
     let start = Math.max(2, currentPage - 1);
     let end = Math.min(totalPages - 1, currentPage + 1);
 
-    // Adjust if at the beginning
     if (currentPage <= 3) {
       end = Math.min(4, totalPages - 1);
     }
 
-    // Adjust if at the end
     if (currentPage >= totalPages - 2) {
       start = Math.max(2, totalPages - 3);
     }
 
-    // Add ellipsis before if needed
     if (start > 2) {
       pages.push('...');
     }
 
-    // Add middle pages
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
 
-    // Add ellipsis after if needed
     if (end < totalPages - 1) {
       pages.push('...');
     }
 
-    // Always show last page
     pages.push(totalPages);
 
     return pages;
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8">
-      <p className="text-sm text-gray-500">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mt-12 pt-8 border-t border-sand">
+      <p className="text-sm text-muted">
         {totalItems} {totalItems === 1 ? 'product' : 'producten'} gevonden
       </p>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
         {/* Previous button */}
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
           className={cn(
-            'p-2 rounded-lg transition-colors',
+            'flex items-center justify-center w-11 h-11 rounded-xl transition-all duration-200',
             currentPage === 1
-              ? 'text-gray-300 cursor-not-allowed'
-              : 'text-gray-600 hover:bg-gray-100'
+              ? 'text-sand cursor-not-allowed'
+              : 'text-muted hover:text-soft-black hover:bg-sand'
           )}
           aria-label="Vorige pagina"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
         </button>
 
         {/* Page numbers */}
         {getPageNumbers().map((page, index) =>
           typeof page === 'string' ? (
-            <span key={`ellipsis-${index}`} className="px-2 text-gray-400">
+            <span key={`ellipsis-${index}`} className="px-2 text-muted">
               ...
             </span>
           ) : (
@@ -103,10 +96,10 @@ export function Pagination({ currentPage, totalPages, totalItems }: PaginationPr
               key={page}
               onClick={() => handlePageChange(page)}
               className={cn(
-                'min-w-[40px] h-10 rounded-lg font-medium transition-colors',
+                'min-w-[44px] h-11 rounded-xl font-medium transition-all duration-200',
                 currentPage === page
-                  ? 'bg-[#094543] text-white'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  ? 'bg-primary text-white shadow-sm'
+                  : 'text-muted hover:text-soft-black hover:bg-sand'
               )}
             >
               {page}
@@ -119,14 +112,16 @@ export function Pagination({ currentPage, totalPages, totalItems }: PaginationPr
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className={cn(
-            'p-2 rounded-lg transition-colors',
+            'flex items-center justify-center w-11 h-11 rounded-xl transition-all duration-200',
             currentPage === totalPages
-              ? 'text-gray-300 cursor-not-allowed'
-              : 'text-gray-600 hover:bg-gray-100'
+              ? 'text-sand cursor-not-allowed'
+              : 'text-muted hover:text-soft-black hover:bg-sand'
           )}
           aria-label="Volgende pagina"
         >
-          <ChevronRight className="h-5 w-5" />
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </button>
       </div>
     </div>

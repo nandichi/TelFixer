@@ -16,10 +16,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-[#2C3E48] mb-1.5"
+            className="block text-sm font-medium text-soft-black mb-2"
           >
             {label}
-            {props.required && <span className="text-red-500 ml-1">*</span>}
+            {props.required && <span className="text-copper ml-1">*</span>}
           </label>
         )}
         <input
@@ -27,13 +27,13 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           id={inputId}
           type={type}
           className={cn(
-            'w-full px-4 py-2.5 rounded-lg border transition-colors duration-200',
-            'text-[#2C3E48] placeholder:text-gray-400',
-            'focus:outline-none focus:ring-2 focus:ring-[#094543] focus:border-transparent',
+            'w-full px-4 py-3.5 rounded-xl border-2 transition-all duration-200',
+            'text-soft-black placeholder:text-muted bg-white',
+            'focus:outline-none focus:ring-0 focus:border-primary focus:shadow-md',
             error
-              ? 'border-red-500 focus:ring-red-500'
-              : 'border-gray-300 hover:border-gray-400',
-            'disabled:bg-gray-50 disabled:cursor-not-allowed',
+              ? 'border-[#DC2626] focus:border-[#DC2626]'
+              : 'border-sand hover:border-muted',
+            'disabled:bg-champagne disabled:cursor-not-allowed disabled:opacity-60',
             className
           )}
           aria-invalid={error ? 'true' : 'false'}
@@ -41,12 +41,15 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           {...props}
         />
         {error && (
-          <p id={`${inputId}-error`} className="mt-1.5 text-sm text-red-500">
+          <p id={`${inputId}-error`} className="mt-2 text-sm text-[#DC2626] flex items-center gap-1.5">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
             {error}
           </p>
         )}
         {helperText && !error && (
-          <p className="mt-1.5 text-sm text-gray-500">{helperText}</p>
+          <p className="mt-2 text-sm text-muted">{helperText}</p>
         )}
       </div>
     );

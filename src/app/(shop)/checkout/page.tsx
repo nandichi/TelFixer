@@ -7,7 +7,6 @@ import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowLeft, ArrowRight, Check, ShoppingBag, CreditCard, Building2 } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +16,6 @@ import { formatPrice, generateOrderNumber } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 
 const checkoutSchema = z.object({
-  // Shipping Address
   firstName: z.string().min(2, 'Voornaam is verplicht'),
   lastName: z.string().min(2, 'Achternaam is verplicht'),
   email: z.string().email('Ongeldig e-mailadres'),
@@ -26,18 +24,16 @@ const checkoutSchema = z.object({
   houseNumber: z.string().min(1, 'Huisnummer is verplicht'),
   postalCode: z.string().regex(/^[1-9][0-9]{3}\s?[A-Za-z]{2}$/, 'Ongeldige postcode'),
   city: z.string().min(2, 'Plaats is verplicht'),
-  // Billing
   billingSameAsShipping: z.boolean(),
-  // Payment
   paymentMethod: z.enum(['ideal', 'creditcard', 'paypal'] as const),
 });
 
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
 const paymentMethods = [
-  { id: 'ideal', name: 'iDEAL', icon: Building2, description: 'Direct betalen via je bank' },
-  { id: 'creditcard', name: 'Creditcard', icon: CreditCard, description: 'Visa, Mastercard, Amex' },
-  { id: 'paypal', name: 'PayPal', icon: CreditCard, description: 'Betaal met PayPal' },
+  { id: 'ideal', name: 'iDEAL', description: 'Direct betalen via je bank' },
+  { id: 'creditcard', name: 'Creditcard', description: 'Visa, Mastercard, Amex' },
+  { id: 'paypal', name: 'PayPal', description: 'Betaal met PayPal' },
 ];
 
 export default function CheckoutPage() {
@@ -61,20 +57,22 @@ export default function CheckoutPage() {
     },
   });
 
-  const billingSameAsShipping = watch('billingSameAsShipping');
   const selectedPayment = watch('paymentMethod');
 
-  // Redirect if cart is empty
   if (items.length === 0) {
     return (
-      <div className="py-16 lg:py-24">
+      <div className="py-24 lg:py-32 bg-cream min-h-screen">
         <Container>
           <div className="max-w-md mx-auto text-center">
-            <ShoppingBag className="h-24 w-24 text-gray-300 mx-auto mb-6" />
-            <h1 className="text-2xl font-bold text-[#2C3E48] mb-4">
+            <div className="w-32 h-32 rounded-full bg-champagne flex items-center justify-center mx-auto mb-8">
+              <svg className="w-16 h-16 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+            </div>
+            <h1 className="text-3xl font-display font-bold text-soft-black mb-4">
               Je winkelwagen is leeg
             </h1>
-            <p className="text-gray-500 mb-8">
+            <p className="text-muted mb-8">
               Voeg producten toe aan je winkelwagen om af te rekenen.
             </p>
             <Link href="/producten">
@@ -89,14 +87,7 @@ export default function CheckoutPage() {
   const handleNextStep = async () => {
     if (step === 'address') {
       const isValid = await trigger([
-        'firstName',
-        'lastName',
-        'email',
-        'phone',
-        'street',
-        'houseNumber',
-        'postalCode',
-        'city',
+        'firstName', 'lastName', 'email', 'phone', 'street', 'houseNumber', 'postalCode', 'city',
       ]);
       if (isValid) setStep('payment');
     } else if (step === 'payment') {
@@ -112,17 +103,10 @@ export default function CheckoutPage() {
 
   const onSubmit = async (data: CheckoutFormData) => {
     setIsSubmitting(true);
-    
     try {
-      // Simulate order processing
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      
       const orderNumber = generateOrderNumber();
-      
-      // Clear cart
       clearCart();
-      
-      // Show success and redirect
       success('Bestelling geplaatst!', `Ordernummer: ${orderNumber}`);
       router.push(`/checkout/bevestiging?order=${orderNumber}`);
     } catch (err) {
@@ -133,57 +117,71 @@ export default function CheckoutPage() {
   };
 
   const steps = [
-    { id: 'address', name: 'Adres' },
-    { id: 'payment', name: 'Betaling' },
-    { id: 'review', name: 'Overzicht' },
+    { id: 'address', name: 'Adres', icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z' },
+    { id: 'payment', name: 'Betaling', icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z' },
+    { id: 'review', name: 'Overzicht', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
   ];
 
+  const currentStepIndex = steps.findIndex((s) => s.id === step);
+
   return (
-    <div className="py-8 lg:py-12">
+    <div className="py-12 lg:py-20 bg-cream min-h-screen">
       <Container>
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-12">
           <Link
             href="/winkelwagen"
-            className="text-sm text-gray-600 hover:text-[#094543] flex items-center gap-1 mb-4"
+            className="inline-flex items-center gap-2 text-sm text-muted hover:text-primary transition-colors mb-6"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+            </svg>
             Terug naar winkelwagen
           </Link>
-          <h1 className="text-3xl font-bold text-[#2C3E48]">Afrekenen</h1>
+          <span className="block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+            Checkout
+          </span>
+          <h1 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">Afrekenen</h1>
         </div>
 
         {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-center gap-4">
+        <div className="mb-12">
+          <div className="flex items-center justify-center gap-2 sm:gap-4">
             {steps.map((s, index) => (
               <div key={s.id} className="flex items-center">
-                <div
-                  className={cn(
-                    'flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium',
-                    step === s.id
-                      ? 'bg-[#094543] text-white'
-                      : steps.findIndex((x) => x.id === step) > index
-                      ? 'bg-emerald-500 text-white'
-                      : 'bg-gray-200 text-gray-600'
-                  )}
-                >
-                  {steps.findIndex((x) => x.id === step) > index ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    index + 1
-                  )}
+                <div className="flex items-center gap-3">
+                  <div
+                    className={cn(
+                      'flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300',
+                      currentStepIndex > index
+                        ? 'bg-[#0D9488] text-white'
+                        : currentStepIndex === index
+                        ? 'bg-primary text-white shadow-lg'
+                        : 'bg-sand text-muted'
+                    )}
+                  >
+                    {currentStepIndex > index ? (
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={s.icon} />
+                      </svg>
+                    )}
+                  </div>
+                  <span className={cn(
+                    'hidden sm:block text-sm font-medium transition-colors',
+                    currentStepIndex === index ? 'text-soft-black' : 'text-muted'
+                  )}>
+                    {s.name}
+                  </span>
                 </div>
-                <span
-                  className={cn(
-                    'ml-2 text-sm font-medium hidden sm:inline',
-                    step === s.id ? 'text-[#094543]' : 'text-gray-500'
-                  )}
-                >
-                  {s.name}
-                </span>
                 {index < steps.length - 1 && (
-                  <div className="w-12 h-[2px] bg-gray-200 mx-4" />
+                  <div className={cn(
+                    'w-12 sm:w-20 h-0.5 mx-2 sm:mx-4 rounded-full transition-colors',
+                    currentStepIndex > index ? 'bg-[#0D9488]' : 'bg-sand'
+                  )} />
                 )}
               </div>
             ))}
@@ -191,81 +189,44 @@ export default function CheckoutPage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="lg:grid lg:grid-cols-3 lg:gap-8">
+          <div className="lg:grid lg:grid-cols-3 lg:gap-12">
             {/* Form Section */}
             <div className="lg:col-span-2">
               {/* Step 1: Address */}
               {step === 'address' && (
-                <div className="bg-white rounded-xl border border-gray-200 p-6">
-                  <h2 className="text-xl font-semibold text-[#2C3E48] mb-6">
+                <div className="bg-white rounded-3xl border border-sand p-8" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                  <h2 className="text-2xl font-display font-semibold text-soft-black mb-8">
                     Verzendadres
                   </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Input
-                      label="Voornaam"
-                      {...register('firstName')}
-                      error={errors.firstName?.message}
-                      required
-                    />
-                    <Input
-                      label="Achternaam"
-                      {...register('lastName')}
-                      error={errors.lastName?.message}
-                      required
-                    />
-                    <Input
-                      label="E-mailadres"
-                      type="email"
-                      {...register('email')}
-                      error={errors.email?.message}
-                      required
-                      className="sm:col-span-2"
-                    />
-                    <Input
-                      label="Telefoonnummer"
-                      type="tel"
-                      {...register('phone')}
-                      error={errors.phone?.message}
-                      required
-                      className="sm:col-span-2"
-                    />
-                    <Input
-                      label="Straatnaam"
-                      {...register('street')}
-                      error={errors.street?.message}
-                      required
-                    />
-                    <Input
-                      label="Huisnummer"
-                      {...register('houseNumber')}
-                      error={errors.houseNumber?.message}
-                      required
-                    />
-                    <Input
-                      label="Postcode"
-                      {...register('postalCode')}
-                      error={errors.postalCode?.message}
-                      placeholder="1234 AB"
-                      required
-                    />
-                    <Input
-                      label="Plaats"
-                      {...register('city')}
-                      error={errors.city?.message}
-                      required
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <Input label="Voornaam" {...register('firstName')} error={errors.firstName?.message} required />
+                    <Input label="Achternaam" {...register('lastName')} error={errors.lastName?.message} required />
+                    <div className="sm:col-span-2">
+                      <Input label="E-mailadres" type="email" {...register('email')} error={errors.email?.message} required />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <Input label="Telefoonnummer" type="tel" {...register('phone')} error={errors.phone?.message} required />
+                    </div>
+                    <Input label="Straatnaam" {...register('street')} error={errors.street?.message} required />
+                    <Input label="Huisnummer" {...register('houseNumber')} error={errors.houseNumber?.message} required />
+                    <Input label="Postcode" {...register('postalCode')} error={errors.postalCode?.message} placeholder="1234 AB" required />
+                    <Input label="Plaats" {...register('city')} error={errors.city?.message} required />
                   </div>
 
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        {...register('billingSameAsShipping')}
-                        className="w-5 h-5 rounded text-[#094543] focus:ring-[#094543]"
-                      />
-                      <span className="text-sm text-gray-700">
-                        Factuuradres is hetzelfde als verzendadres
-                      </span>
+                  <div className="mt-8 pt-8 border-t border-sand">
+                    <label className="flex items-center gap-4 cursor-pointer group">
+                      <div className={cn(
+                        'w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all',
+                        watch('billingSameAsShipping') ? 'bg-primary border-primary' : 'border-sand group-hover:border-primary'
+                      )}>
+                        {watch('billingSameAsShipping') && (
+                          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </div>
+                      <input type="checkbox" {...register('billingSameAsShipping')} className="sr-only" />
+                      <span className="text-slate">Factuuradres is hetzelfde als verzendadres</span>
                     </label>
                   </div>
                 </div>
@@ -273,38 +234,39 @@ export default function CheckoutPage() {
 
               {/* Step 2: Payment */}
               {step === 'payment' && (
-                <div className="bg-white rounded-xl border border-gray-200 p-6">
-                  <h2 className="text-xl font-semibold text-[#2C3E48] mb-6">
+                <div className="bg-white rounded-3xl border border-sand p-8" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                  <h2 className="text-2xl font-display font-semibold text-soft-black mb-8">
                     Betaalmethode
                   </h2>
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {paymentMethods.map((method) => (
                       <label
                         key={method.id}
                         className={cn(
-                          'flex items-center gap-4 p-4 rounded-lg border-2 cursor-pointer transition-colors',
+                          'flex items-center gap-5 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200',
                           selectedPayment === method.id
-                            ? 'border-[#094543] bg-[#094543]/5'
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-primary bg-primary/5'
+                            : 'border-sand hover:border-primary/50'
                         )}
                       >
-                        <input
-                          type="radio"
-                          value={method.id}
-                          {...register('paymentMethod')}
-                          className="w-5 h-5 text-[#094543] focus:ring-[#094543]"
-                        />
-                        <method.icon className="h-6 w-6 text-gray-600" />
+                        <div className={cn(
+                          'w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all',
+                          selectedPayment === method.id ? 'border-primary' : 'border-sand'
+                        )}>
+                          {selectedPayment === method.id && (
+                            <div className="w-3 h-3 rounded-full bg-primary" />
+                          )}
+                        </div>
+                        <input type="radio" value={method.id} {...register('paymentMethod')} className="sr-only" />
                         <div>
-                          <p className="font-medium text-[#2C3E48]">{method.name}</p>
-                          <p className="text-sm text-gray-500">{method.description}</p>
+                          <p className="font-semibold text-soft-black">{method.name}</p>
+                          <p className="text-sm text-muted">{method.description}</p>
                         </div>
                       </label>
                     ))}
                   </div>
-                  <p className="mt-4 text-sm text-gray-500">
-                    * In deze demo wordt de betaling gesimuleerd. In productie wordt 
-                    dit gekoppeld aan een echte payment provider (Mollie/Stripe).
+                  <p className="mt-6 text-sm text-muted">
+                    * In deze demo wordt de betaling gesimuleerd.
                   </p>
                 </div>
               )}
@@ -312,124 +274,105 @@ export default function CheckoutPage() {
               {/* Step 3: Review */}
               {step === 'review' && (
                 <div className="space-y-6">
-                  <div className="bg-white rounded-xl border border-gray-200 p-6">
-                    <h2 className="text-xl font-semibold text-[#2C3E48] mb-4">
+                  <div className="bg-white rounded-3xl border border-sand p-8" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                    <h2 className="text-2xl font-display font-semibold text-soft-black mb-6">
                       Besteloverzicht
                     </h2>
                     <div className="space-y-4">
                       {items.map((item) => (
-                        <div key={item.product.id} className="flex gap-4">
-                          <div className="relative w-16 h-16 bg-gray-100 rounded-lg overflow-hidden shrink-0">
+                        <div key={item.product.id} className="flex gap-4 p-4 bg-cream rounded-2xl">
+                          <div className="relative w-16 h-16 bg-champagne rounded-xl overflow-hidden shrink-0">
                             {item.product.image_urls?.[0] ? (
-                              <Image
-                                src={item.product.image_urls[0]}
-                                alt={item.product.name}
-                                fill
-                                className="object-cover"
-                              />
+                              <Image src={item.product.image_urls[0]} alt={item.product.name} fill className="object-cover" />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                <ShoppingBag className="h-6 w-6" />
+                              <div className="w-full h-full flex items-center justify-center text-muted">
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                </svg>
                               </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-[#2C3E48] truncate">
-                              {item.product.name}
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              {item.quantity}x {formatPrice(item.product.price)}
-                            </p>
+                            <p className="font-semibold text-soft-black truncate">{item.product.name}</p>
+                            <p className="text-sm text-muted">{item.quantity}x {formatPrice(item.product.price)}</p>
                           </div>
-                          <p className="font-medium text-[#094543]">
-                            {formatPrice(item.product.price * item.quantity)}
-                          </p>
+                          <p className="font-semibold text-primary">{formatPrice(item.product.price * item.quantity)}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="bg-white rounded-xl border border-gray-200 p-6">
-                    <h3 className="font-semibold text-[#2C3E48] mb-3">
-                      Verzendadres
-                    </h3>
-                    <p className="text-gray-600">
-                      {watch('firstName')} {watch('lastName')}<br />
-                      {watch('street')} {watch('houseNumber')}<br />
-                      {watch('postalCode')} {watch('city')}<br />
-                      {watch('email')}<br />
-                      {watch('phone')}
-                    </p>
-                  </div>
-
-                  <div className="bg-white rounded-xl border border-gray-200 p-6">
-                    <h3 className="font-semibold text-[#2C3E48] mb-3">
-                      Betaalmethode
-                    </h3>
-                    <p className="text-gray-600">
-                      {paymentMethods.find((m) => m.id === selectedPayment)?.name}
-                    </p>
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <div className="bg-white rounded-3xl border border-sand p-6" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                      <h3 className="font-semibold text-soft-black mb-4">Verzendadres</h3>
+                      <p className="text-slate leading-relaxed">
+                        {watch('firstName')} {watch('lastName')}<br />
+                        {watch('street')} {watch('houseNumber')}<br />
+                        {watch('postalCode')} {watch('city')}<br />
+                        {watch('email')}<br />
+                        {watch('phone')}
+                      </p>
+                    </div>
+                    <div className="bg-white rounded-3xl border border-sand p-6" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                      <h3 className="font-semibold text-soft-black mb-4">Betaalmethode</h3>
+                      <p className="text-slate">{paymentMethods.find((m) => m.id === selectedPayment)?.name}</p>
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Navigation Buttons */}
-              <div className="flex items-center justify-between mt-6">
+              <div className="flex items-center justify-between mt-8">
                 {step !== 'address' ? (
-                  <Button type="button" variant="outline" onClick={handlePrevStep}>
-                    <ArrowLeft className="h-4 w-4 mr-2" />
+                  <Button type="button" variant="ghost" onClick={handlePrevStep} className="gap-2">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                    </svg>
                     Terug
                   </Button>
                 ) : (
                   <div />
                 )}
                 {step !== 'review' ? (
-                  <Button type="button" onClick={handleNextStep}>
+                  <Button type="button" onClick={handleNextStep} className="gap-2">
                     Volgende
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
                   </Button>
                 ) : (
-                  <Button type="submit" isLoading={isSubmitting}>
+                  <Button type="submit" isLoading={isSubmitting} size="lg" className="gap-2">
                     Bestelling plaatsen
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                   </Button>
                 )}
               </div>
             </div>
 
             {/* Order Summary Sidebar */}
-            <div className="mt-8 lg:mt-0">
-              <div className="bg-gray-50 rounded-xl p-6 sticky top-24">
-                <h2 className="text-lg font-semibold text-[#2C3E48] mb-4">
-                  Totaal
-                </h2>
-                <div className="space-y-3 mb-6">
+            <div className="mt-12 lg:mt-0">
+              <div className="bg-white rounded-3xl border border-sand p-8 sticky top-28" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                <h2 className="text-xl font-display font-semibold text-soft-black mb-6">Totaal</h2>
+                <div className="space-y-4 mb-8">
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">
-                      Subtotaal ({itemCount} {itemCount === 1 ? 'product' : 'producten'})
-                    </span>
-                    <span className="font-medium">{formatPrice(subtotal)}</span>
+                    <span className="text-muted">Subtotaal ({itemCount} {itemCount === 1 ? 'product' : 'producten'})</span>
+                    <span className="font-medium text-soft-black">{formatPrice(subtotal)}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-gray-600">Verzendkosten</span>
-                    <span className="font-medium">
-                      {shipping === 0 ? (
-                        <span className="text-emerald-600">Gratis</span>
-                      ) : (
-                        formatPrice(shipping)
-                      )}
+                    <span className="text-muted">Verzendkosten</span>
+                    <span className="font-medium text-soft-black">
+                      {shipping === 0 ? <span className="text-[#0D9488]">Gratis</span> : formatPrice(shipping)}
                     </span>
                   </div>
                 </div>
-                <div className="border-t border-gray-200 pt-4">
+                <div className="border-t border-sand pt-6">
                   <div className="flex items-center justify-between">
-                    <span className="text-lg font-semibold text-[#2C3E48]">
-                      Totaal
-                    </span>
-                    <span className="text-xl font-bold text-[#094543]">
-                      {formatPrice(total)}
-                    </span>
+                    <span className="text-lg font-display font-semibold text-soft-black">Totaal</span>
+                    <span className="text-2xl font-display font-bold text-primary">{formatPrice(total)}</span>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Inclusief BTW</p>
+                  <p className="text-xs text-muted mt-2">Inclusief BTW</p>
                 </div>
               </div>
             </div>

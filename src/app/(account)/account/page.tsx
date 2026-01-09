@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Package, RefreshCw, Settings, ChevronRight } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { useAuth } from '@/context/auth-context';
 import { formatPrice, formatDate } from '@/lib/utils';
@@ -96,13 +95,13 @@ export default function AccountPage() {
 
   if (loading || dataLoading) {
     return (
-      <div className="py-12">
+      <div className="py-16 lg:py-24 bg-cream min-h-[80vh]">
         <Container>
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-48" />
+          <div className="animate-pulse space-y-8">
+            <div className="h-10 bg-sand rounded-lg w-64" />
             <div className="grid md:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded-xl" />
+                <div key={i} className="h-40 bg-sand rounded-3xl" />
               ))}
             </div>
           </div>
@@ -113,17 +112,28 @@ export default function AccountPage() {
 
   if (!user) {
     return (
-      <div className="py-12">
+      <div className="py-16 lg:py-24 bg-cream min-h-[80vh]">
         <Container>
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-[#2C3E48] mb-4">
+          <div className="text-center max-w-md mx-auto">
+            <div className="w-20 h-20 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-display font-bold text-soft-black mb-3">
               Log in om je account te bekijken
             </h1>
+            <p className="text-muted mb-6">
+              Bekijk je bestellingen, inleveringen en accountinstellingen
+            </p>
             <Link
               href="/login"
-              className="text-[#094543] hover:underline"
+              className="inline-flex items-center gap-2 text-primary font-medium hover:text-primary-light transition-colors"
             >
               Naar inloggen
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
             </Link>
           </div>
         </Container>
@@ -132,53 +142,69 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="py-8 lg:py-12">
+    <div className="py-16 lg:py-24 bg-cream min-h-[80vh]">
       <Container>
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[#2C3E48]">
+        <div className="mb-10">
+          <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+            Mijn Account
+          </span>
+          <h1 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">
             Welkom terug{profile?.first_name ? `, ${profile.first_name}` : ''}!
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-3 text-lg text-muted">
             Beheer je bestellingen, inleveringen en accountinstellingen
           </p>
         </div>
 
         {/* Quick Links */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-6 mb-10">
           <Link
             href="/account/bestellingen"
-            className="bg-white rounded-xl border border-gray-200 p-6 hover:border-[#094543] hover:shadow-md transition-all group"
+            className="group bg-white rounded-3xl border border-sand p-8 hover:border-primary/20 hover:shadow-lg transition-all duration-300"
           >
-            <Package className="h-8 w-8 text-[#094543] mb-3" />
-            <h3 className="font-semibold text-[#2C3E48] group-hover:text-[#094543]">
+            <div className="w-14 h-14 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+            </div>
+            <h3 className="font-display font-semibold text-lg text-soft-black mb-2 group-hover:text-primary transition-colors">
               Mijn bestellingen
             </h3>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-muted">
               Bekijk en volg je bestellingen
             </p>
           </Link>
           <Link
             href="/account/inleveringen"
-            className="bg-white rounded-xl border border-gray-200 p-6 hover:border-[#094543] hover:shadow-md transition-all group"
+            className="group bg-white rounded-3xl border border-sand p-8 hover:border-primary/20 hover:shadow-lg transition-all duration-300"
           >
-            <RefreshCw className="h-8 w-8 text-[#094543] mb-3" />
-            <h3 className="font-semibold text-[#2C3E48] group-hover:text-[#094543]">
+            <div className="w-14 h-14 rounded-2xl bg-copper/5 flex items-center justify-center text-copper mb-5 group-hover:bg-gradient-to-br group-hover:from-copper group-hover:to-gold group-hover:text-white transition-all duration-300">
+              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </div>
+            <h3 className="font-display font-semibold text-lg text-soft-black mb-2 group-hover:text-copper transition-colors">
               Mijn inleveringen
             </h3>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-muted">
               Status van ingeleverde apparaten
             </p>
           </Link>
           <Link
             href="/account/instellingen"
-            className="bg-white rounded-xl border border-gray-200 p-6 hover:border-[#094543] hover:shadow-md transition-all group"
+            className="group bg-white rounded-3xl border border-sand p-8 hover:border-primary/20 hover:shadow-lg transition-all duration-300"
           >
-            <Settings className="h-8 w-8 text-[#094543] mb-3" />
-            <h3 className="font-semibold text-[#2C3E48] group-hover:text-[#094543]">
+            <div className="w-14 h-14 rounded-2xl bg-slate/5 flex items-center justify-center text-slate mb-5 group-hover:bg-slate group-hover:text-white transition-all duration-300">
+              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <h3 className="font-display font-semibold text-lg text-soft-black mb-2 group-hover:text-slate transition-colors">
               Instellingen
             </h3>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-muted">
               Accountgegevens en voorkeuren
             </p>
           </Link>
@@ -186,17 +212,19 @@ export default function AccountPage() {
 
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Recent Orders */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-[#2C3E48]">
+          <div className="bg-white rounded-3xl border border-sand p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-display font-semibold text-soft-black">
                 Recente bestellingen
               </h2>
               <Link
                 href="/account/bestellingen"
-                className="text-sm text-[#094543] hover:underline flex items-center"
+                className="text-sm text-primary hover:text-primary-light flex items-center gap-1 font-medium transition-colors"
               >
                 Bekijk alles
-                <ChevronRight className="h-4 w-4" />
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </Link>
             </div>
 
@@ -205,19 +233,19 @@ export default function AccountPage() {
                 {recentOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
+                    className="flex items-center justify-between py-4 border-b border-sand last:border-0"
                   >
                     <div>
-                      <p className="font-medium text-[#2C3E48]">
+                      <p className="font-semibold text-soft-black">
                         {order.order_number}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-muted">
                         {formatDate(order.created_at)}
                       </p>
                     </div>
                     <div className="text-right">
                       <StatusBadge status={order.status} size="sm" />
-                      <p className="text-sm font-medium text-[#094543] mt-1">
+                      <p className="text-sm font-semibold text-primary mt-1">
                         {formatPrice(order.total_price)}
                       </p>
                     </div>
@@ -225,12 +253,16 @@ export default function AccountPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
-                <Package className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                <p>Nog geen bestellingen</p>
+              <div className="text-center py-10">
+                <div className="w-16 h-16 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                </div>
+                <p className="text-muted mb-2">Nog geen bestellingen</p>
                 <Link
                   href="/producten"
-                  className="text-[#094543] hover:underline text-sm"
+                  className="text-primary text-sm font-medium hover:text-primary-light transition-colors"
                 >
                   Bekijk producten
                 </Link>
@@ -239,17 +271,19 @@ export default function AccountPage() {
           </div>
 
           {/* Recent Submissions */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-[#2C3E48]">
+          <div className="bg-white rounded-3xl border border-sand p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-display font-semibold text-soft-black">
                 Recente inleveringen
               </h2>
               <Link
                 href="/account/inleveringen"
-                className="text-sm text-[#094543] hover:underline flex items-center"
+                className="text-sm text-primary hover:text-primary-light flex items-center gap-1 font-medium transition-colors"
               >
                 Bekijk alles
-                <ChevronRight className="h-4 w-4" />
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </Link>
             </div>
 
@@ -258,19 +292,19 @@ export default function AccountPage() {
                 {recentSubmissions.map((submission) => (
                   <div
                     key={submission.id}
-                    className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
+                    className="flex items-center justify-between py-4 border-b border-sand last:border-0"
                   >
                     <div>
-                      <p className="font-medium text-[#2C3E48]">
+                      <p className="font-semibold text-soft-black">
                         {submission.device_brand} {submission.device_model}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-muted">
                         {submission.reference_number}
                       </p>
                     </div>
                     <div className="text-right">
                       <StatusBadge status={submission.status} size="sm" />
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-xs text-muted mt-1">
                         {formatDate(submission.created_at)}
                       </p>
                     </div>
@@ -278,12 +312,16 @@ export default function AccountPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
-                <RefreshCw className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                <p>Nog geen inleveringen</p>
+              <div className="text-center py-10">
+                <div className="w-16 h-16 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </div>
+                <p className="text-muted mb-2">Nog geen inleveringen</p>
                 <Link
                   href="/inleveren"
-                  className="text-[#094543] hover:underline text-sm"
+                  className="text-primary text-sm font-medium hover:text-primary-light transition-colors"
                 >
                   Apparaat inleveren
                 </Link>
@@ -293,21 +331,25 @@ export default function AccountPage() {
         </div>
 
         {/* Profile Summary */}
-        <div className="mt-8 bg-gray-50 rounded-xl p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-[#094543] rounded-full flex items-center justify-center text-white text-xl font-bold">
+        <div className="mt-10 bg-white rounded-3xl border border-sand p-8">
+          <div className="flex items-center gap-6">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white text-2xl font-display font-bold">
               {profile?.first_name?.[0] || profile?.email?.[0]?.toUpperCase() || 'U'}
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-[#2C3E48]">
+              <h3 className="font-display font-semibold text-xl text-soft-black">
                 {profile?.first_name} {profile?.last_name}
               </h3>
-              <p className="text-sm text-gray-500">{profile?.email}</p>
+              <p className="text-muted">{profile?.email}</p>
             </div>
-            <Link href="/account/instellingen">
-              <button className="text-sm text-[#094543] hover:underline">
-                Profiel bewerken
-              </button>
+            <Link 
+              href="/account/instellingen"
+              className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-xl border border-sand text-sm font-medium text-soft-black hover:border-primary hover:text-primary transition-all"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+              Profiel bewerken
             </Link>
           </div>
         </div>
