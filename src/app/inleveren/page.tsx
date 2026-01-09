@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   ArrowLeft,
   ArrowRight,
@@ -16,71 +16,78 @@ import {
   Headphones,
   Check,
   AlertCircle,
-} from 'lucide-react';
-import { Container } from '@/components/layout/container';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select } from '@/components/ui/select';
-import { useToast } from '@/components/ui/toast';
-import { generateReferenceNumber } from '@/lib/utils';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import { Container } from "@/components/layout/container";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
+import { useToast } from "@/components/ui/toast";
+import { generateReferenceNumber } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
 
 const submissionSchema = z.object({
-  deviceType: z.string().min(1, 'Selecteer een apparaat type'),
-  deviceBrand: z.string().min(1, 'Selecteer een merk'),
-  deviceModel: z.string().min(2, 'Model is verplicht'),
-  conditionDescription: z.string().min(20, 'Beschrijf de conditie in minimaal 20 tekens'),
-  customerName: z.string().min(2, 'Naam is verplicht'),
-  customerEmail: z.string().email('Ongeldig e-mailadres'),
-  customerPhone: z.string().min(10, 'Telefoonnummer is verplicht'),
+  deviceType: z.string().min(1, "Selecteer een apparaat type"),
+  deviceBrand: z.string().min(1, "Selecteer een merk"),
+  deviceModel: z.string().min(2, "Model is verplicht"),
+  conditionDescription: z
+    .string()
+    .min(20, "Beschrijf de conditie in minimaal 20 tekens"),
+  customerName: z.string().min(2, "Naam is verplicht"),
+  customerEmail: z.string().email("Ongeldig e-mailadres"),
+  customerPhone: z.string().min(10, "Telefoonnummer is verplicht"),
   termsAccepted: z.boolean().refine((val) => val === true, {
-    message: 'Je moet akkoord gaan met de voorwaarden',
+    message: "Je moet akkoord gaan met de voorwaarden",
   }),
 });
 
 type SubmissionFormData = z.infer<typeof submissionSchema>;
 
 const deviceTypes = [
-  { value: 'telefoon', label: 'Telefoon', icon: Smartphone },
-  { value: 'laptop', label: 'Laptop', icon: Laptop },
-  { value: 'tablet', label: 'Tablet', icon: Tablet },
-  { value: 'accessoire', label: 'Accessoire', icon: Headphones },
+  { value: "telefoon", label: "Telefoon", icon: Smartphone },
+  { value: "laptop", label: "Laptop", icon: Laptop },
+  { value: "tablet", label: "Tablet", icon: Tablet },
+  { value: "accessoire", label: "Accessoire", icon: Headphones },
 ];
 
 const brandsByType: Record<string, { value: string; label: string }[]> = {
   telefoon: [
-    { value: 'apple', label: 'Apple' },
-    { value: 'samsung', label: 'Samsung' },
-    { value: 'google', label: 'Google' },
-    { value: 'oneplus', label: 'OnePlus' },
-    { value: 'xiaomi', label: 'Xiaomi' },
-    { value: 'huawei', label: 'Huawei' },
-    { value: 'anders', label: 'Anders' },
+    { value: "apple", label: "Apple" },
+    { value: "samsung", label: "Samsung" },
+    { value: "google", label: "Google" },
+    { value: "oneplus", label: "OnePlus" },
+    { value: "xiaomi", label: "Xiaomi" },
+    { value: "huawei", label: "Huawei" },
+    { value: "anders", label: "Anders" },
   ],
   laptop: [
-    { value: 'apple', label: 'Apple' },
-    { value: 'lenovo', label: 'Lenovo' },
-    { value: 'hp', label: 'HP' },
-    { value: 'dell', label: 'Dell' },
-    { value: 'asus', label: 'ASUS' },
-    { value: 'microsoft', label: 'Microsoft' },
-    { value: 'anders', label: 'Anders' },
+    { value: "apple", label: "Apple" },
+    { value: "lenovo", label: "Lenovo" },
+    { value: "hp", label: "HP" },
+    { value: "dell", label: "Dell" },
+    { value: "asus", label: "ASUS" },
+    { value: "microsoft", label: "Microsoft" },
+    { value: "anders", label: "Anders" },
   ],
   tablet: [
-    { value: 'apple', label: 'Apple' },
-    { value: 'samsung', label: 'Samsung' },
-    { value: 'microsoft', label: 'Microsoft' },
-    { value: 'lenovo', label: 'Lenovo' },
-    { value: 'anders', label: 'Anders' },
+    { value: "apple", label: "Apple" },
+    { value: "samsung", label: "Samsung" },
+    { value: "microsoft", label: "Microsoft" },
+    { value: "lenovo", label: "Lenovo" },
+    { value: "anders", label: "Anders" },
   ],
   accessoire: [
-    { value: 'apple', label: 'Apple' },
-    { value: 'samsung', label: 'Samsung' },
-    { value: 'anders', label: 'Anders' },
+    { value: "apple", label: "Apple" },
+    { value: "samsung", label: "Samsung" },
+    { value: "anders", label: "Anders" },
   ],
 };
 
@@ -105,19 +112,22 @@ export default function SubmitDevicePage() {
     },
   });
 
-  const selectedType = watch('deviceType');
+  const selectedType = watch("deviceType");
   const brands = selectedType ? brandsByType[selectedType] || [] : [];
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    
+
     const validFiles = files.filter((file) => {
       if (file.size > MAX_FILE_SIZE) {
-        showError('Bestand te groot', `${file.name} is groter dan 5MB`);
+        showError("Bestand te groot", `${file.name} is groter dan 5MB`);
         return false;
       }
       if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-        showError('Ongeldig bestandstype', 'Alleen JPG, PNG en WebP zijn toegestaan');
+        showError(
+          "Ongeldig bestandstype",
+          "Alleen JPG, PNG en WebP zijn toegestaan"
+        );
         return false;
       }
       return true;
@@ -132,13 +142,18 @@ export default function SubmitDevicePage() {
 
   const handleNextStep = async () => {
     let fieldsToValidate: (keyof SubmissionFormData)[] = [];
-    
+
     if (step === 1) {
-      fieldsToValidate = ['deviceType', 'deviceBrand', 'deviceModel'];
+      fieldsToValidate = ["deviceType", "deviceBrand", "deviceModel"];
     } else if (step === 2) {
-      fieldsToValidate = ['conditionDescription'];
+      fieldsToValidate = ["conditionDescription"];
     } else if (step === 3) {
-      fieldsToValidate = ['customerName', 'customerEmail', 'customerPhone', 'termsAccepted'];
+      fieldsToValidate = [
+        "customerName",
+        "customerEmail",
+        "customerPhone",
+        "termsAccepted",
+      ];
     }
 
     const isValid = await trigger(fieldsToValidate);
@@ -160,10 +175,10 @@ export default function SubmitDevicePage() {
 
       const referenceNumber = generateReferenceNumber();
 
-      success('Inlevering ingediend!', `Referentienummer: ${referenceNumber}`);
+      success("Inlevering ingediend!", `Referentienummer: ${referenceNumber}`);
       router.push(`/inleveren/bevestiging?ref=${referenceNumber}`);
     } catch (err) {
-      showError('Er ging iets mis', 'Probeer het opnieuw');
+      showError("Er ging iets mis", "Probeer het opnieuw");
     } finally {
       setIsSubmitting(false);
     }
@@ -190,10 +205,10 @@ export default function SubmitDevicePage() {
                 <div key={s} className="flex items-center">
                   <div
                     className={cn(
-                      'flex items-center justify-center w-10 h-10 rounded-full text-sm font-medium',
+                      "flex items-center justify-center w-10 h-10 rounded-full text-sm font-medium",
                       step >= s
-                        ? 'bg-[#094543] text-white'
-                        : 'bg-gray-200 text-gray-600'
+                        ? "bg-[#094543] text-white"
+                        : "bg-gray-200 text-gray-600"
                     )}
                   >
                     {step > s ? <Check className="h-5 w-5" /> : s}
@@ -201,10 +216,10 @@ export default function SubmitDevicePage() {
                   {s < 4 && (
                     <div
                       className={cn(
-                        'w-full h-1 mx-2',
-                        step > s ? 'bg-[#094543]' : 'bg-gray-200'
+                        "w-full h-1 mx-2",
+                        step > s ? "bg-[#094543]" : "bg-gray-200"
                       )}
-                      style={{ width: '60px' }}
+                      style={{ width: "60px" }}
                     />
                   )}
                 </div>
@@ -237,30 +252,30 @@ export default function SubmitDevicePage() {
                         key={type.value}
                         type="button"
                         onClick={() => {
-                          setValue('deviceType', type.value);
-                          setValue('deviceBrand', '');
+                          setValue("deviceType", type.value);
+                          setValue("deviceBrand", "");
                         }}
                         className={cn(
-                          'flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-colors',
+                          "flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-colors",
                           selectedType === type.value
-                            ? 'border-[#094543] bg-[#094543]/5'
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? "border-[#094543] bg-[#094543]/5"
+                            : "border-gray-200 hover:border-gray-300"
                         )}
                       >
                         <type.icon
                           className={cn(
-                            'h-8 w-8',
+                            "h-8 w-8",
                             selectedType === type.value
-                              ? 'text-[#094543]'
-                              : 'text-gray-400'
+                              ? "text-[#094543]"
+                              : "text-gray-400"
                           )}
                         />
                         <span
                           className={cn(
-                            'text-sm font-medium',
+                            "text-sm font-medium",
                             selectedType === type.value
-                              ? 'text-[#094543]'
-                              : 'text-gray-600'
+                              ? "text-[#094543]"
+                              : "text-gray-600"
                           )}
                         >
                           {type.label}
@@ -282,7 +297,7 @@ export default function SubmitDevicePage() {
                       label="Merk"
                       options={brands}
                       placeholder="Selecteer een merk"
-                      {...register('deviceBrand')}
+                      {...register("deviceBrand")}
                       error={errors.deviceBrand?.message}
                       required
                     />
@@ -293,7 +308,7 @@ export default function SubmitDevicePage() {
                 <Input
                   label="Model"
                   placeholder="bijv. iPhone 14 Pro, MacBook Air M2"
-                  {...register('deviceModel')}
+                  {...register("deviceModel")}
                   error={errors.deviceModel?.message}
                   required
                 />
@@ -311,7 +326,7 @@ export default function SubmitDevicePage() {
                   label="Conditie beschrijving"
                   placeholder="Beschrijf de staat van je apparaat. Zijn er krassen, deuken of defecten? Werkt alles naar behoren?"
                   rows={5}
-                  {...register('conditionDescription')}
+                  {...register("conditionDescription")}
                   error={errors.conditionDescription?.message}
                   required
                 />
@@ -321,7 +336,7 @@ export default function SubmitDevicePage() {
                   <label className="block text-sm font-medium text-[#2C3E48] mb-3">
                     Foto's uploaden (optioneel, max 5)
                   </label>
-                  
+
                   {/* Upload Area */}
                   <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#094543] transition-colors">
                     <Upload className="h-8 w-8 text-gray-400 mb-2" />
@@ -376,21 +391,21 @@ export default function SubmitDevicePage() {
                 <div className="space-y-4">
                   <Input
                     label="Volledige naam"
-                    {...register('customerName')}
+                    {...register("customerName")}
                     error={errors.customerName?.message}
                     required
                   />
                   <Input
                     label="E-mailadres"
                     type="email"
-                    {...register('customerEmail')}
+                    {...register("customerEmail")}
                     error={errors.customerEmail?.message}
                     required
                   />
                   <Input
                     label="Telefoonnummer"
                     type="tel"
-                    {...register('customerPhone')}
+                    {...register("customerPhone")}
                     error={errors.customerPhone?.message}
                     required
                   />
@@ -400,15 +415,18 @@ export default function SubmitDevicePage() {
                     <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="checkbox"
-                        {...register('termsAccepted')}
+                        {...register("termsAccepted")}
                         className="w-5 h-5 rounded text-[#094543] focus:ring-[#094543] mt-0.5"
                       />
                       <span className="text-sm text-gray-600">
-                        Ik ga akkoord met de{' '}
-                        <a href="/voorwaarden" className="text-[#094543] underline">
+                        Ik ga akkoord met de{" "}
+                        <a
+                          href="/voorwaarden"
+                          className="text-[#094543] underline"
+                        >
                           algemene voorwaarden
-                        </a>{' '}
-                        en het{' '}
+                        </a>{" "}
+                        en het{" "}
                         <a href="/privacy" className="text-[#094543] underline">
                           privacybeleid
                         </a>
@@ -437,22 +455,33 @@ export default function SubmitDevicePage() {
                     <div className="flex justify-between py-2 border-b border-gray-100">
                       <dt className="text-gray-500">Apparaat</dt>
                       <dd className="font-medium text-[#2C3E48]">
-                        {deviceTypes.find((t) => t.value === watch('deviceType'))?.label}
+                        {
+                          deviceTypes.find(
+                            (t) => t.value === watch("deviceType")
+                          )?.label
+                        }
                       </dd>
                     </div>
                     <div className="flex justify-between py-2 border-b border-gray-100">
                       <dt className="text-gray-500">Merk</dt>
                       <dd className="font-medium text-[#2C3E48]">
-                        {brands.find((b) => b.value === watch('deviceBrand'))?.label}
+                        {
+                          brands.find((b) => b.value === watch("deviceBrand"))
+                            ?.label
+                        }
                       </dd>
                     </div>
                     <div className="flex justify-between py-2 border-b border-gray-100">
                       <dt className="text-gray-500">Model</dt>
-                      <dd className="font-medium text-[#2C3E48]">{watch('deviceModel')}</dd>
+                      <dd className="font-medium text-[#2C3E48]">
+                        {watch("deviceModel")}
+                      </dd>
                     </div>
                     <div className="py-2 border-b border-gray-100">
                       <dt className="text-gray-500 mb-1">Conditie</dt>
-                      <dd className="text-[#2C3E48]">{watch('conditionDescription')}</dd>
+                      <dd className="text-[#2C3E48]">
+                        {watch("conditionDescription")}
+                      </dd>
                     </div>
                     {photos.length > 0 && (
                       <div className="py-2 border-b border-gray-100">
@@ -471,15 +500,21 @@ export default function SubmitDevicePage() {
                     )}
                     <div className="flex justify-between py-2 border-b border-gray-100">
                       <dt className="text-gray-500">Naam</dt>
-                      <dd className="font-medium text-[#2C3E48]">{watch('customerName')}</dd>
+                      <dd className="font-medium text-[#2C3E48]">
+                        {watch("customerName")}
+                      </dd>
                     </div>
                     <div className="flex justify-between py-2 border-b border-gray-100">
                       <dt className="text-gray-500">E-mail</dt>
-                      <dd className="font-medium text-[#2C3E48]">{watch('customerEmail')}</dd>
+                      <dd className="font-medium text-[#2C3E48]">
+                        {watch("customerEmail")}
+                      </dd>
                     </div>
                     <div className="flex justify-between py-2">
                       <dt className="text-gray-500">Telefoon</dt>
-                      <dd className="font-medium text-[#2C3E48]">{watch('customerPhone')}</dd>
+                      <dd className="font-medium text-[#2C3E48]">
+                        {watch("customerPhone")}
+                      </dd>
                     </div>
                   </dl>
                 </div>
@@ -487,11 +522,13 @@ export default function SubmitDevicePage() {
                 <div className="bg-amber-50 rounded-xl p-4 flex gap-3">
                   <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                   <div className="text-sm text-amber-800">
-                    <p className="font-medium">Wat gebeurt er na het indienen?</p>
+                    <p className="font-medium">
+                      Wat gebeurt er na het indienen?
+                    </p>
                     <p className="mt-1">
-                      Je ontvangt binnen 2 werkdagen een prijsaanbod per e-mail. 
-                      Als je akkoord gaat, ontvang je verzendlabels om het apparaat 
-                      naar ons toe te sturen.
+                      Je ontvangt binnen 2 werkdagen een prijsaanbod per e-mail.
+                      Als je akkoord gaat, ontvang je verzendlabels om het
+                      apparaat naar ons toe te sturen.
                     </p>
                   </div>
                 </div>
@@ -501,7 +538,11 @@ export default function SubmitDevicePage() {
             {/* Navigation */}
             <div className="flex items-center justify-between mt-6">
               {step > 1 ? (
-                <Button type="button" variant="outline" onClick={handlePrevStep}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handlePrevStep}
+                >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Terug
                 </Button>
