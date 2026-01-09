@@ -3,124 +3,12 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronRight, Shield, Truck, RotateCcw, Package } from 'lucide-react';
 import { Container } from '@/components/layout/container';
-import { Button } from '@/components/ui/button';
 import { ConditionBadge } from '@/components/ui/badge';
 import { ImageGallery } from '@/components/products/image-gallery';
 import { ProductCard } from '@/components/products/product-card';
 import { AddToCartButton } from './add-to-cart-button';
-import { formatPrice, calculateSavings, getConditionLabel } from '@/lib/utils';
-import { Product } from '@/types';
-
-// Mock data - will be replaced with Supabase queries
-const mockProducts: Record<string, Product> = {
-  'iphone-14-pro-128gb-space-black': {
-    id: '1',
-    name: 'iPhone 14 Pro 128GB Space Black',
-    slug: 'iphone-14-pro-128gb-space-black',
-    category_id: '1',
-    brand: 'Apple',
-    price: 799,
-    original_price: 1199,
-    condition_grade: 'zeer_goed',
-    description: `De iPhone 14 Pro in Space Black is een premium smartphone die kracht en elegantie combineert. Dit refurbished exemplaar is grondig getest en in uitstekende staat.
-
-Het toestel beschikt over het revolutionaire Dynamic Island, een 48MP camerasysteem en de krachtige A16 Bionic chip. De batterijcapaciteit is minimaal 85% van de originele capaciteit.
-
-Wat je krijgt:
-- iPhone 14 Pro 128GB Space Black
-- USB-C naar Lightning kabel
-- Originele doos (indien beschikbaar)
-- 12 maanden garantie`,
-    specifications: {
-      'Opslag': '128GB',
-      'Scherm': '6.1 inch Super Retina XDR',
-      'Chip': 'A16 Bionic',
-      'Camera': '48MP + 12MP + 12MP',
-      'Batterij': '3200mAh',
-      'Kleur': 'Space Black',
-      'Besturingssysteem': 'iOS 17',
-      'Connectiviteit': '5G, WiFi 6, Bluetooth 5.3',
-    },
-    stock_quantity: 5,
-    image_urls: [],
-    warranty_months: 12,
-    featured: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  'samsung-galaxy-s23-ultra-256gb': {
-    id: '2',
-    name: 'Samsung Galaxy S23 Ultra 256GB Phantom Black',
-    slug: 'samsung-galaxy-s23-ultra-256gb',
-    category_id: '1',
-    brand: 'Samsung',
-    price: 899,
-    original_price: 1399,
-    condition_grade: 'als_nieuw',
-    description: `De Samsung Galaxy S23 Ultra is het vlaggenschip van Samsung, nu verkrijgbaar als refurbished met volledige garantie.
-
-Met de ingebouwde S Pen, het indrukwekkende 200MP camerasysteem en de Snapdragon 8 Gen 2 processor is dit een apparaat dat geen compromissen kent.
-
-Wat je krijgt:
-- Samsung Galaxy S23 Ultra 256GB
-- S Pen (ingebouwd)
-- USB-C kabel
-- 12 maanden garantie`,
-    specifications: {
-      'Opslag': '256GB',
-      'Scherm': '6.8 inch Dynamic AMOLED 2X',
-      'Chip': 'Snapdragon 8 Gen 2',
-      'Camera': '200MP + 12MP + 10MP + 10MP',
-      'Batterij': '5000mAh',
-      'Kleur': 'Phantom Black',
-      'Besturingssysteem': 'Android 14',
-      'Connectiviteit': '5G, WiFi 6E, Bluetooth 5.3',
-    },
-    stock_quantity: 3,
-    image_urls: [],
-    warranty_months: 12,
-    featured: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  'macbook-air-m2-256gb': {
-    id: '3',
-    name: 'MacBook Air M2 13 inch 256GB Space Gray',
-    slug: 'macbook-air-m2-256gb',
-    category_id: '2',
-    brand: 'Apple',
-    price: 999,
-    original_price: 1399,
-    condition_grade: 'zeer_goed',
-    description: `De MacBook Air met M2 chip combineert ongelofelijke prestaties met een ultraslank ontwerp. Perfect voor werk, studie en entertainment.
-
-Dit refurbished exemplaar heeft minder dan 100 batterijcycli en is in uitstekende cosmetische staat. De M2 chip levert uitzonderlijke prestaties met een ongelooflijke batterijduur.
-
-Wat je krijgt:
-- MacBook Air 13 inch M2
-- MagSafe 3 oplader
-- USB-C naar MagSafe 3 kabel
-- 12 maanden garantie`,
-    specifications: {
-      'Opslag': '256GB SSD',
-      'RAM': '8GB unified memory',
-      'Scherm': '13.6 inch Liquid Retina',
-      'Chip': 'Apple M2',
-      'Batterij': 'Tot 18 uur',
-      'Kleur': 'Space Gray',
-      'Poorten': '2x Thunderbolt/USB 4, MagSafe 3, 3.5mm jack',
-      'Gewicht': '1.24 kg',
-    },
-    stock_quantity: 4,
-    image_urls: [],
-    warranty_months: 12,
-    featured: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-};
-
-const relatedProducts: Product[] = Object.values(mockProducts).slice(0, 3);
+import { formatPrice, calculateSavings } from '@/lib/utils';
+import { getProductBySlug, getRelatedProducts } from '@/lib/supabase/products';
 
 interface PageProps {
   params: Promise<{
@@ -130,7 +18,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = mockProducts[slug];
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     return {
@@ -151,11 +39,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const product = mockProducts[slug];
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     notFound();
   }
+
+  const relatedProducts = await getRelatedProducts(product.id, product.category_id, 3);
 
   const savings = calculateSavings(product.original_price, product.price);
   const conditionDescription = {
@@ -296,7 +186,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
               </h2>
               <div className="bg-gray-50 rounded-xl p-6">
                 <dl className="space-y-4">
-                  {Object.entries(product.specifications).map(([key, value]) => (
+                  {Object.entries(product.specifications || {}).map(([key, value]) => (
                     <div
                       key={key}
                       className="flex justify-between py-2 border-b border-gray-200 last:border-0"
@@ -312,19 +202,18 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </div>
 
         {/* Related Products */}
-        <div className="mt-12 lg:mt-16">
-          <h2 className="text-2xl font-bold text-[#2C3E48] mb-6">
-            Gerelateerde producten
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {relatedProducts
-              .filter((p) => p.id !== product.id)
-              .slice(0, 3)
-              .map((relatedProduct) => (
+        {relatedProducts.length > 0 && (
+          <div className="mt-12 lg:mt-16">
+            <h2 className="text-2xl font-bold text-[#2C3E48] mb-6">
+              Gerelateerde producten
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {relatedProducts.map((relatedProduct) => (
                 <ProductCard key={relatedProduct.id} product={relatedProduct} />
               ))}
+            </div>
           </div>
-        </div>
+        )}
       </Container>
     </div>
   );

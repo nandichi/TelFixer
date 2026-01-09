@@ -1,92 +1,121 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User as SupabaseUser } from '@supabase/supabase-js';
-import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
-import { User } from '@/types';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { User as SupabaseUser } from "@supabase/supabase-js";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { User } from "@/types";
 
 interface AuthContextType {
   user: SupabaseUser | null;
   profile: User | null;
   loading: boolean;
+  isConfigured: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<{ error: Error | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    firstName: string,
+    lastName: string
+  ) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<{ error: Error | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock user for development without Supabase
-const mockUser: User = {
-  id: 'mock-user-id',
-  email: 'demo@telfixer.nl',
-  first_name: 'Demo',
-  last_name: 'Gebruiker',
-  phone: '+31 6 12345678',
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [configured, setConfigured] = useState(false);
 
   useEffect(() => {
-    if (!isSupabaseConfigured()) {
-      // Use mock data when Supabase is not configured
-      setProfile(mockUser);
+    // Check if Supabase is configured
+    const isConfiguredNow = isSupabaseConfigured();
+    setConfigured(isConfiguredNow);
+
+    if (!isConfiguredNow) {
+      console.warn(
+        "Supabase is niet geconfigureerd. Auth functionaliteit is uitgeschakeld."
+      );
       setLoading(false);
       return;
     }
 
     const supabase = createClient();
-    if (!supabase) {
+
+    // Timeout om te voorkomen dat de app blijft hangen
+    const timeout = setTimeout(() => {
+      console.warn("Auth check timeout - falling back to no user");
       setLoading(false);
-      return;
-    }
+    }, 5000);
 
     // Get initial session
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchProfile(session.user.id);
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
+        if (error) {
+          console.error("Error getting session:", error);
+          clearTimeout(timeout);
+          setLoading(false);
+          return;
+        }
+
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        }
+      } catch (err) {
+        console.error("Failed to get session:", err);
+      } finally {
+        clearTimeout(timeout);
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
 
     getInitialSession();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-        }
-        
-        setLoading(false);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null);
 
-    return () => subscription.unsubscribe();
+      if (session?.user) {
+        await fetchProfile(session.user.id);
+      } else {
+        setProfile(null);
+      }
+
+      setLoading(false);
+    });
+
+    return () => {
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchProfile = async (userId: string) => {
+    if (!isSupabaseConfigured()) return;
+
     const supabase = createClient();
-    if (!supabase) return;
 
     const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
+      .from("users")
+      .select("*")
+      .eq("id", userId)
       .single();
 
     if (!error && data) {
@@ -96,15 +125,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     if (!isSupabaseConfigured()) {
-      // Simulate login for demo
-      setProfile(mockUser);
-      return { error: null };
+      return { error: new Error("Supabase is niet geconfigureerd") };
     }
 
     const supabase = createClient();
-    if (!supabase) {
-      return { error: new Error('Supabase niet geconfigureerd') };
-    }
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -121,13 +145,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     lastName: string
   ) => {
     if (!isSupabaseConfigured()) {
-      return { error: new Error('Supabase niet geconfigureerd - demo modus') };
+      return { error: new Error("Supabase is niet geconfigureerd") };
     }
 
     const supabase = createClient();
-    if (!supabase) {
-      return { error: new Error('Supabase niet geconfigureerd') };
-    }
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -142,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!error && data.user) {
       // Create user profile
-      await supabase.from('users').insert({
+      await supabase.from("users").insert({
         id: data.user.id,
         email,
         first_name: firstName,
@@ -155,33 +176,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     if (!isSupabaseConfigured()) {
+      setUser(null);
       setProfile(null);
       return;
     }
 
     const supabase = createClient();
-    if (supabase) {
-      await supabase.auth.signOut();
-    }
+    await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
   };
 
   const updateProfile = async (data: Partial<User>) => {
     if (!isSupabaseConfigured()) {
-      setProfile((prev) => (prev ? { ...prev, ...data } : null));
-      return { error: null };
+      return { error: new Error("Supabase is niet geconfigureerd") };
     }
 
     const supabase = createClient();
-    if (!supabase || !user) {
-      return { error: new Error('Niet ingelogd') };
+
+    if (!user) {
+      return { error: new Error("Niet ingelogd") };
     }
 
     const { error } = await supabase
-      .from('users')
+      .from("users")
       .update({ ...data, updated_at: new Date().toISOString() })
-      .eq('id', user.id);
+      .eq("id", user.id);
 
     if (!error) {
       setProfile((prev) => (prev ? { ...prev, ...data } : null));
@@ -196,6 +216,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         profile,
         loading,
+        isConfigured: configured,
         signIn,
         signUp,
         signOut,
@@ -210,7 +231,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

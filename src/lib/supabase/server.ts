@@ -1,18 +1,31 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Support both old anon key and new publishable key
+const supabaseAnonKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+
+// Controleer of de credentials correct zijn ingesteld
+const isConfigured =
+  supabaseUrl &&
+  supabaseAnonKey &&
+  !supabaseUrl.includes("jouw-project-id") &&
+  !supabaseAnonKey.includes("jouw-anon");
 
 export async function createClient() {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    // Return null when Supabase is not configured
-    return null;
+  if (!isConfigured) {
+    throw new Error(
+      "Supabase is niet geconfigureerd. " +
+        "Vul je NEXT_PUBLIC_SUPABASE_URL en NEXT_PUBLIC_SUPABASE_ANON_KEY (of NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY) in de .env.local file. " +
+        "Je vindt deze in je Supabase dashboard: https://supabase.com/dashboard/project/_/settings/api"
+    );
   }
 
   const cookieStore = await cookies();
 
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
+  return createServerClient(supabaseUrl!, supabaseAnonKey!, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -30,4 +43,8 @@ export async function createClient() {
       },
     },
   });
+}
+
+export function isSupabaseConfigured(): boolean {
+  return Boolean(isConfigured);
 }

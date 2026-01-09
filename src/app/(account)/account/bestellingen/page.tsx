@@ -1,50 +1,99 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Package, ChevronRight } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { StatusBadge } from '@/components/ui/badge';
 import { formatPrice, formatDate } from '@/lib/utils';
+import { useAuth } from '@/context/auth-context';
+import { Order, OrderStatus, PaymentStatus } from '@/types';
+import { createClient } from '@/lib/supabase/client';
 
-// Mock data
-const orders = [
-  {
-    id: '1',
-    order_number: 'ORD-ABC123',
-    created_at: '2026-01-05T10:30:00Z',
-    status: 'verzonden',
-    total_price: 799,
-    tracking_number: '3SPOST12345678',
-    items: [
-      { name: 'iPhone 14 Pro 128GB Space Black', quantity: 1, price: 799 },
-    ],
-  },
-  {
-    id: '2',
-    order_number: 'ORD-DEF456',
-    created_at: '2025-12-20T14:15:00Z',
-    status: 'afgeleverd',
-    total_price: 549,
-    tracking_number: '3SPOST87654321',
-    items: [
-      { name: 'iPhone 13 128GB Blauw', quantity: 1, price: 549 },
-    ],
-  },
-  {
-    id: '3',
-    order_number: 'ORD-GHI789',
-    created_at: '2025-11-15T09:45:00Z',
-    status: 'afgeleverd',
-    total_price: 1014,
-    tracking_number: null,
-    items: [
-      { name: 'MacBook Air M2 256GB', quantity: 1, price: 999 },
-      { name: 'Apple 20W USB-C Adapter', quantity: 1, price: 15 },
-    ],
-  },
-];
+interface OrderWithItems extends Order {
+  items?: { name: string; quantity: number; price: number }[];
+}
 
 export default function OrdersPage() {
+  const { user, loading: authLoading } = useAuth();
+  const [orders, setOrders] = useState<OrderWithItems[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      fetchOrders();
+    } else if (!authLoading) {
+      setLoading(false);
+    }
+  }, [user, authLoading]);
+
+  const fetchOrders = async () => {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*, order_items(id, product_name, quantity, price_at_purchase)')
+      .eq('user_id', user?.id)
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setOrders(
+        data.map((item) => ({
+          id: item.id,
+          order_number: item.order_number,
+          user_id: item.user_id,
+          total_price: parseFloat(item.total_price),
+          shipping_cost: parseFloat(item.shipping_cost || '0'),
+          tax: parseFloat(item.tax || '0'),
+          status: item.status as OrderStatus,
+          shipping_address: item.shipping_address,
+          billing_address: item.billing_address,
+          payment_status: item.payment_status as PaymentStatus,
+          payment_method: item.payment_method,
+          tracking_number: item.tracking_number,
+          notes: item.notes,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+          items: item.order_items?.map((oi: Record<string, unknown>) => ({
+            name: oi.product_name as string,
+            quantity: oi.quantity as number,
+            price: parseFloat(oi.price_at_purchase as string),
+          })) || [],
+        }))
+      );
+    }
+    setLoading(false);
+  };
+
+  if (authLoading || loading) {
+    return (
+      <div className="py-12">
+        <Container>
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-200 rounded w-48" />
+            <div className="h-64 bg-gray-200 rounded-xl" />
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="py-12">
+        <Container>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-[#2C3E48] mb-4">
+              Log in om je bestellingen te bekijken
+            </h1>
+            <Link href="/login" className="text-[#094543] hover:underline">
+              Naar inloggen
+            </Link>
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
   return (
     <div className="py-8 lg:py-12">
       <Container>
@@ -97,7 +146,7 @@ export default function OrdersPage() {
                 {/* Order Items */}
                 <div className="p-4">
                   <div className="space-y-3">
-                    {order.items.map((item, index) => (
+                    {order.items?.map((item, index) => (
                       <div
                         key={index}
                         className="flex items-center justify-between py-2"

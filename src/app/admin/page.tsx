@@ -4,57 +4,45 @@ import {
   ShoppingCart,
   RefreshCw,
   Users,
-  TrendingUp,
   Euro,
   ArrowUpRight,
-  ArrowDownRight,
 } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
+import { getOrderStats, getRecentOrders } from '@/lib/supabase/orders';
+import { getAllSubmissions } from '@/lib/supabase/submissions';
 
-// Mock statistics
-const stats = [
-  {
-    name: 'Totale omzet',
-    value: formatPrice(24589),
-    change: '+12.5%',
-    trend: 'up',
-    icon: Euro,
-  },
-  {
-    name: 'Bestellingen',
-    value: '156',
-    change: '+8.2%',
-    trend: 'up',
-    icon: ShoppingCart,
-  },
-  {
-    name: 'Inleveringen',
-    value: '43',
-    change: '-2.1%',
-    trend: 'down',
-    icon: RefreshCw,
-  },
-  {
-    name: 'Klanten',
-    value: '892',
-    change: '+15.3%',
-    trend: 'up',
-    icon: Users,
-  },
-];
+export default async function AdminDashboardPage() {
+  const [stats, recentOrders, allSubmissions] = await Promise.all([
+    getOrderStats(),
+    getRecentOrders(3),
+    getAllSubmissions(),
+  ]);
 
-const recentOrders = [
-  { id: '1', number: 'ORD-ABC123', customer: 'Jan de Vries', total: 799, status: 'betaald' },
-  { id: '2', number: 'ORD-DEF456', customer: 'Maria Jansen', total: 549, status: 'verzonden' },
-  { id: '3', number: 'ORD-GHI789', customer: 'Peter Bakker', total: 1299, status: 'in_behandeling' },
-];
+  const recentSubmissions = allSubmissions.slice(0, 2);
 
-const recentSubmissions = [
-  { id: '1', ref: 'TF-XYZ789', device: 'iPhone 14 Pro', customer: 'Anna Smit', status: 'evaluatie' },
-  { id: '2', ref: 'TF-ABC123', device: 'MacBook Air', customer: 'Tom Visser', status: 'aanbieding_gemaakt' },
-];
+  const statsDisplay = [
+    {
+      name: 'Totale omzet',
+      value: formatPrice(stats.totalRevenue),
+      icon: Euro,
+    },
+    {
+      name: 'Bestellingen',
+      value: stats.orderCount.toString(),
+      icon: ShoppingCart,
+    },
+    {
+      name: 'Inleveringen',
+      value: stats.submissionCount.toString(),
+      icon: RefreshCw,
+    },
+    {
+      name: 'Klanten',
+      value: stats.customerCount.toString(),
+      icon: Users,
+    },
+  ];
 
-export default function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -65,24 +53,15 @@ export default function AdminDashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => (
+        {statsDisplay.map((stat) => (
           <div
             key={stat.name}
             className="bg-white rounded-xl border border-gray-200 p-6"
           >
             <div className="flex items-center justify-between">
               <stat.icon className="h-8 w-8 text-[#094543]" />
-              <span
-                className={`flex items-center text-sm font-medium ${
-                  stat.trend === 'up' ? 'text-emerald-600' : 'text-red-600'
-                }`}
-              >
-                {stat.change}
-                {stat.trend === 'up' ? (
-                  <ArrowUpRight className="h-4 w-4 ml-1" />
-                ) : (
-                  <ArrowDownRight className="h-4 w-4 ml-1" />
-                )}
+              <span className="flex items-center text-sm font-medium text-emerald-600">
+                <ArrowUpRight className="h-4 w-4 ml-1" />
               </span>
             </div>
             <p className="mt-4 text-2xl font-bold text-[#2C3E48]">{stat.value}</p>
@@ -133,30 +112,38 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
           <div className="divide-y divide-gray-100">
-            {recentOrders.map((order) => (
-              <div key={order.id} className="p-4 flex items-center justify-between">
-                <div>
-                  <p className="font-medium text-[#2C3E48]">{order.number}</p>
-                  <p className="text-sm text-gray-500">{order.customer}</p>
+            {recentOrders.length > 0 ? (
+              recentOrders.map((order) => (
+                <div key={order.id} className="p-4 flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-[#2C3E48]">{order.order_number}</p>
+                    <p className="text-sm text-gray-500">
+                      {order.user?.first_name} {order.user?.last_name || order.user?.email}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-[#094543]">
+                      {formatPrice(order.total_price)}
+                    </p>
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full ${
+                        order.status === 'betaald'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : order.status === 'verzonden'
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-amber-100 text-amber-700'
+                      }`}
+                    >
+                      {order.status === 'in_behandeling' ? 'In behandeling' : order.status}
+                    </span>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-medium text-[#094543]">
-                    {formatPrice(order.total)}
-                  </p>
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full ${
-                      order.status === 'betaald'
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : order.status === 'verzonden'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-amber-100 text-amber-700'
-                    }`}
-                  >
-                    {order.status === 'in_behandeling' ? 'In behandeling' : order.status}
-                  </span>
-                </div>
+              ))
+            ) : (
+              <div className="p-4 text-center text-gray-500">
+                Nog geen bestellingen
               </div>
-            ))}
+            )}
           </div>
         </div>
 
@@ -172,30 +159,42 @@ export default function AdminDashboardPage() {
             </Link>
           </div>
           <div className="divide-y divide-gray-100">
-            {recentSubmissions.map((submission) => (
-              <div
-                key={submission.id}
-                className="p-4 flex items-center justify-between"
-              >
-                <div>
-                  <p className="font-medium text-[#2C3E48]">{submission.device}</p>
-                  <p className="text-sm text-gray-500">
-                    {submission.ref} - {submission.customer}
-                  </p>
-                </div>
-                <span
-                  className={`text-xs px-2 py-0.5 rounded-full ${
-                    submission.status === 'aanbieding_gemaakt'
-                      ? 'bg-purple-100 text-purple-700'
-                      : 'bg-amber-100 text-amber-700'
-                  }`}
+            {recentSubmissions.length > 0 ? (
+              recentSubmissions.map((submission) => (
+                <div
+                  key={submission.id}
+                  className="p-4 flex items-center justify-between"
                 >
-                  {submission.status === 'aanbieding_gemaakt'
-                    ? 'Aanbieding gemaakt'
-                    : 'In evaluatie'}
-                </span>
+                  <div>
+                    <p className="font-medium text-[#2C3E48]">
+                      {submission.device_brand} {submission.device_model}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {submission.reference_number} - {submission.customer_name}
+                    </p>
+                  </div>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full ${
+                      submission.status === 'aanbieding_gemaakt'
+                        ? 'bg-purple-100 text-purple-700'
+                        : submission.status === 'evaluatie'
+                        ? 'bg-amber-100 text-amber-700'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}
+                  >
+                    {submission.status === 'aanbieding_gemaakt'
+                      ? 'Aanbieding gemaakt'
+                      : submission.status === 'evaluatie'
+                      ? 'In evaluatie'
+                      : submission.status}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="p-4 text-center text-gray-500">
+                Nog geen inleveringen
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

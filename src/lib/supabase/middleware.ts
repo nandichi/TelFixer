@@ -64,7 +64,8 @@ export async function updateSession(request: NextRequest) {
     // Check if user is admin
     if (!user) {
       const url = request.nextUrl.clone();
-      url.pathname = '/admin/login';
+      url.pathname = '/login';
+      url.searchParams.set('redirect', request.nextUrl.pathname);
       return NextResponse.redirect(url);
     }
     

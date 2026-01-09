@@ -1,153 +1,16 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowRight, Shield, Truck, RefreshCw, Award, CheckCircle } from 'lucide-react';
+import { ArrowRight, Shield, Truck, RefreshCw, Award, CheckCircle, Smartphone, Laptop, Tablet, Plug, Recycle } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/products/product-card';
-import { Product } from '@/types';
+import { getFeaturedProducts, getCategoriesWithCount } from '@/lib/supabase/products';
 
-// Temporary mock data - will be replaced with actual data from Supabase
-const featuredProducts: Product[] = [
-  {
-    id: '1',
-    name: 'iPhone 14 Pro 128GB Space Black',
-    slug: 'iphone-14-pro-128gb-space-black',
-    category_id: '1',
-    brand: 'Apple',
-    price: 799,
-    original_price: 1199,
-    condition_grade: 'zeer_goed',
-    description: 'iPhone 14 Pro in uitstekende staat',
-    specifications: {},
-    stock_quantity: 5,
-    image_urls: [],
-    warranty_months: 12,
-    featured: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    name: 'Samsung Galaxy S23 Ultra 256GB',
-    slug: 'samsung-galaxy-s23-ultra-256gb',
-    category_id: '1',
-    brand: 'Samsung',
-    price: 899,
-    original_price: 1399,
-    condition_grade: 'als_nieuw',
-    description: 'Samsung Galaxy S23 Ultra in nieuwstaat',
-    specifications: {},
-    stock_quantity: 3,
-    image_urls: [],
-    warranty_months: 12,
-    featured: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    name: 'MacBook Air M2 13 inch 256GB',
-    slug: 'macbook-air-m2-256gb',
-    category_id: '2',
-    brand: 'Apple',
-    price: 999,
-    original_price: 1399,
-    condition_grade: 'zeer_goed',
-    description: 'MacBook Air met M2 chip',
-    specifications: {},
-    stock_quantity: 4,
-    image_urls: [],
-    warranty_months: 12,
-    featured: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '4',
-    name: 'iPad Pro 11 inch M2 128GB',
-    slug: 'ipad-pro-11-m2-128gb',
-    category_id: '3',
-    brand: 'Apple',
-    price: 699,
-    original_price: 999,
-    condition_grade: 'zeer_goed',
-    description: 'iPad Pro 11 inch met M2 chip',
-    specifications: {},
-    stock_quantity: 4,
-    image_urls: [],
-    warranty_months: 12,
-    featured: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '5',
-    name: 'iPhone 13 128GB Blauw',
-    slug: 'iphone-13-128gb-blauw',
-    category_id: '1',
-    brand: 'Apple',
-    price: 549,
-    original_price: 899,
-    condition_grade: 'goed',
-    description: 'iPhone 13 in goede staat',
-    specifications: {},
-    stock_quantity: 8,
-    image_urls: [],
-    warranty_months: 12,
-    featured: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '6',
-    name: 'MacBook Pro 14 inch M3 512GB',
-    slug: 'macbook-pro-14-m3-512gb',
-    category_id: '2',
-    brand: 'Apple',
-    price: 1699,
-    original_price: 2199,
-    condition_grade: 'als_nieuw',
-    description: 'MacBook Pro 14 inch met M3 chip',
-    specifications: {},
-    stock_quantity: 2,
-    image_urls: [],
-    warranty_months: 12,
-    featured: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
-
-const categories = [
-  {
-    name: 'Telefoons',
-    slug: 'telefoons',
-    description: 'iPhones, Samsung Galaxy en meer',
-    icon: '📱',
-    count: 45,
-  },
-  {
-    name: 'Laptops',
-    slug: 'laptops',
-    description: 'MacBooks, ThinkPads en meer',
-    icon: '💻',
-    count: 28,
-  },
-  {
-    name: 'Tablets',
-    slug: 'tablets',
-    description: 'iPads, Galaxy Tabs en meer',
-    icon: '📲',
-    count: 18,
-  },
-  {
-    name: 'Accessoires',
-    slug: 'accessoires',
-    description: 'Opladers, hoesjes en meer',
-    icon: '🔌',
-    count: 52,
-  },
-];
+const categoryIcons: Record<string, typeof Smartphone> = {
+  telefoons: Smartphone,
+  laptops: Laptop,
+  tablets: Tablet,
+  accessoires: Plug,
+};
 
 const steps = [
   {
@@ -177,7 +40,12 @@ const trustPoints = [
   { text: 'Gecertificeerde kwaliteit', icon: Award },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [featuredProducts, categories] = await Promise.all([
+    getFeaturedProducts(6),
+    getCategoriesWithCount(),
+  ]);
+
   return (
     <>
       {/* Hero Section */}
@@ -226,7 +94,11 @@ export default function HomePage() {
                   <div className="absolute inset-0 bg-white/10 rounded-3xl backdrop-blur-sm" />
                   <div className="absolute inset-8 bg-white/20 rounded-2xl flex items-center justify-center">
                     <div className="text-center">
-                      <div className="text-8xl mb-4">📱💻📲</div>
+                      <div className="flex items-center justify-center gap-4 mb-4">
+                        <Smartphone className="h-16 w-16 text-emerald-300" />
+                        <Laptop className="h-20 w-20 text-white" />
+                        <Tablet className="h-16 w-16 text-emerald-300" />
+                      </div>
                       <p className="text-xl font-medium">Kwaliteit voor minder</p>
                     </div>
                   </div>
@@ -250,20 +122,25 @@ export default function HomePage() {
           </div>
           
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-            {categories.map((category) => (
-              <Link
-                key={category.slug}
-                href={`/producten?categorie=${category.slug}`}
-                className="group bg-white rounded-xl p-6 border border-gray-200 hover:border-[#094543] hover:shadow-lg transition-all duration-200"
-              >
-                <div className="text-4xl mb-4">{category.icon}</div>
-                <h3 className="text-lg font-semibold text-[#2C3E48] group-hover:text-[#094543] transition-colors">
-                  {category.name}
-                </h3>
-                <p className="text-sm text-gray-500 mt-1">{category.description}</p>
-                <p className="text-xs text-gray-400 mt-2">{category.count} producten</p>
-              </Link>
-            ))}
+            {categories.map((category) => {
+              const IconComponent = categoryIcons[category.slug] || Smartphone;
+              return (
+                <Link
+                  key={category.slug}
+                  href={`/producten?categorie=${category.slug}`}
+                  className="group bg-white rounded-xl p-6 border border-gray-200 hover:border-[#094543] hover:shadow-lg transition-all duration-200"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#094543]/10 flex items-center justify-center mb-4">
+                    <IconComponent className="h-6 w-6 text-[#094543]" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-[#2C3E48] group-hover:text-[#094543] transition-colors">
+                    {category.name}
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">{category.description}</p>
+                  <p className="text-xs text-gray-400 mt-2">{category.product_count} producten</p>
+                </Link>
+              );
+            })}
           </div>
         </Container>
       </section>
@@ -289,11 +166,17 @@ export default function HomePage() {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          {featuredProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-gray-50 rounded-xl">
+              <p className="text-gray-500">Binnenkort beschikbaar</p>
+            </div>
+          )}
           
           <div className="mt-8 text-center sm:hidden">
             <Link href="/producten">
@@ -379,11 +262,13 @@ export default function HomePage() {
               
               <div className="hidden lg:flex items-center justify-center bg-gradient-to-br from-emerald-500/20 to-transparent p-12">
                 <div className="text-center">
-                  <div className="text-8xl mb-4">♻️</div>
+                  <div className="w-24 h-24 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4">
+                    <Recycle className="h-14 w-14 text-emerald-400" />
+                  </div>
                   <p className="text-xl font-medium text-white">
                     Duurzaam & Eerlijk
-          </p>
-        </div>
+                  </p>
+                </div>
               </div>
             </div>
           </div>

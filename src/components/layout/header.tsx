@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { ShoppingCart, User, Menu, X, Search, ChevronDown } from 'lucide-react';
 import { Container } from './container';
@@ -42,7 +43,14 @@ export function Header() {
         <nav className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className="text-2xl font-bold text-[#094543]">TelFixer</span>
+            <Image
+              src="/telfixer-logo.png"
+              alt="TelFixer"
+              width={200}
+              height={80}
+              className="h-16 lg:h-20 w-auto"
+              priority
+            />
           </Link>
 
           {/* Desktop Navigation */}

@@ -15,8 +15,10 @@ import {
   ChevronDown,
   LogOut,
   FolderTree,
+  Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/auth-context';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -34,7 +36,20 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { profile, loading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Toon loading state alleen tijdens initieel laden
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-[#094543] mx-auto" />
+          <p className="mt-2 text-gray-600">Laden...</p>
+        </div>
+      </div>
+    );
+  }
 
   const isActive = (href: string) => {
     if (href === '/admin') return pathname === '/admin';
@@ -59,13 +74,13 @@ export default function AdminLayout({
         )}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between h-16 px-4 border-b border-white/10">
+        <div className="flex items-center justify-between h-16 px-4 border-b border-white/30">
           <Link href="/admin" className="text-xl font-bold text-white">
             TelFixer Admin
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-white/60 hover:text-white"
+            className="lg:hidden text-gray-200 hover:text-white"
           >
             <X className="h-6 w-6" />
           </button>
@@ -79,10 +94,10 @@ export default function AdminLayout({
               href={item.href}
               onClick={() => setSidebarOpen(false)}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors',
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors font-medium',
                 isActive(item.href)
-                  ? 'bg-white/10 text-white'
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
+                  ? 'bg-[#094543] text-white'
+                  : 'text-gray-200 hover:text-white hover:bg-white/10'
               )}
             >
               <item.icon className="h-5 w-5" />
@@ -92,10 +107,10 @@ export default function AdminLayout({
         </nav>
 
         {/* Bottom section */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/20">
           <Link
             href="/"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-200 hover:text-white hover:bg-white/10 transition-colors font-medium"
           >
             <LogOut className="h-5 w-5" />
             <span>Terug naar site</span>
@@ -118,9 +133,11 @@ export default function AdminLayout({
 
           {/* Admin user menu */}
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-600 hidden sm:inline">Admin</span>
+            <span className="text-sm text-gray-600 hidden sm:inline">
+              {profile?.first_name || profile?.email || 'Admin'}
+            </span>
             <div className="w-8 h-8 rounded-full bg-[#094543] text-white flex items-center justify-center text-sm font-medium">
-              A
+              {profile?.first_name?.[0]?.toUpperCase() || 'A'}
             </div>
           </div>
         </header>

@@ -1,44 +1,100 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Package, RefreshCw, Settings, ChevronRight, User } from 'lucide-react';
+import { Package, RefreshCw, Settings, ChevronRight } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { useAuth } from '@/context/auth-context';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { StatusBadge } from '@/components/ui/badge';
-
-// Mock data
-const recentOrders = [
-  {
-    id: '1',
-    order_number: 'ORD-ABC123',
-    created_at: '2026-01-05T10:30:00Z',
-    status: 'verzonden',
-    total_price: 799,
-  },
-  {
-    id: '2',
-    order_number: 'ORD-DEF456',
-    created_at: '2025-12-20T14:15:00Z',
-    status: 'afgeleverd',
-    total_price: 549,
-  },
-];
-
-const recentSubmissions = [
-  {
-    id: '1',
-    reference_number: 'TF-XYZ789',
-    device_model: 'iPhone 12 Pro',
-    created_at: '2026-01-03T09:00:00Z',
-    status: 'aanbieding_gemaakt',
-  },
-];
+import { Order, DeviceSubmission, OrderStatus, PaymentStatus, SubmissionStatus } from '@/types';
+import { createClient } from '@/lib/supabase/client';
 
 export default function AccountPage() {
-  const { profile, loading } = useAuth();
+  const { profile, user, loading } = useAuth();
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [recentSubmissions, setRecentSubmissions] = useState<DeviceSubmission[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
 
-  if (loading) {
+  useEffect(() => {
+    if (user) {
+      fetchData();
+    } else if (!loading) {
+      setDataLoading(false);
+    }
+  }, [user, loading]);
+
+  const fetchData = async () => {
+    const supabase = createClient();
+
+    // Fetch recent orders
+    const { data: ordersData } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', user?.id)
+      .order('created_at', { ascending: false })
+      .limit(2);
+
+    if (ordersData) {
+      setRecentOrders(
+        ordersData.map((item) => ({
+          id: item.id,
+          order_number: item.order_number,
+          user_id: item.user_id,
+          total_price: parseFloat(item.total_price),
+          shipping_cost: parseFloat(item.shipping_cost || '0'),
+          tax: parseFloat(item.tax || '0'),
+          status: item.status as OrderStatus,
+          shipping_address: item.shipping_address,
+          billing_address: item.billing_address,
+          payment_status: item.payment_status as PaymentStatus,
+          payment_method: item.payment_method,
+          tracking_number: item.tracking_number,
+          notes: item.notes,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+        }))
+      );
+    }
+
+    // Fetch recent submissions by email
+    if (profile?.email) {
+      const { data: submissionsData } = await supabase
+        .from('device_submissions')
+        .select('*')
+        .eq('customer_email', profile.email)
+        .order('created_at', { ascending: false })
+        .limit(2);
+
+      if (submissionsData) {
+        setRecentSubmissions(
+          submissionsData.map((item) => ({
+            id: item.id,
+            reference_number: item.reference_number,
+            user_id: item.user_id,
+            device_type: item.device_type,
+            device_brand: item.device_brand,
+            device_model: item.device_model,
+            condition_description: item.condition_description,
+            photos_urls: item.photos_urls || [],
+            status: item.status as SubmissionStatus,
+            evaluation_notes: item.evaluation_notes,
+            offered_price: item.offered_price ? parseFloat(item.offered_price) : null,
+            offer_accepted: item.offer_accepted,
+            customer_name: item.customer_name,
+            customer_email: item.customer_email,
+            customer_phone: item.customer_phone,
+            created_at: item.created_at,
+            updated_at: item.updated_at,
+          }))
+        );
+      }
+    }
+
+    setDataLoading(false);
+  };
+
+  if (loading || dataLoading) {
     return (
       <div className="py-12">
         <Container>
@@ -49,6 +105,26 @@ export default function AccountPage() {
                 <div key={i} className="h-32 bg-gray-200 rounded-xl" />
               ))}
             </div>
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="py-12">
+        <Container>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-[#2C3E48] mb-4">
+              Log in om je account te bekijken
+            </h1>
+            <Link
+              href="/login"
+              className="text-[#094543] hover:underline"
+            >
+              Naar inloggen
+            </Link>
           </div>
         </Container>
       </div>
@@ -186,7 +262,7 @@ export default function AccountPage() {
                   >
                     <div>
                       <p className="font-medium text-[#2C3E48]">
-                        {submission.device_model}
+                        {submission.device_brand} {submission.device_model}
                       </p>
                       <p className="text-sm text-gray-500">
                         {submission.reference_number}

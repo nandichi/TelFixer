@@ -1,79 +1,60 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Plus, Search, Edit, Trash2, MoreVertical, Package } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ConditionBadge } from '@/components/ui/badge';
 import { ConfirmModal } from '@/components/ui/modal';
 import { formatPrice } from '@/lib/utils';
 import { Product } from '@/types';
-
-// Mock data
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    name: 'iPhone 14 Pro 128GB Space Black',
-    slug: 'iphone-14-pro-128gb-space-black',
-    category_id: '1',
-    brand: 'Apple',
-    price: 799,
-    original_price: 1199,
-    condition_grade: 'zeer_goed',
-    description: '',
-    specifications: {},
-    stock_quantity: 5,
-    image_urls: [],
-    warranty_months: 12,
-    featured: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    name: 'Samsung Galaxy S23 Ultra 256GB',
-    slug: 'samsung-galaxy-s23-ultra-256gb',
-    category_id: '1',
-    brand: 'Samsung',
-    price: 899,
-    original_price: 1399,
-    condition_grade: 'als_nieuw',
-    description: '',
-    specifications: {},
-    stock_quantity: 3,
-    image_urls: [],
-    warranty_months: 12,
-    featured: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    name: 'MacBook Air M2 256GB',
-    slug: 'macbook-air-m2-256gb',
-    category_id: '2',
-    brand: 'Apple',
-    price: 999,
-    original_price: 1399,
-    condition_grade: 'zeer_goed',
-    description: '',
-    specifications: {},
-    stock_quantity: 4,
-    image_urls: [],
-    warranty_months: 12,
-    featured: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
+import { createClient } from '@/lib/supabase/client';
 
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState(mockProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('products')
+      .select('*, categories(id, name, slug)')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setProducts(
+        data.map((item) => ({
+          id: item.id,
+          name: item.name,
+          slug: item.slug,
+          category_id: item.category_id,
+          category: item.categories,
+          brand: item.brand,
+          price: parseFloat(item.price),
+          original_price: item.original_price ? parseFloat(item.original_price) : null,
+          condition_grade: item.condition_grade,
+          description: item.description,
+          specifications: item.specifications,
+          stock_quantity: item.stock_quantity,
+          image_urls: item.image_urls,
+          warranty_months: item.warranty_months,
+          featured: item.featured,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+        }))
+      );
+    }
+    setLoading(false);
+  };
 
   const filteredProducts = products.filter(
     (product) =>
@@ -86,13 +67,30 @@ export default function AdminProductsPage() {
     setDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (selectedProduct) {
-      setProducts(products.filter((p) => p.id !== selectedProduct.id));
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', selectedProduct.id);
+
+      if (!error) {
+        setProducts(products.filter((p) => p.id !== selectedProduct.id));
+      }
       setDeleteModalOpen(false);
       setSelectedProduct(null);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-8 bg-gray-200 rounded w-48 animate-pulse" />
+        <div className="h-64 bg-gray-200 rounded animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

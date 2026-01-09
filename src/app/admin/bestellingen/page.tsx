@@ -1,60 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Eye, Package, Filter } from 'lucide-react';
+import { Search, Eye, Package } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/badge';
 import { formatPrice, formatDate } from '@/lib/utils';
-
-// Mock data
-const mockOrders = [
-  {
-    id: '1',
-    order_number: 'ORD-ABC123',
-    customer_name: 'Jan de Vries',
-    customer_email: 'jan@example.com',
-    total_price: 799,
-    status: 'betaald',
-    payment_status: 'paid',
-    items_count: 1,
-    created_at: '2026-01-05T10:30:00Z',
-  },
-  {
-    id: '2',
-    order_number: 'ORD-DEF456',
-    customer_name: 'Maria Jansen',
-    customer_email: 'maria@example.com',
-    total_price: 549,
-    status: 'verzonden',
-    payment_status: 'paid',
-    items_count: 1,
-    created_at: '2026-01-04T14:15:00Z',
-  },
-  {
-    id: '3',
-    order_number: 'ORD-GHI789',
-    customer_name: 'Peter Bakker',
-    customer_email: 'peter@example.com',
-    total_price: 1299,
-    status: 'in_behandeling',
-    payment_status: 'pending',
-    items_count: 2,
-    created_at: '2026-01-03T09:45:00Z',
-  },
-  {
-    id: '4',
-    order_number: 'ORD-JKL012',
-    customer_name: 'Anna Smit',
-    customer_email: 'anna@example.com',
-    total_price: 449,
-    status: 'afgeleverd',
-    payment_status: 'paid',
-    items_count: 1,
-    created_at: '2025-12-28T16:20:00Z',
-  },
-];
+import { Order, OrderStatus, PaymentStatus } from '@/types';
+import { createClient } from '@/lib/supabase/client';
 
 const statusFilters = [
   { value: 'all', label: 'Alle' },
@@ -65,25 +18,74 @@ const statusFilters = [
 ];
 
 export default function AdminOrdersPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const filteredOrders = mockOrders.filter((order) => {
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*, users(id, email, first_name, last_name), order_items(id)')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setOrders(
+        data.map((item) => ({
+          id: item.id,
+          order_number: item.order_number,
+          user_id: item.user_id,
+          user: item.users,
+          total_price: parseFloat(item.total_price),
+          shipping_cost: parseFloat(item.shipping_cost || '0'),
+          tax: parseFloat(item.tax || '0'),
+          status: item.status as OrderStatus,
+          shipping_address: item.shipping_address,
+          billing_address: item.billing_address,
+          payment_status: item.payment_status as PaymentStatus,
+          payment_method: item.payment_method,
+          tracking_number: item.tracking_number,
+          notes: item.notes,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+          items: item.order_items || [],
+        }))
+      );
+    }
+    setLoading(false);
+  };
+
+  const filteredOrders = orders.filter((order) => {
     const matchesSearch =
       order.order_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customer_email.toLowerCase().includes(searchQuery.toLowerCase());
+      (order.user?.first_name?.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (order.user?.last_name?.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (order.user?.email?.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesStatus =
       statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-8 bg-gray-200 rounded w-48 animate-pulse" />
+        <div className="h-64 bg-gray-200 rounded animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-[#2C3E48]">Bestellingen</h1>
-        <p className="text-gray-600">{mockOrders.length} bestellingen in totaal</p>
+        <p className="text-gray-600">{orders.length} bestellingen in totaal</p>
       </div>
 
       {/* Filters */}
@@ -152,16 +154,16 @@ export default function AdminOrdersPage() {
                         {order.order_number}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {order.items_count} {order.items_count === 1 ? 'product' : 'producten'}
+                        {order.items?.length || 0} {(order.items?.length || 0) === 1 ? 'product' : 'producten'}
                       </p>
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <div>
                       <p className="font-medium text-[#2C3E48]">
-                        {order.customer_name}
+                        {order.user?.first_name} {order.user?.last_name}
                       </p>
-                      <p className="text-sm text-gray-500">{order.customer_email}</p>
+                      <p className="text-sm text-gray-500">{order.user?.email}</p>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-gray-600">

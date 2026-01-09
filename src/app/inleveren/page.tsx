@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +16,7 @@ import {
   Headphones,
   Check,
   AlertCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { generateReferenceNumber } from "@/lib/utils";
 import { cn } from "@/lib/utils";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = [
@@ -97,6 +99,11 @@ export default function SubmitDevicePage() {
   const [step, setStep] = useState(1);
   const [photos, setPhotos] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isConfigured, setIsConfigured] = useState(true);
+
+  useEffect(() => {
+    setIsConfigured(isSupabaseConfigured());
+  }, []);
 
   const {
     register,
@@ -167,22 +174,93 @@ export default function SubmitDevicePage() {
   };
 
   const onSubmit = async (data: SubmissionFormData) => {
+    if (!isSupabaseConfigured()) {
+      showError(
+        "Database niet geconfigureerd",
+        "Neem contact op met de beheerder"
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
+      const supabase = createClient();
       const referenceNumber = generateReferenceNumber();
+
+      // Upload photos if any
+      const photoUrls: string[] = [];
+      for (const photo of photos) {
+        const fileName = `${referenceNumber}/${Date.now()}-${photo.name}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("submissions")
+          .upload(fileName, photo);
+
+        if (!uploadError && uploadData) {
+          const { data: urlData } = supabase.storage
+            .from("submissions")
+            .getPublicUrl(uploadData.path);
+          if (urlData) {
+            photoUrls.push(urlData.publicUrl);
+          }
+        }
+      }
+
+      // Get brand label
+      const brandLabel =
+        brands.find((b) => b.value === data.deviceBrand)?.label ||
+        data.deviceBrand;
+
+      // Create submission in database
+      const { error: insertError } = await supabase
+        .from("device_submissions")
+        .insert({
+          reference_number: referenceNumber,
+          device_type: data.deviceType,
+          device_brand: brandLabel,
+          device_model: data.deviceModel,
+          condition_description: data.conditionDescription,
+          photos_urls: photoUrls,
+          customer_name: data.customerName,
+          customer_email: data.customerEmail,
+          customer_phone: data.customerPhone,
+          status: "ontvangen",
+        });
+
+      if (insertError) {
+        throw insertError;
+      }
 
       success("Inlevering ingediend!", `Referentienummer: ${referenceNumber}`);
       router.push(`/inleveren/bevestiging?ref=${referenceNumber}`);
     } catch (err) {
+      console.error("Submission error:", err);
       showError("Er ging iets mis", "Probeer het opnieuw");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (!isConfigured) {
+    return (
+      <div className="py-8 lg:py-12">
+        <Container>
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="bg-amber-50 rounded-xl p-8">
+              <AlertTriangle className="h-12 w-12 text-amber-600 mx-auto mb-4" />
+              <h1 className="text-xl font-bold text-[#2C3E48] mb-2">
+                Database niet geconfigureerd
+              </h1>
+              <p className="text-gray-600">
+                Configureer je Supabase credentials in de .env.local file om
+                apparaten in te kunnen leveren.
+              </p>
+            </div>
+          </div>
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="py-8 lg:py-12">

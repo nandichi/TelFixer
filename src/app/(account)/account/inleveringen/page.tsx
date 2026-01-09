@@ -1,37 +1,135 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, RefreshCw, ChevronRight } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/badge';
 import { formatDate, formatPrice } from '@/lib/utils';
-
-// Mock data
-const submissions = [
-  {
-    id: '1',
-    reference_number: 'TF-XYZ789',
-    device_type: 'Telefoon',
-    device_brand: 'Apple',
-    device_model: 'iPhone 12 Pro',
-    created_at: '2026-01-03T09:00:00Z',
-    status: 'aanbieding_gemaakt',
-    offered_price: 450,
-  },
-  {
-    id: '2',
-    reference_number: 'TF-ABC123',
-    device_type: 'Laptop',
-    device_brand: 'Apple',
-    device_model: 'MacBook Air 2020',
-    created_at: '2025-12-15T14:30:00Z',
-    status: 'afgehandeld',
-    offered_price: 550,
-  },
-];
+import { useAuth } from '@/context/auth-context';
+import { DeviceSubmission, SubmissionStatus } from '@/types';
+import { createClient } from '@/lib/supabase/client';
 
 export default function SubmissionsPage() {
+  const { user, profile, loading: authLoading } = useAuth();
+  const [submissions, setSubmissions] = useState<DeviceSubmission[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (profile?.email) {
+      fetchSubmissions();
+    } else if (!authLoading) {
+      setLoading(false);
+    }
+  }, [profile, authLoading]);
+
+  const fetchSubmissions = async () => {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('device_submissions')
+      .select('*')
+      .eq('customer_email', profile?.email)
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setSubmissions(
+        data.map((item) => ({
+          id: item.id,
+          reference_number: item.reference_number,
+          user_id: item.user_id,
+          device_type: item.device_type,
+          device_brand: item.device_brand,
+          device_model: item.device_model,
+          condition_description: item.condition_description,
+          photos_urls: item.photos_urls || [],
+          status: item.status as SubmissionStatus,
+          evaluation_notes: item.evaluation_notes,
+          offered_price: item.offered_price ? parseFloat(item.offered_price) : null,
+          offer_accepted: item.offer_accepted,
+          customer_name: item.customer_name,
+          customer_email: item.customer_email,
+          customer_phone: item.customer_phone,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+        }))
+      );
+    }
+    setLoading(false);
+  };
+
+  const handleAcceptOffer = async (submissionId: string) => {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from('device_submissions')
+      .update({
+        offer_accepted: true,
+        status: 'aanbieding_geaccepteerd',
+      })
+      .eq('id', submissionId);
+
+    if (!error) {
+      setSubmissions((prev) =>
+        prev.map((s) =>
+          s.id === submissionId
+            ? { ...s, offer_accepted: true, status: 'aanbieding_geaccepteerd' as SubmissionStatus }
+            : s
+        )
+      );
+    }
+  };
+
+  const handleRejectOffer = async (submissionId: string) => {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from('device_submissions')
+      .update({
+        offer_accepted: false,
+        status: 'aanbieding_afgewezen',
+      })
+      .eq('id', submissionId);
+
+    if (!error) {
+      setSubmissions((prev) =>
+        prev.map((s) =>
+          s.id === submissionId
+            ? { ...s, offer_accepted: false, status: 'aanbieding_afgewezen' as SubmissionStatus }
+            : s
+        )
+      );
+    }
+  };
+
+  if (authLoading || loading) {
+    return (
+      <div className="py-12">
+        <Container>
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-200 rounded w-48" />
+            <div className="h-64 bg-gray-200 rounded-xl" />
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="py-12">
+        <Container>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-[#2C3E48] mb-4">
+              Log in om je inleveringen te bekijken
+            </h1>
+            <Link href="/login" className="text-[#094543] hover:underline">
+              Naar inloggen
+            </Link>
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
   return (
     <div className="py-8 lg:py-12">
       <Container>
@@ -108,8 +206,17 @@ export default function SubmissionsPage() {
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     {submission.status === 'aanbieding_gemaakt' && (
                       <div className="flex gap-2">
-                        <Button size="sm">Accepteren</Button>
-                        <Button size="sm" variant="outline">
+                        <Button
+                          size="sm"
+                          onClick={() => handleAcceptOffer(submission.id)}
+                        >
+                          Accepteren
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRejectOffer(submission.id)}
+                        >
                           Afwijzen
                         </Button>
                       </div>

@@ -1,64 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, Eye, RefreshCw, Euro } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/badge';
 import { formatPrice, formatDate } from '@/lib/utils';
-
-// Mock data
-const mockSubmissions = [
-  {
-    id: '1',
-    reference_number: 'TF-XYZ789',
-    device_type: 'Telefoon',
-    device_brand: 'Apple',
-    device_model: 'iPhone 14 Pro',
-    customer_name: 'Anna Smit',
-    customer_email: 'anna@example.com',
-    status: 'evaluatie',
-    offered_price: null,
-    created_at: '2026-01-05T10:30:00Z',
-  },
-  {
-    id: '2',
-    reference_number: 'TF-ABC123',
-    device_type: 'Laptop',
-    device_brand: 'Apple',
-    device_model: 'MacBook Air 2020',
-    customer_name: 'Tom Visser',
-    customer_email: 'tom@example.com',
-    status: 'aanbieding_gemaakt',
-    offered_price: 550,
-    created_at: '2026-01-03T14:15:00Z',
-  },
-  {
-    id: '3',
-    reference_number: 'TF-DEF456',
-    device_type: 'Tablet',
-    device_brand: 'Samsung',
-    device_model: 'Galaxy Tab S8',
-    customer_name: 'Lisa de Boer',
-    customer_email: 'lisa@example.com',
-    status: 'aanbieding_geaccepteerd',
-    offered_price: 320,
-    created_at: '2026-01-02T09:45:00Z',
-  },
-  {
-    id: '4',
-    reference_number: 'TF-GHI789',
-    device_type: 'Telefoon',
-    device_brand: 'Samsung',
-    device_model: 'Galaxy S22',
-    customer_name: 'Mark Jansen',
-    customer_email: 'mark@example.com',
-    status: 'ontvangen',
-    offered_price: null,
-    created_at: '2026-01-06T11:20:00Z',
-  },
-];
+import { DeviceSubmission, SubmissionStatus } from '@/types';
+import { createClient } from '@/lib/supabase/client';
 
 const statusFilters = [
   { value: 'all', label: 'Alle' },
@@ -70,10 +20,49 @@ const statusFilters = [
 ];
 
 export default function AdminSubmissionsPage() {
+  const [submissions, setSubmissions] = useState<DeviceSubmission[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const filteredSubmissions = mockSubmissions.filter((submission) => {
+  useEffect(() => {
+    fetchSubmissions();
+  }, []);
+
+  const fetchSubmissions = async () => {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('device_submissions')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setSubmissions(
+        data.map((item) => ({
+          id: item.id,
+          reference_number: item.reference_number,
+          user_id: item.user_id,
+          device_type: item.device_type,
+          device_brand: item.device_brand,
+          device_model: item.device_model,
+          condition_description: item.condition_description,
+          photos_urls: item.photos_urls || [],
+          status: item.status as SubmissionStatus,
+          evaluation_notes: item.evaluation_notes,
+          offered_price: item.offered_price ? parseFloat(item.offered_price) : null,
+          offer_accepted: item.offer_accepted,
+          customer_name: item.customer_name,
+          customer_email: item.customer_email,
+          customer_phone: item.customer_phone,
+          created_at: item.created_at,
+          updated_at: item.updated_at,
+        }))
+      );
+    }
+    setLoading(false);
+  };
+
+  const filteredSubmissions = submissions.filter((submission) => {
     const matchesSearch =
       submission.reference_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       submission.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -83,12 +72,21 @@ export default function AdminSubmissionsPage() {
     return matchesSearch && matchesStatus;
   });
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-8 bg-gray-200 rounded w-48 animate-pulse" />
+        <div className="h-64 bg-gray-200 rounded animate-pulse" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-[#2C3E48]">Inleveringen</h1>
-        <p className="text-gray-600">{mockSubmissions.length} inleveringen in totaal</p>
+        <p className="text-gray-600">{submissions.length} inleveringen in totaal</p>
       </div>
 
       {/* Filters */}
