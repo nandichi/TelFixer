@@ -1,13 +1,14 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, Shield, Leaf, Heart, Award, Users, Target } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowRight, Shield, Leaf, Heart, Award, Target, MapPin, GraduationCap, Wrench, ExternalLink } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
 
 export const metadata: Metadata = {
   title: 'Over Ons',
   description:
-    'Leer meer over TelFixer - jouw betrouwbare partner voor refurbished elektronica en duurzame technologie.',
+    'Leer meer over TelFixer - vakkundig gerepareerde telefoons die een tweede leven krijgen. Gevestigd in Ede, Gelderland.',
 };
 
 const values = [
@@ -15,13 +16,13 @@ const values = [
     icon: Shield,
     title: 'Kwaliteit',
     description:
-      'Elk apparaat wordt grondig getest op 50+ punten. We leveren alleen producten waar we volledig achter staan.',
+      'Elk apparaat wordt door Ivan persoonlijk gerepareerd en grondig getest. We leveren alleen producten waar we volledig achter staan.',
   },
   {
     icon: Leaf,
     title: 'Duurzaamheid',
     description:
-      'Door refurbished te kiezen, geef je elektronica een tweede leven en verminder je e-waste.',
+      'Door een gerepareerde telefoon te kiezen, geef je elektronica een tweede leven en verminder je e-waste.',
   },
   {
     icon: Heart,
@@ -38,9 +39,9 @@ const values = [
 ];
 
 const stats = [
-  { value: '10.000+', label: 'Tevreden klanten' },
-  { value: '15.000+', label: 'Producten verkocht' },
-  { value: '5.000+', label: 'Apparaten gerefurbished' },
+  { value: '500+', label: 'Tevreden klanten' },
+  { value: '1.000+', label: 'Telefoons verkocht' },
+  { value: '800+', label: 'Apparaten gerepareerd' },
   { value: '98%', label: 'Klanttevredenheid' },
 ];
 
@@ -54,8 +55,8 @@ export default function AboutPage() {
             Over TelFixer
           </h1>
           <p className="text-xl text-gray-600">
-            Wij geloven dat hoogwaardige technologie voor iedereen toegankelijk 
-            moet zijn, zonder de planeet te belasten.
+            Vakkundig gerepareerde telefoons die een tweede leven krijgen. 
+            Gevestigd in Ede, Gelderland.
           </p>
         </div>
       </Container>
@@ -70,20 +71,19 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-gray-600">
                 <p>
-                  TelFixer is ontstaan uit een simpele observatie: elk jaar worden 
-                  miljoenen perfect bruikbare apparaten weggegooid, terwijl nieuwe 
-                  elektronica steeds duurder wordt.
+                  TelFixer is het verhaal van Ivan Politin, een gepassioneerde telefoonreparateur 
+                  uit Ede, Gelderland. Ivan zag hoe elk jaar miljoenen perfect bruikbare telefoons 
+                  worden weggegooid, terwijl nieuwe toestellen steeds duurder worden.
                 </p>
                 <p>
-                  Wij zagen een kans om dit te veranderen. Door gebruikte apparaten 
-                  professioneel te refurbishen, geven we ze een tweede leven en bieden 
-                  we consumenten een betaalbaar alternatief zonder in te leveren op kwaliteit.
+                  Met jarenlange ervaring in het repareren van telefoons besloot Ivan om 
+                  deze apparaten een tweede leven te geven. Geen massale refurbish-fabriek, 
+                  maar persoonlijke aandacht voor elk toestel dat door zijn handen gaat.
                 </p>
                 <p>
-                  Vandaag de dag zijn we uitgegroeid tot een van de meest betrouwbare 
-                  aanbieders van refurbished elektronica in Nederland. Met een team van 
-                  gepassioneerde technici werken we dagelijks aan het leveren van de 
-                  beste kwaliteit refurbished producten.
+                  Vanuit zijn werkplaats in Ede repareert Ivan elke telefoon met vakmanschap 
+                  en zorg. Elk apparaat wordt grondig getest voordat het een nieuwe eigenaar 
+                  krijgt. Zo combineren we betaalbare technologie met duurzaamheid.
                 </p>
               </div>
             </div>
@@ -92,9 +92,9 @@ export default function AboutPage() {
                 <Target className="h-16 w-16 mx-auto mb-6 text-emerald-300" />
                 <h3 className="text-2xl font-bold mb-4">Onze Missie</h3>
                 <p className="text-lg text-gray-200">
-                  Hoogwaardige technologie toegankelijk maken voor iedereen, 
-                  terwijl we bijdragen aan een duurzamere wereld door elektronica 
-                  een tweede leven te geven.
+                  Elke telefoon verdient een tweede kans. Door vakkundig te repareren 
+                  maken we kwaliteit betaalbaar en dragen we bij aan een duurzamere 
+                  wereld, een telefoon tegelijk.
                 </p>
               </div>
             </div>
@@ -147,34 +147,121 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      {/* Team */}
+      {/* Ivan Section */}
       <section className="py-16">
         <Container>
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-[#2C3E48]">
-              Ons Team
+              De Vakman
             </h2>
             <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
-              Een gepassioneerd team van technici en klantenservice medewerkers 
-              staat klaar om je te helpen
+              Achter TelFixer staat een gepassioneerde ondernemer en reparateur 
+              die elke telefoon met zorg behandelt
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {[
-              { name: 'Technici', count: '8+', description: 'Gecertificeerde refurbish specialisten' },
-              { name: 'Klantenservice', count: '5+', description: 'Vriendelijke experts klaar om te helpen' },
-              { name: 'Logistiek', count: '4+', description: 'Zorgen voor snelle levering' },
-            ].map((dept) => (
-              <div key={dept.name} className="text-center">
-                <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-10 w-10 text-[#094543]" />
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              <div className="grid md:grid-cols-5 gap-0">
+                {/* Foto kolom */}
+                <div className="md:col-span-2 bg-gradient-to-br from-[#094543] to-[#0a5a57] p-8 flex flex-col items-center justify-center">
+                  <div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-white/20 shadow-xl mb-6">
+                    <Image
+                      src="https://media.licdn.com/dms/image/v2/D4D03AQFntoMXsxBODQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1726786165361?e=1769644800&v=beta&t=kfvBFGH9tvNGub3Xgc7Si-WZut4P6clcyDi1wgXNi4o"
+                      alt="Ivan Politin - Oprichter TelFixer"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-1">Ivan Politin</h3>
+                  <p className="text-emerald-300 font-medium mb-4">Oprichter & Telefoonreparateur</p>
+                  <a
+                    href="https://www.linkedin.com/in/ivan-politin-333339309/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white text-sm transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    </svg>
+                    Bekijk LinkedIn
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
                 </div>
-                <p className="text-2xl font-bold text-[#094543]">{dept.count}</p>
-                <h3 className="text-lg font-semibold text-[#2C3E48]">{dept.name}</h3>
-                <p className="text-sm text-gray-600 mt-1">{dept.description}</p>
+
+                {/* Info kolom */}
+                <div className="md:col-span-3 p-8">
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-lg font-semibold text-[#2C3E48] mb-3">Over Ivan</h4>
+                      <p className="text-gray-600 leading-relaxed">
+                        Ivan Politin (20) is een jonge ondernemer uit Ede met een passie voor 
+                        technologie en duurzaamheid. Naast zijn studie Technische Bedrijfskunde 
+                        aan de HAN in Arnhem runt hij TelFixer, waar hij telefoons vakkundig 
+                        repareert en een tweede leven geeft.
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-gray-600 leading-relaxed">
+                        Met ervaring in sales, logistiek en klantcontact combineert Ivan 
+                        ondernemerschap met analytisch denkvermogen. Hij werkt voortdurend 
+                        aan het optimaliseren van processen en ziet snel kansen voor verbetering.
+                      </p>
+                    </div>
+
+                    <div className="grid sm:grid-cols-2 gap-4 pt-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-[#094543]/10 flex items-center justify-center flex-shrink-0">
+                          <MapPin className="w-5 h-5 text-[#094543]" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-[#2C3E48]">Locatie</p>
+                          <p className="text-sm text-gray-600">Ede, Gelderland</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-[#094543]/10 flex items-center justify-center flex-shrink-0">
+                          <GraduationCap className="w-5 h-5 text-[#094543]" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-[#2C3E48]">Opleiding</p>
+                          <p className="text-sm text-gray-600">Technische Bedrijfskunde - HAN</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-[#094543]/10 flex items-center justify-center flex-shrink-0">
+                          <Wrench className="w-5 h-5 text-[#094543]" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-[#2C3E48]">Expertise</p>
+                          <p className="text-sm text-gray-600">Elektronicareparatie & Operations</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-[#094543]/10 flex items-center justify-center flex-shrink-0">
+                          <Award className="w-5 h-5 text-[#094543]" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-[#2C3E48]">Certificering</p>
+                          <p className="text-sm text-gray-600">VCA VOL gecertificeerd</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-100">
+                      <p className="text-sm text-gray-500 italic">
+                        &quot;Ik krijg energie van het verbeteren van processen. Ik zie snel kansen 
+                        en werk goed onder druk. Altijd op zoek naar slimme ideeen en verbeteringen.&quot;
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            ))}
+            </div>
           </div>
         </Container>
       </section>
@@ -187,7 +274,7 @@ export default function AboutPage() {
               Klaar om te beginnen?
             </h2>
             <p className="text-gray-600 mb-8">
-              Ontdek onze collectie refurbished elektronica of lever je oude apparaat in
+              Ontdek onze collectie gerepareerde telefoons of lever je oude apparaat in
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/producten">

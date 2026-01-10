@@ -56,20 +56,20 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="py-12 lg:py-16">
+    <div className="py-10 sm:py-12 lg:py-16">
       <Container>
         {/* Header */}
-        <div className="max-w-2xl mx-auto text-center mb-12">
-          <h1 className="text-4xl font-bold text-[#2C3E48] mb-4">Contact</h1>
-          <p className="text-gray-600">
+        <div className="max-w-2xl mx-auto text-center mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#2C3E48] mb-3 sm:mb-4">Contact</h1>
+          <p className="text-sm sm:text-base text-gray-600">
             Heb je een vraag of wil je meer informatie? Neem gerust contact met ons op.
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-12 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-12 max-w-6xl mx-auto">
           {/* Contact Info */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-[#094543] text-white rounded-2xl p-8">
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6 order-2 lg:order-1">
+            <div className="bg-[#094543] text-white rounded-xl sm:rounded-2xl p-5 sm:p-8">
               <h2 className="text-xl font-semibold mb-6">Contactgegevens</h2>
               
               <div className="space-y-6">
@@ -123,11 +123,11 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <div className="bg-gray-50 rounded-2xl p-6">
-              <h3 className="font-semibold text-[#2C3E48] mb-2">
+            <div className="bg-gray-50 rounded-xl sm:rounded-2xl p-4 sm:p-6">
+              <h3 className="font-semibold text-[#2C3E48] mb-2 text-sm sm:text-base">
                 Reactietijd
               </h3>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-xs sm:text-sm">
                 We streven ernaar om binnen 24 uur te reageren op alle berichten 
                 tijdens werkdagen.
               </p>
@@ -135,9 +135,9 @@ export default function ContactPage() {
           </div>
 
           {/* Contact Form */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl border border-gray-200 p-8">
-              <h2 className="text-xl font-semibold text-[#2C3E48] mb-6">
+          <div className="lg:col-span-2 order-1 lg:order-2">
+            <div className="bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-5 sm:p-8">
+              <h2 className="text-lg sm:text-xl font-semibold text-[#2C3E48] mb-4 sm:mb-6">
                 Stuur ons een bericht
               </h2>
 

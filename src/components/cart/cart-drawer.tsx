@@ -44,10 +44,10 @@ export function CartDrawer() {
       />
 
       {/* Drawer */}
-      <div className="fixed right-0 top-0 h-full w-full max-w-md bg-cream shadow-2xl z-50 flex flex-col animate-slide-in-right">
+      <div className="fixed right-0 top-0 h-full w-full sm:max-w-md bg-cream shadow-2xl z-50 flex flex-col animate-slide-in-right">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-sand">
-          <h2 className="text-xl font-display font-semibold text-soft-black">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 sm:py-5 border-b border-sand">
+          <h2 className="text-lg sm:text-xl font-display font-semibold text-soft-black">
             Winkelwagen ({itemCount})
           </h2>
           <button
@@ -79,16 +79,16 @@ export function CartDrawer() {
         ) : (
           <>
             {/* Items List */}
-            <div className="flex-1 overflow-y-auto px-6 py-6">
-              <div className="space-y-4">
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-6">
+              <div className="space-y-3 sm:space-y-4">
                 {items.map((item) => (
                   <div
                     key={item.product.id}
-                    className="flex gap-4 p-4 bg-white rounded-2xl border border-sand"
+                    className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-white rounded-xl sm:rounded-2xl border border-sand"
                     style={{ boxShadow: 'var(--shadow-xs)' }}
                   >
                     {/* Image */}
-                    <div className="relative w-20 h-20 bg-champagne rounded-xl overflow-hidden shrink-0">
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 bg-champagne rounded-lg sm:rounded-xl overflow-hidden shrink-0">
                       {item.product.image_urls?.[0] ? (
                         <Image
                           src={item.product.image_urls[0]}
@@ -168,7 +168,7 @@ export function CartDrawer() {
             </div>
 
             {/* Footer */}
-            <div className="border-t border-sand bg-white px-6 py-6 space-y-6">
+            <div className="border-t border-sand bg-white px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
               {/* Totals */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-sm">

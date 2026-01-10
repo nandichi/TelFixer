@@ -44,12 +44,12 @@ const steps = [
   {
     number: '01',
     title: 'Kies je apparaat',
-    description: 'Blader door onze uitgebreide collectie refurbished elektronica of lever je oude apparaat in.',
+    description: 'Blader door onze collectie vakkundig gerepareerde telefoons of lever je oude apparaat in.',
   },
   {
     number: '02',
     title: 'Kwaliteitsgarantie',
-    description: 'Elk apparaat wordt grondig getest en gereinigd. Je ontvangt een product in topconditie.',
+    description: 'Elk apparaat wordt door Ivan persoonlijk gerepareerd, getest en gereinigd. Je ontvangt een product in topconditie.',
   },
   {
     number: '03',
@@ -110,26 +110,26 @@ export default async function HomePage() {
         </div>
         
         <Container>
-          <div className="relative py-16 lg:py-24">
-            <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+          <div className="relative py-10 sm:py-16 lg:py-24">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-8 items-center">
               {/* Left Side - Text Content */}
-              <div className="space-y-8 lg:pr-8">
+              <div className="space-y-6 sm:space-y-8 lg:pr-8">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10">
                   <span className="w-2 h-2 rounded-full bg-copper animate-pulse" />
-                  <span className="text-sm font-medium text-primary">Premium Refurbished</span>
+                  <span className="text-sm font-medium text-primary">Een Tweede Leven</span>
                 </div>
                 
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold text-soft-black leading-[1.1] opacity-0-start animate-fade-in-up">
-                  Refurbished
+                  Gerepareerde
                   <br />
-                  <span className="text-gradient-primary">Elektronica</span>
+                  <span className="text-gradient-primary">Telefoons</span>
                   <br />
                   Met Garantie
           </h1>
                 
                 <p className="text-lg lg:text-xl text-slate max-w-lg leading-relaxed opacity-0-start animate-fade-in-up delay-200">
-                  Bespaar tot 40% op topkwaliteit telefoons, laptops en tablets. 
-                  Allemaal getest, gereinigd en met 12 maanden garantie.
+                  Bespaar tot 40% op vakkundig gerepareerde telefoons. 
+                  Persoonlijk gerepareerd door Ivan, getest en met 12 maanden garantie.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 opacity-0-start animate-fade-in-up delay-300">
@@ -152,10 +152,10 @@ export default async function HomePage() {
                 </div>
                 
                 {/* Trust Points */}
-                <div className="pt-6 grid grid-cols-2 gap-4 opacity-0-start animate-fade-in-up delay-400">
+                <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 opacity-0-start animate-fade-in-up delay-400">
                   {trustPoints.map((point) => (
-                    <div key={point.text} className="flex items-center gap-3 text-sm text-slate">
-                      <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/5 text-primary flex-shrink-0">
+                    <div key={point.text} className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate">
+                      <span className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary/5 text-primary flex-shrink-0">
                         {point.icon}
                       </span>
                       <span>{point.text}</span>
@@ -168,7 +168,7 @@ export default async function HomePage() {
               <div className="relative flex items-center justify-center lg:justify-end opacity-0-start animate-fade-in-left delay-300">
                 {/* Glow Effect Background */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-[280px] h-[280px] sm:w-[340px] sm:h-[340px] lg:w-[420px] lg:h-[420px] rounded-full bg-gradient-to-br from-primary/20 via-copper/15 to-gold/10 blur-3xl animate-pulse-slow" />
+                  <div className="w-[220px] h-[220px] sm:w-[340px] sm:h-[340px] lg:w-[420px] lg:h-[420px] rounded-full bg-gradient-to-br from-primary/20 via-copper/15 to-gold/10 blur-3xl animate-pulse-slow" />
                 </div>
                 
                 {/* Phone Mockup Container */}
@@ -177,7 +177,7 @@ export default async function HomePage() {
                   <div className="absolute -inset-4 sm:-inset-6 lg:-inset-8 rounded-[4rem] bg-gradient-to-br from-primary/10 via-transparent to-copper/10 blur-2xl" />
                   
                   {/* Phone Device */}
-                  <div className="relative w-[240px] h-[480px] sm:w-[280px] sm:h-[560px] lg:w-[320px] lg:h-[640px]">
+                  <div className="relative w-[200px] h-[400px] sm:w-[280px] sm:h-[560px] lg:w-[320px] lg:h-[640px]">
                     {/* Phone Frame Shadow */}
                     <div className="absolute inset-0 bg-gradient-to-br from-soft-black/30 to-charcoal/20 rounded-[3rem] blur-xl translate-y-4 translate-x-2" />
                     
@@ -226,7 +226,7 @@ export default async function HomePage() {
                               
                               <div className="text-center space-y-1">
                                 <p className="text-sm sm:text-base font-display font-bold text-soft-black">TelFixer</p>
-                                <p className="text-[10px] sm:text-xs text-muted">Premium Refurbished</p>
+                                <p className="text-[10px] sm:text-xs text-muted">Een Tweede Leven</p>
                               </div>
                               
                               {/* Stats Preview */}
@@ -253,21 +253,21 @@ export default async function HomePage() {
                     </div>
                     
                     {/* Floating Badges */}
-                    <div className="absolute -top-2 -right-6 sm:-top-4 sm:-right-8 lg:-top-6 lg:-right-12 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-2xl bg-gradient-to-br from-copper to-gold p-3 sm:p-4 text-white shadow-xl animate-float" style={{ animationDelay: '0s' }}>
+                    <div className="hidden sm:block absolute -top-2 -right-6 sm:-top-4 sm:-right-8 lg:-top-6 lg:-right-12 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-2xl bg-gradient-to-br from-copper to-gold p-3 sm:p-4 text-white shadow-xl animate-float" style={{ animationDelay: '0s' }}>
                       <svg className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                       </svg>
                       <span className="text-[9px] sm:text-[10px] lg:text-xs font-medium block leading-tight">Garantie<br/>12 maanden</span>
                     </div>
                     
-                    <div className="absolute -bottom-2 -left-6 sm:-bottom-4 sm:-left-8 lg:-bottom-6 lg:-left-12 w-18 h-18 sm:w-22 sm:h-22 lg:w-24 lg:h-24 rounded-2xl bg-gradient-to-br from-primary to-primary-light p-3 sm:p-4 text-white shadow-xl animate-float" style={{ animationDelay: '2s' }}>
+                    <div className="hidden sm:block absolute -bottom-2 -left-6 sm:-bottom-4 sm:-left-8 lg:-bottom-6 lg:-left-12 w-18 h-18 sm:w-22 sm:h-22 lg:w-24 lg:h-24 rounded-2xl bg-gradient-to-br from-primary to-primary-light p-3 sm:p-4 text-white shadow-xl animate-float" style={{ animationDelay: '2s' }}>
                       <svg className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                       </svg>
                       <span className="text-[9px] sm:text-[10px] lg:text-xs font-medium block leading-tight">Gratis<br/>verzending</span>
                     </div>
                     
-                    <div className="absolute top-1/3 -left-4 sm:-left-6 lg:-left-10 w-16 h-16 sm:w-18 sm:h-18 lg:w-20 lg:h-20 rounded-2xl bg-gradient-to-br from-[#0D9488] to-[#14B8A6] p-2 sm:p-3 text-white shadow-xl animate-float" style={{ animationDelay: '4s' }}>
+                    <div className="hidden sm:block absolute top-1/3 -left-4 sm:-left-6 lg:-left-10 w-16 h-16 sm:w-18 sm:h-18 lg:w-20 lg:h-20 rounded-2xl bg-gradient-to-br from-[#0D9488] to-[#14B8A6] p-2 sm:p-3 text-white shadow-xl animate-float" style={{ animationDelay: '4s' }}>
                       <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
@@ -282,9 +282,9 @@ export default async function HomePage() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-24 lg:py-32 bg-white relative">
+      <section className="py-16 sm:py-24 lg:py-32 bg-white relative">
         <Container>
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 sm:mb-16">
             <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
               Categorieen
             </span>
@@ -292,11 +292,11 @@ export default async function HomePage() {
               Shop per categorie
             </h2>
             <p className="mt-4 text-lg text-muted max-w-2xl mx-auto">
-              Ontdek onze uitgebreide collectie refurbished elektronica
+              Ontdek onze collectie vakkundig gerepareerde telefoons
             </p>
           </div>
           
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {categories.map((category) => {
               const catData = categoryData[category.slug] || categoryData.telefoons;
               return (
@@ -305,18 +305,18 @@ export default async function HomePage() {
                   href={`/producten?categorie=${category.slug}`}
                   className="group relative h-full"
                 >
-                  <div className="relative h-full flex flex-col bg-cream rounded-3xl p-8 border border-sand transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:-translate-y-1 overflow-hidden">
+                  <div className="relative h-full flex flex-col bg-cream rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-sand transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:-translate-y-1 overflow-hidden">
                     {/* Background Gradient on Hover */}
                     <div className={`absolute inset-0 bg-gradient-to-br ${catData.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
                     
-                    <div className={`relative w-16 h-16 rounded-2xl bg-gradient-to-br ${catData.gradient} flex items-center justify-center mb-6 text-white transition-transform duration-300 group-hover:scale-110 flex-shrink-0`}>
+                    <div className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br ${catData.gradient} flex items-center justify-center mb-4 sm:mb-6 text-white transition-transform duration-300 group-hover:scale-110 flex-shrink-0`}>
                       {catData.icon}
                     </div>
                     
-                    <h3 className="text-xl font-semibold text-soft-black mb-2 font-display">
+                    <h3 className="text-lg sm:text-xl font-semibold text-soft-black mb-2 font-display">
                       {category.name}
                     </h3>
-                    <p className="text-sm text-muted line-clamp-2 mb-4 min-h-[2.5rem] flex-grow">
+                    <p className="text-xs sm:text-sm text-muted line-clamp-2 mb-3 sm:mb-4 min-h-[2rem] sm:min-h-[2.5rem] flex-grow">
                       {category.description}
                     </p>
                     <div className="flex items-center justify-between mt-auto">
@@ -338,9 +338,9 @@ export default async function HomePage() {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-24 lg:py-32 bg-cream">
+      <section className="py-16 sm:py-24 lg:py-32 bg-cream">
         <Container>
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 mb-12">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
             <div>
               <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
                 Populair
@@ -349,7 +349,7 @@ export default async function HomePage() {
                 Populaire producten
               </h2>
               <p className="mt-4 text-lg text-muted">
-                Onze best verkopende refurbished apparaten
+                Onze best verkopende gerepareerde telefoons
               </p>
             </div>
             <Link
@@ -394,7 +394,7 @@ export default async function HomePage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-24 lg:py-32 bg-soft-black relative overflow-hidden">
+      <section className="py-16 sm:py-24 lg:py-32 bg-soft-black relative overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0">
           <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
@@ -402,19 +402,19 @@ export default async function HomePage() {
         </div>
         
         <Container>
-          <div className="relative text-center mb-20">
+          <div className="relative text-center mb-12 sm:mb-20">
             <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
               Proces
             </span>
-            <h2 className="text-4xl lg:text-5xl font-display font-bold text-white">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white">
               Hoe werkt het?
             </h2>
-            <p className="mt-4 text-lg text-white/70 max-w-2xl mx-auto">
-              In 3 simpele stappen naar jouw refurbished apparaat
+            <p className="mt-4 text-base sm:text-lg text-white/70 max-w-2xl mx-auto">
+              In 3 simpele stappen naar jouw gerepareerde telefoon
             </p>
           </div>
           
-          <div className="relative grid md:grid-cols-3 gap-8 lg:gap-12">
+          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
             {/* Connecting Line */}
             <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-[2px]">
               <div className="w-full h-full bg-gradient-to-r from-primary via-copper to-gold opacity-30" />
@@ -422,13 +422,13 @@ export default async function HomePage() {
             
             {steps.map((step, index) => (
               <div key={step.number} className="relative text-center">
-                <div className="relative z-10 inline-flex items-center justify-center w-32 h-32 rounded-3xl bg-white/5 border border-white/10 mb-8">
-                  <span className="text-5xl font-display font-bold text-gradient-copper">
+                <div className="relative z-10 inline-flex items-center justify-center w-20 h-20 sm:w-32 sm:h-32 rounded-2xl sm:rounded-3xl bg-white/5 border border-white/10 mb-5 sm:mb-8">
+                  <span className="text-3xl sm:text-5xl font-display font-bold text-gradient-copper">
                     {step.number}
                   </span>
                 </div>
-                <h3 className="text-2xl font-display font-semibold text-white mb-4">{step.title}</h3>
-                <p className="text-white/70 leading-relaxed max-w-sm mx-auto">{step.description}</p>
+                <h3 className="text-xl sm:text-2xl font-display font-semibold text-white mb-3 sm:mb-4">{step.title}</h3>
+                <p className="text-sm sm:text-base text-white/70 leading-relaxed max-w-sm mx-auto">{step.description}</p>
               </div>
             ))}
           </div>
@@ -436,9 +436,9 @@ export default async function HomePage() {
       </section>
 
       {/* Sell Your Device CTA */}
-      <section className="py-24 lg:py-32 bg-white">
+      <section className="py-16 sm:py-24 lg:py-32 bg-white">
         <Container>
-          <div className="relative rounded-[3rem] overflow-hidden bg-gradient-to-br from-soft-black to-charcoal">
+          <div className="relative rounded-2xl sm:rounded-[3rem] overflow-hidden bg-gradient-to-br from-soft-black to-charcoal">
             {/* Background Pattern */}
             <div className="absolute inset-0 opacity-[0.03]">
               <div className="absolute inset-0" style={{
@@ -447,27 +447,27 @@ export default async function HomePage() {
               }} />
             </div>
             
-            <div className="relative grid lg:grid-cols-2 gap-12">
-              <div className="p-12 lg:p-16">
-                <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-6">
+            <div className="relative grid lg:grid-cols-2 gap-8 lg:gap-12">
+              <div className="p-6 sm:p-10 lg:p-16">
+                <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4 sm:mb-6">
                   Inleveren
                 </span>
-                <h2 className="text-4xl lg:text-5xl font-display font-bold text-white mb-6">
+                <h2 className="text-2xl sm:text-4xl lg:text-5xl font-display font-bold text-white mb-4 sm:mb-6">
                   Heb je een oud apparaat?
                 </h2>
-                <p className="text-lg text-white/70 mb-8 leading-relaxed">
+                <p className="text-base sm:text-lg text-white/70 mb-6 sm:mb-8 leading-relaxed">
                   Lever je oude telefoon, laptop of tablet in en ontvang een eerlijk 
                   bod. Wij zorgen voor duurzame verwerking of geven het apparaat een 
                   tweede leven.
                 </p>
-                <ul className="space-y-4 mb-10">
+                <ul className="space-y-3 sm:space-y-4 mb-8 sm:mb-10">
                   {[
                     'Gratis waardebepaling',
                     'Eerlijke prijzen',
                     'Snelle uitbetaling',
                     'Milieuvriendelijk',
                   ].map((item) => (
-                    <li key={item} className="flex items-center gap-4 text-white">
+                    <li key={item} className="flex items-center gap-3 sm:gap-4 text-sm sm:text-base text-white">
                       <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-copper to-gold">
                         <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
@@ -507,18 +507,18 @@ export default async function HomePage() {
       </section>
 
       {/* Trust Section */}
-      <section className="py-24 lg:py-32 bg-cream">
+      <section className="py-16 sm:py-24 lg:py-32 bg-cream">
         <Container>
-          <div className="text-center mb-16">
+          <div className="text-center mb-10 sm:mb-16">
             <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
               Waarom TelFixer
             </span>
-            <h2 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-soft-black">
               Waarom kiezen voor ons?
             </h2>
           </div>
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
             {[
               {
                 icon: (
@@ -527,7 +527,7 @@ export default async function HomePage() {
                   </svg>
                 ),
                 title: '12 Maanden Garantie',
-                description: 'Op al onze refurbished producten voor jouw gemoedsrust',
+                description: 'Op al onze gerepareerde telefoons voor jouw gemoedsrust',
               },
               {
                 icon: (
@@ -559,15 +559,15 @@ export default async function HomePage() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="group h-full flex flex-col bg-white rounded-3xl p-8 border border-sand transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:-translate-y-1 text-center"
+                className="group h-full flex flex-col bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-sand transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:-translate-y-1 text-center"
               >
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/5 text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-all duration-300 mx-auto flex-shrink-0">
+                <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-primary/5 text-primary mb-4 sm:mb-6 group-hover:bg-primary group-hover:text-white transition-all duration-300 mx-auto flex-shrink-0">
                   {item.icon}
                 </div>
-                <h3 className="text-xl font-display font-semibold text-soft-black mb-3">
+                <h3 className="text-lg sm:text-xl font-display font-semibold text-soft-black mb-2 sm:mb-3">
                   {item.title}
                 </h3>
-                <p className="text-muted leading-relaxed flex-grow">{item.description}</p>
+                <p className="text-sm sm:text-base text-muted leading-relaxed flex-grow">{item.description}</p>
               </div>
             ))}
           </div>

@@ -145,14 +145,14 @@ export default function CheckoutPage() {
         </div>
 
         {/* Progress Steps */}
-        <div className="mb-12">
-          <div className="flex items-center justify-center gap-2 sm:gap-4">
+        <div className="mb-8 sm:mb-12">
+          <div className="flex items-center justify-center gap-1 sm:gap-4">
             {steps.map((s, index) => (
               <div key={s.id} className="flex items-center">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <div
                     className={cn(
-                      'flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300',
+                      'flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl transition-all duration-300',
                       currentStepIndex > index
                         ? 'bg-[#0D9488] text-white'
                         : currentStepIndex === index
@@ -161,11 +161,11 @@ export default function CheckoutPage() {
                     )}
                   >
                     {currentStepIndex > index ? (
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     ) : (
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={s.icon} />
                       </svg>
                     )}
@@ -179,7 +179,7 @@ export default function CheckoutPage() {
                 </div>
                 {index < steps.length - 1 && (
                   <div className={cn(
-                    'w-12 sm:w-20 h-0.5 mx-2 sm:mx-4 rounded-full transition-colors',
+                    'w-8 sm:w-20 h-0.5 mx-1 sm:mx-4 rounded-full transition-colors',
                     currentStepIndex > index ? 'bg-[#0D9488]' : 'bg-sand'
                   )} />
                 )}
@@ -194,11 +194,11 @@ export default function CheckoutPage() {
             <div className="lg:col-span-2">
               {/* Step 1: Address */}
               {step === 'address' && (
-                <div className="bg-white rounded-3xl border border-sand p-8" style={{ boxShadow: 'var(--shadow-sm)' }}>
-                  <h2 className="text-2xl font-display font-semibold text-soft-black mb-8">
+                <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                  <h2 className="text-xl sm:text-2xl font-display font-semibold text-soft-black mb-5 sm:mb-8">
                     Verzendadres
                   </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <Input label="Voornaam" {...register('firstName')} error={errors.firstName?.message} required />
                     <Input label="Achternaam" {...register('lastName')} error={errors.lastName?.message} required />
                     <div className="sm:col-span-2">
@@ -234,33 +234,33 @@ export default function CheckoutPage() {
 
               {/* Step 2: Payment */}
               {step === 'payment' && (
-                <div className="bg-white rounded-3xl border border-sand p-8" style={{ boxShadow: 'var(--shadow-sm)' }}>
-                  <h2 className="text-2xl font-display font-semibold text-soft-black mb-8">
+                <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                  <h2 className="text-xl sm:text-2xl font-display font-semibold text-soft-black mb-5 sm:mb-8">
                     Betaalmethode
                   </h2>
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {paymentMethods.map((method) => (
                       <label
                         key={method.id}
                         className={cn(
-                          'flex items-center gap-5 p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200',
+                          'flex items-center gap-3 sm:gap-5 p-4 sm:p-5 rounded-xl sm:rounded-2xl border-2 cursor-pointer transition-all duration-200',
                           selectedPayment === method.id
                             ? 'border-primary bg-primary/5'
                             : 'border-sand hover:border-primary/50'
                         )}
                       >
                         <div className={cn(
-                          'w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all',
+                          'w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0',
                           selectedPayment === method.id ? 'border-primary' : 'border-sand'
                         )}>
                           {selectedPayment === method.id && (
-                            <div className="w-3 h-3 rounded-full bg-primary" />
+                            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-primary" />
                           )}
                         </div>
                         <input type="radio" value={method.id} {...register('paymentMethod')} className="sr-only" />
                         <div>
-                          <p className="font-semibold text-soft-black">{method.name}</p>
-                          <p className="text-sm text-muted">{method.description}</p>
+                          <p className="font-semibold text-soft-black text-sm sm:text-base">{method.name}</p>
+                          <p className="text-xs sm:text-sm text-muted">{method.description}</p>
                         </div>
                       </label>
                     ))}
@@ -273,39 +273,39 @@ export default function CheckoutPage() {
 
               {/* Step 3: Review */}
               {step === 'review' && (
-                <div className="space-y-6">
-                  <div className="bg-white rounded-3xl border border-sand p-8" style={{ boxShadow: 'var(--shadow-sm)' }}>
-                    <h2 className="text-2xl font-display font-semibold text-soft-black mb-6">
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                    <h2 className="text-xl sm:text-2xl font-display font-semibold text-soft-black mb-4 sm:mb-6">
                       Besteloverzicht
                     </h2>
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                       {items.map((item) => (
-                        <div key={item.product.id} className="flex gap-4 p-4 bg-cream rounded-2xl">
-                          <div className="relative w-16 h-16 bg-champagne rounded-xl overflow-hidden shrink-0">
+                        <div key={item.product.id} className="flex gap-3 sm:gap-4 p-3 sm:p-4 bg-cream rounded-xl sm:rounded-2xl">
+                          <div className="relative w-14 h-14 sm:w-16 sm:h-16 bg-champagne rounded-lg sm:rounded-xl overflow-hidden shrink-0">
                             {item.product.image_urls?.[0] ? (
                               <Image src={item.product.image_urls[0]} alt={item.product.name} fill className="object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-muted">
-                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                 </svg>
                               </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-soft-black truncate">{item.product.name}</p>
-                            <p className="text-sm text-muted">{item.quantity}x {formatPrice(item.product.price)}</p>
+                            <p className="font-semibold text-soft-black text-sm sm:text-base truncate">{item.product.name}</p>
+                            <p className="text-xs sm:text-sm text-muted">{item.quantity}x {formatPrice(item.product.price)}</p>
                           </div>
-                          <p className="font-semibold text-primary">{formatPrice(item.product.price * item.quantity)}</p>
+                          <p className="font-semibold text-primary text-sm sm:text-base">{formatPrice(item.product.price * item.quantity)}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="grid sm:grid-cols-2 gap-6">
-                    <div className="bg-white rounded-3xl border border-sand p-6" style={{ boxShadow: 'var(--shadow-sm)' }}>
-                      <h3 className="font-semibold text-soft-black mb-4">Verzendadres</h3>
-                      <p className="text-slate leading-relaxed">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand p-4 sm:p-6" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                      <h3 className="font-semibold text-soft-black mb-3 sm:mb-4 text-sm sm:text-base">Verzendadres</h3>
+                      <p className="text-slate leading-relaxed text-sm">
                         {watch('firstName')} {watch('lastName')}<br />
                         {watch('street')} {watch('houseNumber')}<br />
                         {watch('postalCode')} {watch('city')}<br />
@@ -313,9 +313,9 @@ export default function CheckoutPage() {
                         {watch('phone')}
                       </p>
                     </div>
-                    <div className="bg-white rounded-3xl border border-sand p-6" style={{ boxShadow: 'var(--shadow-sm)' }}>
-                      <h3 className="font-semibold text-soft-black mb-4">Betaalmethode</h3>
-                      <p className="text-slate">{paymentMethods.find((m) => m.id === selectedPayment)?.name}</p>
+                    <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand p-4 sm:p-6" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                      <h3 className="font-semibold text-soft-black mb-3 sm:mb-4 text-sm sm:text-base">Betaalmethode</h3>
+                      <p className="text-slate text-sm">{paymentMethods.find((m) => m.id === selectedPayment)?.name}</p>
                     </div>
                   </div>
                 </div>
@@ -352,10 +352,10 @@ export default function CheckoutPage() {
             </div>
 
             {/* Order Summary Sidebar */}
-            <div className="mt-12 lg:mt-0">
-              <div className="bg-white rounded-3xl border border-sand p-8 sticky top-28" style={{ boxShadow: 'var(--shadow-sm)' }}>
-                <h2 className="text-xl font-display font-semibold text-soft-black mb-6">Totaal</h2>
-                <div className="space-y-4 mb-8">
+            <div className="mt-8 lg:mt-0 order-first lg:order-last">
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8 lg:sticky lg:top-28" style={{ boxShadow: 'var(--shadow-sm)' }}>
+                <h2 className="text-lg sm:text-xl font-display font-semibold text-soft-black mb-4 sm:mb-6">Totaal</h2>
+                <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
                   <div className="flex items-center justify-between">
                     <span className="text-muted">Subtotaal ({itemCount} {itemCount === 1 ? 'product' : 'producten'})</span>
                     <span className="font-medium text-soft-black">{formatPrice(subtotal)}</span>

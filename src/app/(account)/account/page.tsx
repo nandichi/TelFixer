@@ -158,61 +158,61 @@ export default function AccountPage() {
         </div>
 
         {/* Quick Links */}
-        <div className="grid md:grid-cols-3 gap-6 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-10">
           <Link
             href="/account/bestellingen"
-            className="group bg-white rounded-3xl border border-sand p-8 hover:border-primary/20 hover:shadow-lg transition-all duration-300"
+            className="group bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8 hover:border-primary/20 hover:shadow-lg transition-all duration-300"
           >
-            <div className="w-14 h-14 rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-5 group-hover:bg-primary group-hover:text-white transition-all duration-300">
-              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-primary/5 flex items-center justify-center text-primary mb-4 sm:mb-5 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+              <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
-            <h3 className="font-display font-semibold text-lg text-soft-black mb-2 group-hover:text-primary transition-colors">
+            <h3 className="font-display font-semibold text-base sm:text-lg text-soft-black mb-1 sm:mb-2 group-hover:text-primary transition-colors">
               Mijn bestellingen
             </h3>
-            <p className="text-sm text-muted">
+            <p className="text-xs sm:text-sm text-muted">
               Bekijk en volg je bestellingen
             </p>
           </Link>
           <Link
             href="/account/inleveringen"
-            className="group bg-white rounded-3xl border border-sand p-8 hover:border-primary/20 hover:shadow-lg transition-all duration-300"
+            className="group bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8 hover:border-primary/20 hover:shadow-lg transition-all duration-300"
           >
-            <div className="w-14 h-14 rounded-2xl bg-copper/5 flex items-center justify-center text-copper mb-5 group-hover:bg-gradient-to-br group-hover:from-copper group-hover:to-gold group-hover:text-white transition-all duration-300">
-              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-copper/5 flex items-center justify-center text-copper mb-4 sm:mb-5 group-hover:bg-gradient-to-br group-hover:from-copper group-hover:to-gold group-hover:text-white transition-all duration-300">
+              <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </div>
-            <h3 className="font-display font-semibold text-lg text-soft-black mb-2 group-hover:text-copper transition-colors">
+            <h3 className="font-display font-semibold text-base sm:text-lg text-soft-black mb-1 sm:mb-2 group-hover:text-copper transition-colors">
               Mijn inleveringen
             </h3>
-            <p className="text-sm text-muted">
+            <p className="text-xs sm:text-sm text-muted">
               Status van ingeleverde apparaten
             </p>
           </Link>
           <Link
             href="/account/instellingen"
-            className="group bg-white rounded-3xl border border-sand p-8 hover:border-primary/20 hover:shadow-lg transition-all duration-300"
+            className="group bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8 hover:border-primary/20 hover:shadow-lg transition-all duration-300"
           >
-            <div className="w-14 h-14 rounded-2xl bg-slate/5 flex items-center justify-center text-slate mb-5 group-hover:bg-slate group-hover:text-white transition-all duration-300">
-              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-slate/5 flex items-center justify-center text-slate mb-4 sm:mb-5 group-hover:bg-slate group-hover:text-white transition-all duration-300">
+              <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
-            <h3 className="font-display font-semibold text-lg text-soft-black mb-2 group-hover:text-slate transition-colors">
+            <h3 className="font-display font-semibold text-base sm:text-lg text-soft-black mb-1 sm:mb-2 group-hover:text-slate transition-colors">
               Instellingen
             </h3>
-            <p className="text-sm text-muted">
+            <p className="text-xs sm:text-sm text-muted">
               Accountgegevens en voorkeuren
             </p>
           </Link>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
           {/* Recent Orders */}
-          <div className="bg-white rounded-3xl border border-sand p-8">
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-display font-semibold text-soft-black">
                 Recente bestellingen
@@ -271,7 +271,7 @@ export default function AccountPage() {
           </div>
 
           {/* Recent Submissions */}
-          <div className="bg-white rounded-3xl border border-sand p-8">
+          <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-display font-semibold text-soft-black">
                 Recente inleveringen
@@ -331,20 +331,20 @@ export default function AccountPage() {
         </div>
 
         {/* Profile Summary */}
-        <div className="mt-10 bg-white rounded-3xl border border-sand p-8">
-          <div className="flex items-center gap-6">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white text-2xl font-display font-bold">
+        <div className="mt-6 sm:mt-10 bg-white rounded-2xl sm:rounded-3xl border border-sand p-4 sm:p-8">
+          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white text-xl sm:text-2xl font-display font-bold flex-shrink-0">
               {profile?.first_name?.[0] || profile?.email?.[0]?.toUpperCase() || 'U'}
             </div>
-            <div className="flex-1">
-              <h3 className="font-display font-semibold text-xl text-soft-black">
+            <div className="flex-1 text-center sm:text-left">
+              <h3 className="font-display font-semibold text-lg sm:text-xl text-soft-black">
                 {profile?.first_name} {profile?.last_name}
               </h3>
-              <p className="text-muted">{profile?.email}</p>
+              <p className="text-sm sm:text-base text-muted">{profile?.email}</p>
             </div>
             <Link 
               href="/account/instellingen"
-              className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-xl border border-sand text-sm font-medium text-soft-black hover:border-primary hover:text-primary transition-all"
+              className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl border border-sand text-xs sm:text-sm font-medium text-soft-black hover:border-primary hover:text-primary transition-all"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />

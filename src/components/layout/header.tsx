@@ -56,7 +56,7 @@ export function Header() {
       )}
     >
       <Container>
-        <nav className="flex items-center justify-between h-20 lg:h-24">
+        <nav className="flex items-center justify-between h-16 sm:h-20 lg:h-24">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
             <Image
@@ -64,7 +64,7 @@ export function Header() {
               alt="TelFixer"
               width={180}
               height={72}
-              className="h-14 lg:h-16 w-auto transition-transform duration-300 group-hover:scale-105"
+              className="h-10 sm:h-14 lg:h-16 w-auto transition-transform duration-300 group-hover:scale-105"
               priority
             />
           </Link>
@@ -220,8 +220,8 @@ export function Header() {
             mobileMenuOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
           )}
         >
-          <div className="py-4 border-t border-sand">
-            <div className="flex flex-col gap-1">
+          <div className="py-3 sm:py-4 border-t border-sand">
+            <div className="flex flex-col gap-0.5 sm:gap-1">
               {navigation.map((item) => (
                 <Link
                   key={item.name}

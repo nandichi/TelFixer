@@ -93,7 +93,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     <div className="py-12 lg:py-20 bg-cream">
       <Container>
         {/* Breadcrumbs */}
-        <nav className="flex items-center gap-2 text-sm text-muted mb-8">
+        <nav className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-muted mb-6 sm:mb-8 overflow-x-auto">
           <Link href="/" className="hover:text-primary transition-colors">
             Home
           </Link>
@@ -136,16 +136,16 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
 
             {/* Price */}
-            <div className="flex items-baseline gap-4">
-              <span className="text-4xl font-display font-bold text-primary">
+            <div className="flex flex-wrap items-baseline gap-2 sm:gap-4">
+              <span className="text-3xl sm:text-4xl font-display font-bold text-primary">
                 {formatPrice(product.price)}
               </span>
               {product.original_price && product.original_price > product.price && (
                 <>
-                  <span className="text-xl text-muted line-through">
+                  <span className="text-lg sm:text-xl text-muted line-through">
                     {formatPrice(product.original_price)}
                   </span>
-                  <span className="px-3 py-1.5 text-sm font-bold bg-gradient-to-r from-copper to-gold text-white rounded-full">
+                  <span className="px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm font-bold bg-gradient-to-r from-copper to-gold text-white rounded-full">
                     -{savings}%
                   </span>
                 </>
@@ -181,13 +181,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <AddToCartButton product={product} />
 
             {/* Trust Points */}
-            <div className="grid grid-cols-2 gap-4 pt-8 border-t border-sand">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-6 sm:pt-8 border-t border-sand">
               {trustPoints.map((item) => (
-                <div key={item.text} className="flex items-center gap-3">
-                  <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/5 text-primary">
+                <div key={item.text} className="flex items-center gap-2 sm:gap-3">
+                  <span className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-primary/5 text-primary flex-shrink-0">
                     {item.icon}
                   </span>
-                  <span className="text-sm text-slate">{item.text}</span>
+                  <span className="text-xs sm:text-sm text-slate">{item.text}</span>
                 </div>
               ))}
             </div>
@@ -195,11 +195,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </div>
 
         {/* Product Details */}
-        <div className="mt-16 lg:mt-24">
-          <div className="grid lg:grid-cols-2 gap-12">
+        <div className="mt-10 sm:mt-16 lg:mt-24">
+          <div className="grid lg:grid-cols-2 gap-6 sm:gap-12">
             {/* Description */}
-            <div className="bg-white rounded-3xl border border-sand p-8 lg:p-10" style={{ boxShadow: 'var(--shadow-sm)' }}>
-              <h2 className="text-2xl font-display font-semibold text-soft-black mb-6">
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8 lg:p-10" style={{ boxShadow: 'var(--shadow-sm)' }}>
+              <h2 className="text-xl sm:text-2xl font-display font-semibold text-soft-black mb-4 sm:mb-6">
                 Over dit product
               </h2>
               <div className="prose-luxury">
@@ -212,8 +212,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
 
             {/* Specifications */}
-            <div className="bg-white rounded-3xl border border-sand p-8 lg:p-10" style={{ boxShadow: 'var(--shadow-sm)' }}>
-              <h2 className="text-2xl font-display font-semibold text-soft-black mb-6">
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8 lg:p-10" style={{ boxShadow: 'var(--shadow-sm)' }}>
+              <h2 className="text-xl sm:text-2xl font-display font-semibold text-soft-black mb-4 sm:mb-6">
                 Specificaties
               </h2>
               <dl className="space-y-4">
@@ -233,13 +233,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
         {/* Related Products */}
         {relatedProducts.length > 0 && (
-          <div className="mt-16 lg:mt-24">
-            <div className="flex items-end justify-between mb-10">
+          <div className="mt-10 sm:mt-16 lg:mt-24">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-10">
               <div>
-                <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+                <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-2 sm:mb-4">
                   Gerelateerd
                 </span>
-                <h2 className="text-3xl lg:text-4xl font-display font-bold text-soft-black">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-soft-black">
                   Vergelijkbare producten
                 </h2>
               </div>

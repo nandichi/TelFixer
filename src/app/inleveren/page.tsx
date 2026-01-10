@@ -306,10 +306,10 @@ export default function SubmitDevicePage() {
           </div>
 
           {/* Progress Steps */}
-          <div className="mb-10">
+          <div className="mb-8 sm:mb-10">
             <div className="flex items-center justify-between relative">
               {/* Progress Line */}
-              <div className="absolute top-5 left-0 right-0 h-0.5 bg-sand">
+              <div className="absolute top-4 sm:top-5 left-0 right-0 h-0.5 bg-sand">
                 <div 
                   className="h-full bg-gradient-to-r from-copper to-gold transition-all duration-500"
                   style={{ width: `${((step - 1) / 3) * 100}%` }}
@@ -320,7 +320,7 @@ export default function SubmitDevicePage() {
                 <div key={s} className="relative z-10 flex flex-col items-center">
                   <div
                     className={cn(
-                      "flex items-center justify-center w-10 h-10 rounded-full text-sm font-semibold transition-all duration-300",
+                      "flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300",
                       step > s
                         ? "bg-gradient-to-br from-copper to-gold text-white"
                         : step === s
@@ -329,7 +329,7 @@ export default function SubmitDevicePage() {
                     )}
                   >
                     {step > s ? (
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                       </svg>
                     ) : (
@@ -337,7 +337,7 @@ export default function SubmitDevicePage() {
                     )}
                   </div>
                   <span className={cn(
-                    "mt-2 text-xs font-medium transition-colors",
+                    "mt-1.5 sm:mt-2 text-[10px] sm:text-xs font-medium transition-colors",
                     step >= s ? "text-soft-black" : "text-muted"
                   )}>
                     {stepLabels[s - 1]}
@@ -350,17 +350,17 @@ export default function SubmitDevicePage() {
           <form onSubmit={handleSubmit(onSubmit)}>
             {/* Step 1: Device Selection */}
             {step === 1 && (
-              <div className="bg-white rounded-3xl border border-sand p-8 lg:p-10 animate-fade-in">
-                <h2 className="text-2xl font-display font-semibold text-soft-black mb-8">
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8 lg:p-10 animate-fade-in">
+                <h2 className="text-xl sm:text-2xl font-display font-semibold text-soft-black mb-5 sm:mb-8">
                   Wat voor apparaat wil je inleveren?
                 </h2>
 
                 {/* Device Type Selection */}
-                <div className="mb-8">
-                  <label className="block text-sm font-medium text-soft-black mb-4">
+                <div className="mb-6 sm:mb-8">
+                  <label className="block text-sm font-medium text-soft-black mb-3 sm:mb-4">
                     Type apparaat *
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                     {deviceTypes.map((type) => (
                       <button
                         key={type.value}
@@ -370,7 +370,7 @@ export default function SubmitDevicePage() {
                           setValue("deviceBrand", "");
                         }}
                         className={cn(
-                          "flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200",
+                          "flex flex-col items-center gap-2 sm:gap-3 p-3 sm:p-5 rounded-xl sm:rounded-2xl border-2 transition-all duration-200",
                           selectedType === type.value
                             ? "border-primary bg-primary/5 shadow-md"
                             : "border-sand bg-white hover:border-primary/30 hover:shadow-sm"
@@ -378,7 +378,7 @@ export default function SubmitDevicePage() {
                       >
                         <span
                           className={cn(
-                            "transition-colors",
+                            "transition-colors [&>svg]:w-5 [&>svg]:h-5 sm:[&>svg]:w-7 sm:[&>svg]:h-7",
                             selectedType === type.value
                               ? "text-primary"
                               : "text-muted"
@@ -388,7 +388,7 @@ export default function SubmitDevicePage() {
                         </span>
                         <span
                           className={cn(
-                            "text-sm font-semibold transition-colors",
+                            "text-xs sm:text-sm font-semibold transition-colors",
                             selectedType === type.value
                               ? "text-primary"
                               : "text-soft-black"
@@ -436,8 +436,8 @@ export default function SubmitDevicePage() {
 
             {/* Step 2: Condition & Photos */}
             {step === 2 && (
-              <div className="bg-white rounded-3xl border border-sand p-8 lg:p-10 animate-fade-in">
-                <h2 className="text-2xl font-display font-semibold text-soft-black mb-8">
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8 lg:p-10 animate-fade-in">
+                <h2 className="text-xl sm:text-2xl font-display font-semibold text-soft-black mb-5 sm:mb-8">
                   Beschrijf de conditie
                 </h2>
 
@@ -515,12 +515,12 @@ export default function SubmitDevicePage() {
 
             {/* Step 3: Personal Info */}
             {step === 3 && (
-              <div className="bg-white rounded-3xl border border-sand p-8 lg:p-10 animate-fade-in">
-                <h2 className="text-2xl font-display font-semibold text-soft-black mb-8">
+              <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8 lg:p-10 animate-fade-in">
+                <h2 className="text-xl sm:text-2xl font-display font-semibold text-soft-black mb-5 sm:mb-8">
                   Je contactgegevens
                 </h2>
 
-                <div className="space-y-5">
+                <div className="space-y-4 sm:space-y-5">
                   <Input
                     label="Volledige naam"
                     placeholder="Jan Jansen"
@@ -588,13 +588,13 @@ export default function SubmitDevicePage() {
 
             {/* Step 4: Review */}
             {step === 4 && (
-              <div className="space-y-6 animate-fade-in">
-                <div className="bg-white rounded-3xl border border-sand p-8 lg:p-10">
-                  <h2 className="text-2xl font-display font-semibold text-soft-black mb-8">
+              <div className="space-y-4 sm:space-y-6 animate-fade-in">
+                <div className="bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8 lg:p-10">
+                  <h2 className="text-xl sm:text-2xl font-display font-semibold text-soft-black mb-5 sm:mb-8">
                     Controleer je gegevens
                   </h2>
 
-                  <dl className="space-y-5">
+                  <dl className="space-y-4 sm:space-y-5">
                     <div className="flex justify-between py-3 border-b border-sand">
                       <dt className="text-muted">Apparaat</dt>
                       <dd className="font-semibold text-soft-black">
@@ -656,17 +656,17 @@ export default function SubmitDevicePage() {
                 </div>
 
                 {/* Info Box */}
-                <div className="bg-primary/5 rounded-2xl p-6 flex gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <svg className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="bg-primary/5 rounded-xl sm:rounded-2xl p-4 sm:p-6 flex gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div>
-                    <p className="font-semibold text-soft-black mb-1">
+                    <p className="font-semibold text-soft-black mb-1 text-sm sm:text-base">
                       Wat gebeurt er na het indienen?
                     </p>
-                    <p className="text-sm text-slate">
+                    <p className="text-xs sm:text-sm text-slate">
                       Je ontvangt binnen 2 werkdagen een prijsaanbod per e-mail.
                       Als je akkoord gaat, ontvang je gratis verzendlabels om het
                       apparaat naar ons toe te sturen.

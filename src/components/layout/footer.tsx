@@ -32,8 +32,8 @@ export function Footer() {
       <div className="h-1 bg-gradient-to-r from-primary via-copper to-gold" />
       
       <Container>
-        <div className="relative py-16 lg:py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8">
+        <div className="relative py-10 sm:py-16 lg:py-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-8">
             {/* Brand Column */}
             <div className="lg:col-span-5">
               <Link href="/" className="inline-block group">
@@ -42,17 +42,17 @@ export function Footer() {
                   alt="TelFixer"
                   width={160}
                   height={64}
-                  className="h-12 w-auto transition-transform duration-300 group-hover:scale-105"
+                  className="h-10 sm:h-12 w-auto transition-transform duration-300 group-hover:scale-105"
                 />
               </Link>
-              <p className="mt-6 text-slate text-base leading-relaxed max-w-md">
+              <p className="mt-4 sm:mt-6 text-slate text-sm sm:text-base leading-relaxed max-w-md">
                 TelFixer is jouw betrouwbare partner voor hoogwaardige refurbished 
                 elektronica. Wij bieden kwalitatief gecontroleerde telefoons, laptops 
                 en tablets tegen aantrekkelijke prijzen, allemaal met garantie.
               </p>
               
               {/* Contact Info */}
-              <div className="mt-8 space-y-4">
+              <div className="mt-6 sm:mt-8 space-y-3 sm:space-y-4">
                 <a
                   href="mailto:info@telfixer.nl"
                   className="flex items-center gap-4 text-soft-black hover:text-primary transition-colors duration-200 group"
@@ -89,7 +89,7 @@ export function Footer() {
 
             {/* Links Columns */}
             <div className="lg:col-span-7">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8">
                 {/* Shop Links */}
                 <div>
                   <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-6">
@@ -152,16 +152,16 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="relative py-6 border-t border-sand">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted">
+        <div className="relative py-4 sm:py-6 border-t border-sand">
+          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+            <p className="text-xs sm:text-sm text-muted text-center md:text-left">
               © {currentYear} TelFixer. Alle rechten voorbehouden.
             </p>
             
             {/* Payment Methods */}
-            <div className="flex items-center gap-4">
-              <span className="text-xs text-muted mr-2">Betaalmethodes:</span>
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+              <span className="text-xs text-muted">Betaalmethodes:</span>
+              <div className="flex items-center gap-2 flex-wrap justify-center">
                 {/* iDEAL */}
                 <div className="w-12 h-7 rounded-md bg-white border border-sand flex items-center justify-center shadow-sm">
                   <span className="text-[10px] font-bold text-primary">iDEAL</span>
