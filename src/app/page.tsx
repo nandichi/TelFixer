@@ -119,7 +119,7 @@ export default async function HomePage() {
                   <span className="text-sm font-medium text-primary">Een Tweede Leven</span>
                 </div>
                 
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold text-soft-black leading-[1.1] opacity-0-start animate-fade-in-up">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold text-soft-black leading-[1.1] animate-fade-in-up" style={{ willChange: 'transform, opacity' }}>
                   Gerepareerde
                   <br />
                   <span className="text-gradient-primary">Telefoons</span>
@@ -127,12 +127,12 @@ export default async function HomePage() {
                   Met Garantie
           </h1>
                 
-                <p className="text-lg lg:text-xl text-slate max-w-lg leading-relaxed opacity-0-start animate-fade-in-up delay-200">
+                <p className="text-lg lg:text-xl text-slate max-w-lg leading-relaxed animate-fade-in-up delay-200" style={{ willChange: 'transform, opacity' }}>
                   Bespaar tot 40% op vakkundig gerepareerde telefoons. 
                   Persoonlijk gerepareerd door Ivan, getest en met 12 maanden garantie.
                 </p>
                 
-                <div className="flex flex-col sm:flex-row gap-4 opacity-0-start animate-fade-in-up delay-300">
+                <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up delay-300" style={{ willChange: 'transform, opacity' }}>
                   <Link href="/producten">
                     <Button size="lg" className="gap-3">
                       Bekijk producten
@@ -152,7 +152,7 @@ export default async function HomePage() {
                 </div>
                 
                 {/* Trust Points */}
-                <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 opacity-0-start animate-fade-in-up delay-400">
+                <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 animate-fade-in-up delay-400" style={{ willChange: 'transform, opacity' }}>
                   {trustPoints.map((point) => (
                     <div key={point.text} className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate">
                       <span className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary/5 text-primary flex-shrink-0">
@@ -165,7 +165,7 @@ export default async function HomePage() {
               </div>
               
               {/* Right Side - Product Visual */}
-              <div className="relative flex items-center justify-center lg:justify-end opacity-0-start animate-fade-in-left delay-300">
+              <div className="relative flex items-center justify-center lg:justify-end animate-fade-in-left delay-300" style={{ willChange: 'transform, opacity' }}>
                 {/* Glow Effect Background */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-[220px] h-[220px] sm:w-[340px] sm:h-[340px] lg:w-[420px] lg:h-[420px] rounded-full bg-gradient-to-br from-primary/20 via-copper/15 to-gold/10 blur-3xl animate-pulse-slow" />

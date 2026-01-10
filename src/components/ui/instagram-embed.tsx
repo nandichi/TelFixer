@@ -24,6 +24,30 @@ export function InstagramEmbed({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Add title to iframes for accessibility
+    const addIframeTitles = () => {
+      if (containerRef.current) {
+        const iframes = containerRef.current.querySelectorAll('iframe');
+        iframes.forEach((iframe) => {
+          if (!iframe.title) {
+            iframe.title = 'Instagram post van TelFixer';
+          }
+        });
+      }
+    };
+
+    // Observe for iframe creation and add titles
+    const observer = new MutationObserver(() => {
+      addIframeTitles();
+    });
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current, {
+        childList: true,
+        subtree: true,
+      });
+    }
+
     // Load Instagram embed script if not already loaded
     const existingScript = document.querySelector(
       'script[src*="instagram.com/embed.js"]'
@@ -39,13 +63,18 @@ export function InstagramEmbed({
         if (window.instgrm) {
           window.instgrm.Embeds.process();
         }
+        // Add titles after embeds are processed
+        setTimeout(addIframeTitles, 1000);
       };
     } else {
       // Script already exists, just process embeds
       if (window.instgrm) {
         window.instgrm.Embeds.process();
       }
+      setTimeout(addIframeTitles, 1000);
     }
+
+    return () => observer.disconnect();
   }, [postUrl]);
 
   return (

@@ -66,6 +66,8 @@ export function Header() {
               height={72}
               className="h-10 sm:h-14 lg:h-16 w-auto transition-transform duration-300 group-hover:scale-105"
               priority
+              fetchPriority="high"
+              style={{ width: 'auto', height: 'auto', maxHeight: '64px' }}
             />
           </Link>
 

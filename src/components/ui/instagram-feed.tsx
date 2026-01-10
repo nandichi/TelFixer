@@ -1,7 +1,26 @@
 "use client";
 
-import { InstagramEmbed } from "./instagram-embed";
+import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
+
+// Lazy load Instagram embed component
+const InstagramEmbed = dynamic(
+  () => import("./instagram-embed").then((mod) => ({ default: mod.InstagramEmbed })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[600px] bg-champagne rounded-xl animate-pulse flex items-center justify-center">
+        <div className="text-center text-muted">
+          <svg className="w-12 h-12 mx-auto mb-2 opacity-50" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073z" />
+          </svg>
+          <span className="text-sm">Laden...</span>
+        </div>
+      </div>
+    ),
+  }
+);
 
 const INSTAGRAM_POSTS = [
   "https://www.instagram.com/p/DQEN97EDEMK/",
@@ -12,8 +31,32 @@ const INSTAGRAM_POSTS = [
 const INSTAGRAM_PROFILE_URL = "https://www.instagram.com/telfixer/";
 
 export function InstagramFeed() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin: "200px", // Start loading 200px before section is visible
+        threshold: 0,
+      }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className="py-24 lg:py-32 bg-white">
+    <section ref={sectionRef} className="py-24 lg:py-32 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
@@ -31,7 +74,18 @@ export function InstagramFeed() {
           {INSTAGRAM_POSTS.map((postUrl, index) => (
             <div key={index} className="flex justify-center">
               <div className="h-[600px] overflow-hidden rounded-xl">
-                <InstagramEmbed postUrl={postUrl} />
+                {isVisible ? (
+                  <InstagramEmbed postUrl={postUrl} />
+                ) : (
+                  <div className="w-full h-full bg-champagne rounded-xl animate-pulse flex items-center justify-center min-w-[326px]">
+                    <div className="text-center text-muted">
+                      <svg className="w-12 h-12 mx-auto mb-2 opacity-50" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z" />
+                      </svg>
+                      <span className="text-sm">Laden...</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ))}
