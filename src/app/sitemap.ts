@@ -18,7 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = staticPages.map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
-    changeFrequency: route === '' ? 'daily' : 'weekly' as const,
+    changeFrequency: (route === '' ? 'daily' : 'weekly') as 'daily' | 'weekly',
     priority: route === '' ? 1 : route === '/producten' ? 0.9 : 0.7,
   }));
 
