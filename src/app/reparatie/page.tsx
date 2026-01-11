@@ -147,7 +147,7 @@ const stepLabels = ["Apparaat", "Probleem", "Gegevens", "Bevestiging"];
 // Animation variants
 const pageVariants = {
   initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
 };
 
 const stepVariants = {
@@ -158,12 +158,12 @@ const stepVariants = {
   center: {
     x: 0,
     opacity: 1,
-    transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] as const },
   },
   exit: (direction: number) => ({
     x: direction < 0 ? 40 : -40,
     opacity: 0,
-    transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as const },
   }),
 };
 
@@ -172,7 +172,7 @@ const cardVariants = {
   hover: { 
     scale: 1.02, 
     y: -4,
-    transition: { duration: 0.2, ease: "easeOut" }
+    transition: { duration: 0.2, ease: "easeOut" as const }
   },
   tap: { scale: 0.98 },
   selected: { 
@@ -196,7 +196,7 @@ const floatVariants = {
     transition: {
       duration: 4,
       repeat: Infinity,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
@@ -208,7 +208,7 @@ const pulseVariants = {
     transition: {
       duration: 3,
       repeat: Infinity,
-      ease: "easeInOut",
+      ease: "easeInOut" as const,
     },
   },
 };
