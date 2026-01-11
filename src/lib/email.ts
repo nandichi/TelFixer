@@ -1,7 +1,14 @@
 import { Resend } from 'resend';
 
-// Initialize Resend with API key
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization of Resend client
+let resendClient: Resend | null = null;
+
+function getResendClient(): Resend {
+  if (!resendClient) {
+    resendClient = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resendClient;
+}
 
 interface SubmissionEmailData {
   customerName: string;
@@ -30,7 +37,7 @@ export async function sendSubmissionConfirmationEmail(data: SubmissionEmailData)
   }
 
   try {
-    const { error } = await resend.emails.send({
+    const { error } = await getResendClient().emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'TelFixer <noreply@telfixer.nl>',
       to: data.customerEmail,
       subject: `Bevestiging inlevering - ${data.referenceNumber}`,
