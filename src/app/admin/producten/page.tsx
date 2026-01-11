@@ -48,6 +48,8 @@ export default function AdminProductsPage() {
           image_urls: item.image_urls,
           warranty_months: item.warranty_months,
           featured: item.featured,
+          marketplace_url: item.marketplace_url,
+          facebook_url: item.facebook_url,
           created_at: item.created_at,
           updated_at: item.updated_at,
         }))
