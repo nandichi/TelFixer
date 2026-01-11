@@ -68,9 +68,9 @@ export default function ContactPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-12 max-w-6xl mx-auto">
           {/* Contact Info */}
-          <div className="lg:col-span-1 space-y-4 sm:space-y-6 order-2 lg:order-1">
-            <div className="bg-[#094543] text-white rounded-xl sm:rounded-2xl p-5 sm:p-8">
-              <h2 className="text-xl font-semibold mb-6">Contactgegevens</h2>
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6 order-2 lg:order-1 flex flex-col items-center lg:items-stretch">
+            <div className="bg-[#094543] text-white rounded-xl sm:rounded-2xl p-5 sm:p-8 w-full max-w-md lg:max-w-none mx-auto lg:mx-0">
+              <h2 className="text-xl font-semibold mb-6 text-center lg:text-left">Contactgegevens</h2>
               
               <div className="space-y-6">
                 <div className="flex items-start gap-4">

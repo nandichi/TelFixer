@@ -48,6 +48,8 @@ export interface Product {
   image_urls: string[];
   warranty_months: number;
   featured: boolean;
+  marketplace_url: string | null;
+  facebook_url: string | null;
   created_at: string;
   updated_at: string;
 }

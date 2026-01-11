@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Container } from "./container";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/context/cart-context";
@@ -11,9 +11,9 @@ import { useAuth } from "@/context/auth-context";
 
 const navigation = [
   { name: "Home", href: "/" },
-  { name: "Producten", href: "/producten" },
   { name: "Reparatie", href: "/reparatie" },
   { name: "Apparaat Inleveren", href: "/inleveren" },
+  { name: "Producten", href: "/producten" },
   { name: "Over Ons", href: "/over-ons" },
   { name: "Contact", href: "/contact" },
 ];
@@ -29,9 +29,42 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [productsMenuOpen, setProductsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const { itemCount, openCart } = useCart();
   const { user } = useAuth();
+
+  // Focus search input when modal opens
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchOpen]);
+
+  // Close search on escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSearchOpen(false);
+      }
+    };
+    if (searchOpen) {
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [searchOpen]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/producten?zoek=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
 
   // Handle scroll for glass effect
   useEffect(() => {
@@ -156,8 +189,8 @@ export function Header() {
           {/* Right Side Actions */}
           <div className="flex items-center gap-2">
             {/* Search Button */}
-            <Link
-              href="/producten"
+            <button
+              onClick={() => setSearchOpen(true)}
               className="hidden sm:flex items-center justify-center w-11 h-11 rounded-xl text-soft-black hover:text-primary hover:bg-champagne transition-all duration-200"
               aria-label="Zoeken"
             >
@@ -174,7 +207,7 @@ export function Header() {
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
-            </Link>
+            </button>
 
             {/* User Account */}
             <Link
@@ -323,6 +356,70 @@ export function Header() {
           </div>
         </div>
       </Container>
+
+      {/* Search Modal */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-[60]">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-soft-black/50 backdrop-blur-sm"
+            onClick={() => setSearchOpen(false)}
+          />
+          
+          {/* Search Container */}
+          <div className="relative flex items-start justify-center pt-[20vh]">
+            <div className="w-full max-w-2xl mx-4 bg-white rounded-2xl border border-sand shadow-2xl overflow-hidden">
+              <form onSubmit={handleSearch}>
+                <div className="flex items-center gap-4 p-4 border-b border-sand">
+                  <svg
+                    className="h-6 w-6 text-muted shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Zoek producten..."
+                    className="flex-1 text-lg text-soft-black placeholder:text-muted outline-none bg-transparent"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setSearchOpen(false)}
+                    className="p-2 rounded-lg hover:bg-champagne transition-colors"
+                  >
+                    <svg
+                      className="h-5 w-5 text-muted"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                <div className="p-4 text-sm text-muted">
+                  <p>Druk op <kbd className="px-2 py-1 bg-champagne rounded text-xs font-medium">Enter</kbd> om te zoeken of <kbd className="px-2 py-1 bg-champagne rounded text-xs font-medium">Esc</kbd> om te sluiten</p>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

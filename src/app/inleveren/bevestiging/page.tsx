@@ -35,6 +35,8 @@ export default async function SubmissionConfirmationPage({ searchParams }: PageP
           </h1>
           <p className="text-lg text-muted mb-10 animate-fade-in-up delay-100">
             We hebben je inlevering ontvangen en gaan deze zo snel mogelijk beoordelen.
+            <br />
+            <span className="text-sm text-[#0D9488]">Een bevestiging met je referentienummer is verzonden naar je e-mailadres.</span>
           </p>
 
           {/* Reference Number */}

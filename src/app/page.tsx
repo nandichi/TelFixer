@@ -116,7 +116,7 @@ export default async function HomePage() {
               <div className="space-y-6 sm:space-y-8 lg:pr-8">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10">
                   <span className="w-2 h-2 rounded-full bg-copper animate-pulse" />
-                  <span className="text-sm font-medium text-primary">Een Tweede Leven</span>
+                  <span className="text-sm font-medium text-primary">Kwaliteit waar je van lacht</span>
                 </div>
                 
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold text-soft-black leading-[1.1] animate-fade-in-up" style={{ willChange: 'transform, opacity' }}>
@@ -226,7 +226,7 @@ export default async function HomePage() {
                               
                               <div className="text-center space-y-1">
                                 <p className="text-sm sm:text-base font-display font-bold text-soft-black">TelFixer</p>
-                                <p className="text-[10px] sm:text-xs text-muted">Een Tweede Leven</p>
+                                <p className="text-[10px] sm:text-xs text-muted">Kwaliteit waar je van lacht</p>
                               </div>
                               
                               {/* Stats Preview */}

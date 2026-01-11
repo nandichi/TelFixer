@@ -310,7 +310,30 @@ export default function SubmitDevicePage() {
         throw insertError;
       }
 
-      success("Inlevering ingediend!", `Referentienummer: ${referenceNumber}`);
+      // Try to send confirmation email (don't block on failure)
+      try {
+        await fetch('/api/send-submission-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerName: data.customerName,
+            customerEmail: data.customerEmail,
+            referenceNumber,
+            deviceType: deviceTypes.find(t => t.value === data.deviceType)?.label || data.deviceType,
+            deviceBrand: brands.find(b => b.value === data.deviceBrand)?.label || data.deviceBrand,
+            deviceModel: data.deviceModel,
+            conditionDescription: data.conditionDescription,
+          }),
+        });
+      } catch (emailError) {
+        // Log but don't fail the submission
+        console.warn('Failed to send confirmation email:', emailError);
+      }
+
+      success("Inlevering ingediend!", `Referentienummer: ${referenceNumber}. Je ontvangt een bevestiging per e-mail.`);
+      
+      // Wait 2 seconds before redirecting so user can see the confirmation
+      await new Promise(resolve => setTimeout(resolve, 2000));
       router.push(`/inleveren/bevestiging?ref=${referenceNumber}`);
     } catch (err) {
       console.error("Submission error:", err);

@@ -195,7 +195,7 @@ export default function AboutPage() {
                     <div>
                       <h4 className="text-lg font-semibold text-[#2C3E48] mb-3">Over Ivan</h4>
                       <p className="text-gray-600 leading-relaxed">
-                        Ivan Politin (20) is een jonge ondernemer uit Ede met een passie voor 
+                        Ivan Politin (21) is een jonge ondernemer uit Ede met een passie voor 
                         technologie en duurzaamheid. Naast zijn studie Technische Bedrijfskunde 
                         aan de HAN in Arnhem runt hij TelFixer, waar hij telefoons vakkundig 
                         repareert en een tweede leven geeft.
