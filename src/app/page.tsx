@@ -1,581 +1,157 @@
-import Link from 'next/link';
-import { Container } from '@/components/layout/container';
-import { Button } from '@/components/ui/button';
-import { InstagramFeed } from '@/components/ui/instagram-feed';
-import { ProductCard } from '@/components/products/product-card';
-import { getFeaturedProducts, getCategoriesWithCount } from '@/lib/supabase/products';
+import Image from 'next/image';
+import type { Metadata } from 'next';
 
-const categoryData: Record<string, { icon: React.ReactNode; gradient: string }> = {
-  telefoons: {
-    icon: (
-      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-      </svg>
-    ),
-    gradient: 'from-primary to-primary-light',
-  },
-  laptops: {
-    icon: (
-      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ),
-    gradient: 'from-copper to-gold',
-  },
-  tablets: {
-    icon: (
-      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-      </svg>
-    ),
-    gradient: 'from-[#0D9488] to-[#14B8A6]',
-  },
-  accessoires: {
-    icon: (
-      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-      </svg>
-    ),
-    gradient: 'from-[#7C3AED] to-[#A78BFA]',
-  },
+export const metadata: Metadata = {
+  title: 'TelFixer - Binnenkort beschikbaar',
+  description:
+    'TelFixer komt eraan. Jouw betrouwbare partner voor hoogwaardige refurbished telefoons, laptops en tablets.',
 };
 
-const steps = [
-  {
-    number: '01',
-    title: 'Kies je apparaat',
-    description: 'Blader door onze collectie vakkundig gerepareerde telefoons of lever je oude apparaat in.',
-  },
-  {
-    number: '02',
-    title: 'Kwaliteitsgarantie',
-    description: 'Elk apparaat wordt door Ivan persoonlijk gerepareerd, getest en gereinigd. Je ontvangt een product in topconditie.',
-  },
-  {
-    number: '03',
-    title: 'Snelle levering',
-    description: 'Na betaling wordt je bestelling binnen 2-4 werkdagen thuisbezorgd met track & trace.',
-  },
-];
-
-const trustPoints = [
-  { 
-    text: '12 maanden garantie', 
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-      </svg>
-    )
-  },
-  { 
-    text: 'Gratis verzending vanaf 50 euro', 
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-      </svg>
-    )
-  },
-  { 
-    text: '30 dagen retourrecht', 
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-      </svg>
-    )
-  },
-  { 
-    text: 'Gecertificeerde kwaliteit', 
-    icon: (
-      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-      </svg>
-    )
-  },
-];
-
-export default async function HomePage() {
-  const [featuredProducts, categories] = await Promise.all([
-    getFeaturedProducts(6),
-    getCategoriesWithCount(),
-  ]);
-
+export default function ComingSoonPage() {
   return (
-    <>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-cream min-h-[90vh] flex items-center">
-        {/* Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-3xl translate-x-1/3 -translate-y-1/3" />
-          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-copper/5 to-transparent rounded-full blur-3xl -translate-x-1/3 translate-y-1/3" />
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-cream overflow-hidden">
+      {/* Background glow effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-3xl translate-x-1/4 -translate-y-1/4" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-copper/5 to-transparent rounded-full blur-3xl -translate-x-1/4 translate-y-1/4" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-br from-primary/3 via-transparent to-copper/3 rounded-full blur-3xl" />
+      </div>
+
+      {/* Dot pattern */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 1px 1px, var(--color-soft-black) 1px, transparent 0)',
+            backgroundSize: '32px 32px',
+          }}
+        />
+      </div>
+
+      {/* Top accent bar */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-copper to-gold" />
+
+      {/* Main content */}
+      <div className="relative z-10 flex flex-col items-center px-6 py-16 sm:py-20 w-full max-w-lg">
+        {/* Logo */}
+        <div className="mb-10 sm:mb-14 animate-fade-in-down opacity-0">
+          <Image
+            src="/telfixer-logo.png"
+            alt="TelFixer"
+            width={220}
+            height={88}
+            className="h-14 sm:h-18 w-auto"
+            priority
+          />
         </div>
-        
-        <Container>
-          <div className="relative py-10 sm:py-16 lg:py-24">
-            <div className="grid lg:grid-cols-2 gap-8 lg:gap-8 items-center">
-              {/* Left Side - Text Content */}
-              <div className="space-y-6 sm:space-y-8 lg:pr-8">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10">
-                  <span className="w-2 h-2 rounded-full bg-copper animate-pulse" />
-                  <span className="text-sm font-medium text-primary">Kwaliteit waar je van lacht</span>
-                </div>
-                
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold text-soft-black leading-[1.1] animate-fade-in-up" style={{ willChange: 'transform, opacity' }}>
-                  Gerepareerde
-                  <br />
-                  <span className="text-gradient-primary">Telefoons</span>
-                  <br />
-                  Met Garantie
-          </h1>
-                
-                <p className="text-lg lg:text-xl text-slate max-w-lg leading-relaxed animate-fade-in-up delay-200" style={{ willChange: 'transform, opacity' }}>
-                  Bespaar tot 40% op vakkundig gerepareerde telefoons. 
-                  Persoonlijk gerepareerd door Ivan, getest en met 12 maanden garantie.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up delay-300" style={{ willChange: 'transform, opacity' }}>
-                  <Link href="/producten">
-                    <Button size="lg" className="gap-3">
-                      Bekijk producten
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      </svg>
-                    </Button>
-                  </Link>
-                  <Link href="/inleveren">
-                    <Button size="lg" variant="outline" className="gap-3">
-                      Apparaat inleveren
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                    </Button>
-                  </Link>
-                </div>
-                
-                {/* Trust Points */}
-                <div className="pt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 animate-fade-in-up delay-400" style={{ willChange: 'transform, opacity' }}>
-                  {trustPoints.map((point) => (
-                    <div key={point.text} className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate">
-                      <span className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-primary/5 text-primary flex-shrink-0">
-                        {point.icon}
-                      </span>
-                      <span>{point.text}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Right Side - Product Visual */}
-              <div className="relative flex items-center justify-center lg:justify-end animate-fade-in-left delay-300" style={{ willChange: 'transform, opacity' }}>
-                {/* Glow Effect Background */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-[220px] h-[220px] sm:w-[340px] sm:h-[340px] lg:w-[420px] lg:h-[420px] rounded-full bg-gradient-to-br from-primary/20 via-copper/15 to-gold/10 blur-3xl animate-pulse-slow" />
-                </div>
-                
-                {/* Phone Mockup Container */}
-                <div className="relative z-10">
-                  {/* Outer Glow Ring */}
-                  <div className="absolute -inset-4 sm:-inset-6 lg:-inset-8 rounded-[4rem] bg-gradient-to-br from-primary/10 via-transparent to-copper/10 blur-2xl" />
-                  
-                  {/* Phone Device */}
-                  <div className="relative w-[200px] h-[400px] sm:w-[280px] sm:h-[560px] lg:w-[320px] lg:h-[640px]">
-                    {/* Phone Frame Shadow */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-soft-black/30 to-charcoal/20 rounded-[3rem] blur-xl translate-y-4 translate-x-2" />
-                    
-                    {/* Phone Body */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-charcoal via-soft-black to-charcoal rounded-[3rem] p-[3px]">
-                      {/* Inner Frame */}
-                      <div className="w-full h-full bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] rounded-[2.8rem] p-2 relative overflow-hidden">
-                        {/* Side Buttons */}
-                        <div className="absolute left-0 top-24 w-[3px] h-12 bg-charcoal rounded-r-sm" />
-                        <div className="absolute left-0 top-40 w-[3px] h-8 bg-charcoal rounded-r-sm" />
-                        <div className="absolute left-0 top-52 w-[3px] h-8 bg-charcoal rounded-r-sm" />
-                        <div className="absolute right-0 top-32 w-[3px] h-16 bg-charcoal rounded-l-sm" />
-                        
-                        {/* Screen */}
-                        <div className="w-full h-full bg-gradient-to-br from-[#f8fafc] via-[#e2e8f0] to-[#cbd5e1] rounded-[2.4rem] overflow-hidden relative">
-                          {/* Dynamic Island / Notch */}
-                          <div className="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-7 bg-soft-black rounded-full flex items-center justify-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-charcoal" />
-                            <div className="w-3 h-3 rounded-full bg-charcoal/80 ring-1 ring-charcoal/50" />
-                          </div>
-                          
-                          {/* Screen Content - App Display */}
-                          <div className="absolute inset-0 pt-14 px-4 pb-8 flex flex-col">
-                            {/* Status Bar */}
-                            <div className="flex items-center justify-between text-[10px] text-soft-black/60 px-2 mb-4">
-                              <span className="font-medium">9:41</span>
-                              <div className="flex items-center gap-1">
-                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                                  <path d="M12 3c-4.5 0-8.27 3.11-9.33 7.31C3.79 14.51 7.56 17.62 12 17.62c4.44 0 8.21-3.11 9.33-7.31C20.27 6.11 16.5 3 12 3z" opacity="0.3"/>
-                                  <path d="M1 9l2 2c2.88-2.88 6.79-4 10.5-3.12l1.82-1.82C11.5 4.45 6.18 5.28 2.72 8.45L1 9z"/>
-                                </svg>
-                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                                  <path d="M17 4h-3V2h-4v2H7v18h10V4zm-4 16h-2v-2h2v2zm0-4h-2V8h2v8z"/>
-                                </svg>
-                              </div>
-                            </div>
-                            
-                            {/* App Content Preview */}
-                            <div className="flex-1 flex flex-col items-center justify-center space-y-4">
-                              {/* TelFixer Badge */}
-                              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center shadow-lg">
-                                <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                </svg>
-                              </div>
-                              
-                              <div className="text-center space-y-1">
-                                <p className="text-sm sm:text-base font-display font-bold text-soft-black">TelFixer</p>
-                                <p className="text-[10px] sm:text-xs text-muted">Kwaliteit waar je van lacht</p>
-                              </div>
-                              
-                              {/* Stats Preview */}
-                              <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-3 sm:p-4 shadow-sm w-full max-w-[180px] sm:max-w-[200px]">
-                    <div className="text-center">
-                                  <div className="text-2xl sm:text-3xl font-display font-bold text-gradient-primary">40%</div>
-                                  <div className="text-[10px] sm:text-xs text-muted mt-1">Besparing t.o.v. nieuw</div>
-                                </div>
-                              </div>
-                              
-                              {/* Feature Pills */}
-                              <div className="flex flex-wrap gap-1.5 justify-center max-w-[200px]">
-                                <span className="px-2 py-1 bg-primary/10 text-primary text-[8px] sm:text-[10px] rounded-full font-medium">12 mnd garantie</span>
-                                <span className="px-2 py-1 bg-copper/10 text-copper text-[8px] sm:text-[10px] rounded-full font-medium">Getest</span>
-                                <span className="px-2 py-1 bg-[#0D9488]/10 text-[#0D9488] text-[8px] sm:text-[10px] rounded-full font-medium">Gratis verzending</span>
-                              </div>
-                            </div>
-                            
-                            {/* Home Indicator */}
-                            <div className="w-24 h-1 bg-soft-black/20 rounded-full mx-auto" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Floating Badges */}
-                    <div className="hidden sm:block absolute -top-2 -right-6 sm:-top-4 sm:-right-8 lg:-top-6 lg:-right-12 w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-2xl bg-gradient-to-br from-copper to-gold p-3 sm:p-4 text-white shadow-xl animate-float" style={{ animationDelay: '0s' }}>
-                      <svg className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                      </svg>
-                      <span className="text-[9px] sm:text-[10px] lg:text-xs font-medium block leading-tight">Garantie<br/>12 maanden</span>
-                    </div>
-                    
-                    <div className="hidden sm:block absolute -bottom-2 -left-6 sm:-bottom-4 sm:-left-8 lg:-bottom-6 lg:-left-12 w-18 h-18 sm:w-22 sm:h-22 lg:w-24 lg:h-24 rounded-2xl bg-gradient-to-br from-primary to-primary-light p-3 sm:p-4 text-white shadow-xl animate-float" style={{ animationDelay: '2s' }}>
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                      </svg>
-                      <span className="text-[9px] sm:text-[10px] lg:text-xs font-medium block leading-tight">Gratis<br/>verzending</span>
-                    </div>
-                    
-                    <div className="hidden sm:block absolute top-1/3 -left-4 sm:-left-6 lg:-left-10 w-16 h-16 sm:w-18 sm:h-18 lg:w-20 lg:h-20 rounded-2xl bg-gradient-to-br from-[#0D9488] to-[#14B8A6] p-2 sm:p-3 text-white shadow-xl animate-float" style={{ animationDelay: '4s' }}>
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                      <span className="text-[8px] sm:text-[9px] lg:text-[10px] font-medium block leading-tight">30 dagen<br/>retour</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </section>
 
-      {/* Categories Section */}
-      <section className="py-16 sm:py-24 lg:py-32 bg-white relative">
-        <Container>
-          <div className="text-center mb-10 sm:mb-16">
-            <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
-              Categorieen
-            </span>
-            <h2 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">
-              Shop per categorie
-            </h2>
-            <p className="mt-4 text-lg text-muted max-w-2xl mx-auto">
-              Ontdek onze collectie vakkundig gerepareerde telefoons
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-            {categories.map((category) => {
-              const catData = categoryData[category.slug] || categoryData.telefoons;
-              return (
-                <Link
-                  key={category.slug}
-                  href={`/producten?categorie=${category.slug}`}
-                  className="group relative h-full"
-                >
-                  <div className="relative h-full flex flex-col bg-cream rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-sand transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:-translate-y-1 overflow-hidden">
-                    {/* Background Gradient on Hover */}
-                    <div className={`absolute inset-0 bg-gradient-to-br ${catData.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
-                    
-                    <div className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br ${catData.gradient} flex items-center justify-center mb-4 sm:mb-6 text-white transition-transform duration-300 group-hover:scale-110 flex-shrink-0`}>
-                      {catData.icon}
-                    </div>
-                    
-                    <h3 className="text-lg sm:text-xl font-semibold text-soft-black mb-2 font-display">
-                      {category.name}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-muted line-clamp-2 mb-3 sm:mb-4 min-h-[2rem] sm:min-h-[2.5rem] flex-grow">
-                      {category.description}
-                    </p>
-                    <div className="flex items-center justify-between mt-auto">
-                      <span className="text-xs text-muted">
-                        {category.product_count} producten
-                      </span>
-                      <span className="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300 flex-shrink-0">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </Container>
-      </section>
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 mb-6 sm:mb-8 animate-fade-in opacity-0 delay-200">
+          <span className="w-2 h-2 rounded-full bg-copper animate-pulse" />
+          <span className="text-sm font-medium text-primary tracking-wide">
+            We werken er hard aan
+          </span>
+        </div>
 
-      {/* Featured Products Section */}
-      <section className="py-16 sm:py-24 lg:py-32 bg-cream">
-        <Container>
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
-            <div>
-              <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
-                Populair
-              </span>
-              <h2 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">
-                Populaire producten
-              </h2>
-              <p className="mt-4 text-lg text-muted">
-                Onze best verkopende gerepareerde telefoons
-              </p>
-            </div>
-            <Link
-              href="/producten"
-              className="group flex items-center gap-2 text-primary font-medium hover:gap-4 transition-all duration-300"
+        {/* Heading */}
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-soft-black text-center leading-[1.1] mb-5 sm:mb-6 animate-fade-in-up opacity-0 delay-300">
+          Binnenkort
+          <br />
+          <span className="text-gradient-primary">beschikbaar</span>
+        </h1>
+
+        {/* Subtitle */}
+        <p className="text-base sm:text-lg text-slate text-center max-w-md leading-relaxed mb-10 sm:mb-12 animate-fade-in-up opacity-0 delay-400">
+          We bouwen aan iets moois. Neem in de tussentijd gerust contact met ons
+          op via WhatsApp.
+        </p>
+
+        {/* WhatsApp Business button */}
+        <a
+          href="https://wa.me/31644642162"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group inline-flex items-center gap-3 px-8 py-4 rounded-2xl text-white font-semibold text-base sm:text-lg transition-all duration-300 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98] animate-fade-in-up opacity-0 delay-500"
+          style={{ backgroundColor: '#25D366' }}
+        >
+          {/* WhatsApp icon */}
+          <svg
+            className="w-6 h-6 flex-shrink-0"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+          </svg>
+          <span>Chat via WhatsApp</span>
+          <svg
+            className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M17 8l4 4m0 0l-4 4m4-4H3"
+            />
+          </svg>
+        </a>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 mt-12 sm:mt-14 mb-8 w-full max-w-xs animate-fade-in opacity-0 delay-600">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-sand" />
+          <span className="text-xs text-muted uppercase tracking-widest font-medium">
+            Volg ons
+          </span>
+          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-sand" />
+        </div>
+
+        {/* Social media links */}
+        <div className="flex items-center gap-4 animate-fade-in-up opacity-0 delay-700">
+          {/* Instagram */}
+          <a
+            href="https://www.instagram.com/telfixer"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center justify-center w-12 h-12 rounded-xl bg-white border border-sand text-slate transition-all duration-300 hover:border-primary/30 hover:text-primary hover:shadow-md hover:-translate-y-0.5"
+            aria-label="Instagram"
+          >
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="currentColor"
             >
-              Bekijk alles
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
-          </div>
-          
-          {featuredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-20 bg-white rounded-3xl border border-sand">
-              <div className="w-16 h-16 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </div>
-              <p className="text-muted">Binnenkort beschikbaar</p>
-            </div>
-          )}
-          
-          <div className="mt-12 text-center sm:hidden">
-            <Link href="/producten">
-              <Button variant="outline" size="lg">
-                Bekijk alle producten
-                <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Button>
-            </Link>
-          </div>
-        </Container>
-      </section>
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+            </svg>
+          </a>
 
-      {/* How It Works Section */}
-      <section className="py-16 sm:py-24 lg:py-32 bg-soft-black relative overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-          <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-copper/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
+          {/* LinkedIn */}
+          <a
+            href="https://www.linkedin.com/company/telfixer/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center justify-center w-12 h-12 rounded-xl bg-white border border-sand text-slate transition-all duration-300 hover:border-primary/30 hover:text-primary hover:shadow-md hover:-translate-y-0.5"
+            aria-label="LinkedIn"
+          >
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+            </svg>
+          </a>
         </div>
-        
-        <Container>
-          <div className="relative text-center mb-12 sm:mb-20">
-            <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
-              Proces
-            </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white">
-              Hoe werkt het?
-            </h2>
-            <p className="mt-4 text-base sm:text-lg text-white/70 max-w-2xl mx-auto">
-              In 3 simpele stappen naar jouw gerepareerde telefoon
-            </p>
-          </div>
-          
-          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
-            {/* Connecting Line */}
-            <div className="hidden md:block absolute top-16 left-[20%] right-[20%] h-[2px]">
-              <div className="w-full h-full bg-gradient-to-r from-primary via-copper to-gold opacity-30" />
-            </div>
-            
-            {steps.map((step, index) => (
-              <div key={step.number} className="relative text-center">
-                <div className="relative z-10 inline-flex items-center justify-center w-20 h-20 sm:w-32 sm:h-32 rounded-2xl sm:rounded-3xl bg-white/5 border border-white/10 mb-5 sm:mb-8">
-                  <span className="text-3xl sm:text-5xl font-display font-bold text-gradient-copper">
-                    {step.number}
-                  </span>
-                </div>
-                <h3 className="text-xl sm:text-2xl font-display font-semibold text-white mb-3 sm:mb-4">{step.title}</h3>
-                <p className="text-sm sm:text-base text-white/70 leading-relaxed max-w-sm mx-auto">{step.description}</p>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
+      </div>
 
-      {/* Sell Your Device CTA */}
-      <section className="py-16 sm:py-24 lg:py-32 bg-white">
-        <Container>
-          <div className="relative rounded-2xl sm:rounded-[3rem] overflow-hidden bg-gradient-to-br from-soft-black to-charcoal">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-[0.03]">
-              <div className="absolute inset-0" style={{
-                backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
-                backgroundSize: '32px 32px'
-              }} />
-            </div>
-            
-            <div className="relative grid lg:grid-cols-2 gap-8 lg:gap-12">
-              <div className="p-6 sm:p-10 lg:p-16">
-                <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4 sm:mb-6">
-                  Inleveren
-                </span>
-                <h2 className="text-2xl sm:text-4xl lg:text-5xl font-display font-bold text-white mb-4 sm:mb-6">
-                  Heb je een oud apparaat?
-                </h2>
-                <p className="text-base sm:text-lg text-white/70 mb-6 sm:mb-8 leading-relaxed">
-                  Lever je oude telefoon, laptop of tablet in en ontvang een eerlijk 
-                  bod. Wij zorgen voor duurzame verwerking of geven het apparaat een 
-                  tweede leven.
-                </p>
-                <ul className="space-y-3 sm:space-y-4 mb-8 sm:mb-10">
-                  {[
-                    'Gratis waardebepaling',
-                    'Eerlijke prijzen',
-                    'Snelle uitbetaling',
-                    'Milieuvriendelijk',
-                  ].map((item) => (
-                    <li key={item} className="flex items-center gap-3 sm:gap-4 text-sm sm:text-base text-white">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-copper to-gold">
-                        <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </span>
-                      <span className="text-white">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/inleveren">
-                  <Button size="lg" variant="copper" className="gap-3">
-                    Start waardebepaling
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                  </Button>
-                </Link>
-              </div>
-              
-              <div className="hidden lg:flex items-center justify-center p-12 bg-gradient-to-br from-copper/10 to-transparent">
-                <div className="relative">
-                  <div className="w-48 h-48 rounded-full bg-gradient-to-br from-copper/20 to-gold/20 flex items-center justify-center">
-                    <div className="w-32 h-32 rounded-full bg-gradient-to-br from-copper to-gold flex items-center justify-center">
-                      <svg className="w-16 h-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="absolute -top-4 -right-4 w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center text-white">
-                    <span className="text-2xl font-display font-bold text-white">+</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* Trust Section */}
-      <section className="py-16 sm:py-24 lg:py-32 bg-cream">
-        <Container>
-          <div className="text-center mb-10 sm:mb-16">
-            <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
-              Waarom TelFixer
-            </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-soft-black">
-              Waarom kiezen voor ons?
-            </h2>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
-            {[
-              {
-                icon: (
-                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                ),
-                title: '12 Maanden Garantie',
-                description: 'Op al onze gerepareerde telefoons voor jouw gemoedsrust',
-              },
-              {
-                icon: (
-                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                  </svg>
-                ),
-                title: 'Gecertificeerde Kwaliteit',
-                description: 'Elk apparaat wordt grondig getest op 50+ punten',
-              },
-              {
-                icon: (
-                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                  </svg>
-                ),
-                title: 'Snelle Levering',
-                description: 'Binnen 2-4 werkdagen thuisbezorgd met track & trace',
-              },
-              {
-                icon: (
-                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                ),
-                title: '30 Dagen Retour',
-                description: 'Niet tevreden? Retourneer binnen 30 dagen',
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="group h-full flex flex-col bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-sand transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:-translate-y-1 text-center"
-              >
-                <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-primary/5 text-primary mb-4 sm:mb-6 group-hover:bg-primary group-hover:text-white transition-all duration-300 mx-auto flex-shrink-0">
-                  {item.icon}
-                </div>
-                <h3 className="text-lg sm:text-xl font-display font-semibold text-soft-black mb-2 sm:mb-3">
-                  {item.title}
-                </h3>
-                <p className="text-sm sm:text-base text-muted leading-relaxed flex-grow">{item.description}</p>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      {/* Instagram Feed Section */}
-      <InstagramFeed />
-    </>
+      {/* Bottom copyright */}
+      <div className="relative z-10 pb-6 sm:pb-8 animate-fade-in opacity-0 delay-800">
+        <p className="text-xs text-muted text-center">
+          {new Date().getFullYear()} TelFixer. Alle rechten voorbehouden.
+        </p>
+      </div>
+    </div>
   );
 }

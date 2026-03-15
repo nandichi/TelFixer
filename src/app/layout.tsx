@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { Manrope, Playfair_Display, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/layout/header';
@@ -104,11 +105,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') || '';
+  const isComingSoon = pathname === '/';
+
   return (
     <html lang="nl">
       <body
@@ -117,10 +122,10 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <ToastProvider>
-              <Header />
-              <main className="flex-1">{children}</main>
-              <Footer />
-              <CartDrawer />
+              {!isComingSoon && <Header />}
+              <main className={isComingSoon ? '' : 'flex-1'}>{children}</main>
+              {!isComingSoon && <Footer />}
+              {!isComingSoon && <CartDrawer />}
             </ToastProvider>
           </CartProvider>
         </AuthProvider>
