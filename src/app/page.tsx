@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function ComingSoonPage() {
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center bg-cream overflow-hidden">
+    <div className="relative h-screen flex flex-col items-center justify-center bg-cream overflow-hidden">
       {/* Background glow effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-3xl translate-x-1/4 -translate-y-1/4" />
@@ -33,21 +33,23 @@ export default function ComingSoonPage() {
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-copper to-gold" />
 
       {/* Main content */}
-      <div className="relative z-10 flex flex-col items-center px-6 py-16 sm:py-20 w-full max-w-lg">
-        {/* Logo */}
-        <div className="mb-10 sm:mb-14 animate-fade-in-down opacity-0">
-          <Image
-            src="/telfixer-logo.png"
-            alt="TelFixer"
-            width={220}
-            height={88}
-            className="h-14 sm:h-18 w-auto"
-            priority
-          />
+      <div className="relative z-10 flex flex-col items-center px-6 py-6 sm:py-10 w-full max-w-lg">
+        {/* Logo in circle */}
+        <div className="mb-6 sm:mb-8 animate-fade-in-down opacity-0">
+          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white border border-sand shadow-lg overflow-hidden flex items-center justify-center p-3">
+            <Image
+              src="/telfixer-logo.png"
+              alt="TelFixer"
+              width={220}
+              height={220}
+              className="w-full h-full object-contain"
+              priority
+            />
+          </div>
         </div>
 
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 mb-6 sm:mb-8 animate-fade-in opacity-0 delay-200">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 mb-4 sm:mb-6 animate-fade-in opacity-0 delay-200">
           <span className="w-2 h-2 rounded-full bg-copper animate-pulse" />
           <span className="text-sm font-medium text-primary tracking-wide">
             We werken er hard aan
@@ -55,14 +57,14 @@ export default function ComingSoonPage() {
         </div>
 
         {/* Heading */}
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-soft-black text-center leading-[1.1] mb-5 sm:mb-6 animate-fade-in-up opacity-0 delay-300">
+        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-display font-bold text-soft-black text-center leading-[1.1] mb-3 sm:mb-5 animate-fade-in-up opacity-0 delay-300">
           Binnenkort
           <br />
           <span className="text-gradient-primary">beschikbaar</span>
         </h1>
 
         {/* Subtitle */}
-        <p className="text-base sm:text-lg text-slate text-center max-w-md leading-relaxed mb-10 sm:mb-12 animate-fade-in-up opacity-0 delay-400">
+        <p className="text-sm sm:text-lg text-slate text-center max-w-md leading-relaxed mb-6 sm:mb-10 animate-fade-in-up opacity-0 delay-400">
           We bouwen aan iets moois. Neem in de tussentijd gerust contact met ons
           op via WhatsApp.
         </p>
@@ -100,7 +102,7 @@ export default function ComingSoonPage() {
         </a>
 
         {/* Divider */}
-        <div className="flex items-center gap-4 mt-12 sm:mt-14 mb-8 w-full max-w-xs animate-fade-in opacity-0 delay-600">
+        <div className="flex items-center gap-4 mt-8 sm:mt-10 mb-5 sm:mb-6 w-full max-w-xs animate-fade-in opacity-0 delay-600">
           <div className="flex-1 h-px bg-gradient-to-r from-transparent to-sand" />
           <span className="text-xs text-muted uppercase tracking-widest font-medium">
             Volg ons
@@ -147,7 +149,7 @@ export default function ComingSoonPage() {
       </div>
 
       {/* Bottom copyright */}
-      <div className="relative z-10 pb-6 sm:pb-8 animate-fade-in opacity-0 delay-800">
+      <div className="absolute bottom-0 left-0 right-0 z-10 pb-4 sm:pb-6 animate-fade-in opacity-0 delay-800">
         <p className="text-xs text-muted text-center">
           {new Date().getFullYear()} TelFixer. Alle rechten voorbehouden.
         </p>
