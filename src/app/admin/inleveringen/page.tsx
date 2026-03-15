@@ -75,8 +75,8 @@ export default function AdminSubmissionsPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 bg-gray-200 rounded w-48 animate-pulse" />
-        <div className="h-64 bg-gray-200 rounded animate-pulse" />
+        <div className="h-8 bg-champagne rounded-lg w-48 animate-pulse" />
+        <div className="h-64 bg-champagne rounded-xl animate-pulse" />
       </div>
     );
   }
@@ -85,14 +85,14 @@ export default function AdminSubmissionsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-[#2C3E48]">Inleveringen</h1>
-        <p className="text-gray-600">{submissions.length} inleveringen in totaal</p>
+        <h1 className="text-2xl font-display font-bold text-soft-black">Inleveringen</h1>
+        <p className="text-slate">{submissions.length} inleveringen in totaal</p>
       </div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted" />
           <Input
             placeholder="Zoek op referentie, klant, apparaat..."
             value={searchQuery}
@@ -100,15 +100,15 @@ export default function AdminSubmissionsPage() {
             className="pl-10"
           />
         </div>
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
           {statusFilters.map((filter) => (
             <button
               key={filter.value}
               onClick={() => setStatusFilter(filter.value)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                 statusFilter === filter.value
-                  ? 'bg-[#094543] text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'bg-champagne text-slate hover:bg-sand'
               }`}
             >
               {filter.label}
@@ -118,59 +118,59 @@ export default function AdminSubmissionsPage() {
       </div>
 
       {/* Submissions Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-sand overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+              <tr className="bg-champagne/50 border-b border-sand">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Referentie
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Apparaat
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Klant
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Datum
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Status
                 </th>
-                <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-right px-4 py-3 text-sm font-medium text-slate">
                   Aanbod
                 </th>
-                <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-right px-4 py-3 text-sm font-medium text-slate">
                   Actie
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-sand">
               {filteredSubmissions.map((submission) => (
-                <tr key={submission.id} className="hover:bg-gray-50">
+                <tr key={submission.id} className="hover:bg-champagne/30 transition-colors">
                   <td className="px-4 py-3">
-                    <p className="font-medium text-[#094543]">
+                    <p className="font-medium text-primary">
                       {submission.reference_number}
                     </p>
                   </td>
                   <td className="px-4 py-3">
                     <div>
-                      <p className="font-medium text-[#2C3E48]">
+                      <p className="font-medium text-soft-black">
                         {submission.device_brand} {submission.device_model}
                       </p>
-                      <p className="text-sm text-gray-500">{submission.device_type}</p>
+                      <p className="text-sm text-slate capitalize">{submission.device_type}</p>
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <div>
-                      <p className="font-medium text-[#2C3E48]">
+                      <p className="font-medium text-soft-black">
                         {submission.customer_name}
                       </p>
-                      <p className="text-sm text-gray-500">{submission.customer_email}</p>
+                      <p className="text-sm text-slate">{submission.customer_email}</p>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-4 py-3 text-slate">
                     {formatDate(submission.created_at)}
                   </td>
                   <td className="px-4 py-3">
@@ -178,23 +178,25 @@ export default function AdminSubmissionsPage() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     {submission.offered_price ? (
-                      <span className="font-medium text-emerald-600">
+                      <span className="font-semibold text-success">
                         {formatPrice(submission.offered_price)}
                       </span>
                     ) : (
-                      <span className="text-gray-400">-</span>
+                      <span className="text-muted">-</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      {submission.status === 'evaluatie' && (
-                        <Button size="sm" variant="outline">
-                          <Euro className="h-4 w-4 mr-1" />
-                          Aanbod maken
-                        </Button>
+                      {(submission.status === 'evaluatie' || submission.status === 'ontvangen') && (
+                        <Link href={`/admin/inleveringen/${submission.id}`}>
+                          <Button size="sm" variant="outline">
+                            <Euro className="h-4 w-4 mr-1" />
+                            Aanbod
+                          </Button>
+                        </Link>
                       )}
                       <Link href={`/admin/inleveringen/${submission.id}`}>
-                        <button className="p-2 text-gray-400 hover:text-[#094543] transition-colors">
+                        <button className="p-2 text-slate hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
                           <Eye className="h-4 w-4" />
                         </button>
                       </Link>
@@ -207,9 +209,11 @@ export default function AdminSubmissionsPage() {
         </div>
 
         {filteredSubmissions.length === 0 && (
-          <div className="text-center py-12">
-            <RefreshCw className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">Geen inleveringen gevonden</p>
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-4">
+              <RefreshCw className="h-8 w-8 text-muted" />
+            </div>
+            <p className="text-slate">Geen inleveringen gevonden</p>
           </div>
         )}
       </div>

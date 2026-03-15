@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Plus, Search, Edit, Trash2, Package } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Package, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ConditionBadge } from '@/components/ui/badge';
 import { ConfirmModal } from '@/components/ui/modal';
+import { useToast } from '@/components/ui/toast';
 import { formatPrice } from '@/lib/utils';
 import { Product } from '@/types';
 import { createClient } from '@/lib/supabase/client';
@@ -18,6 +19,7 @@ export default function AdminProductsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const { success, error: showError } = useToast();
 
   useEffect(() => {
     fetchProducts();
@@ -79,6 +81,9 @@ export default function AdminProductsPage() {
 
       if (!error) {
         setProducts(products.filter((p) => p.id !== selectedProduct.id));
+        success('Product verwijderd');
+      } else {
+        showError('Fout bij verwijderen');
       }
       setDeleteModalOpen(false);
       setSelectedProduct(null);
@@ -88,8 +93,8 @@ export default function AdminProductsPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 bg-gray-200 rounded w-48 animate-pulse" />
-        <div className="h-64 bg-gray-200 rounded animate-pulse" />
+        <div className="h-8 bg-champagne rounded-lg w-48 animate-pulse" />
+        <div className="h-64 bg-champagne rounded-xl animate-pulse" />
       </div>
     );
   }
@@ -99,8 +104,8 @@ export default function AdminProductsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#2C3E48]">Producten</h1>
-          <p className="text-gray-600">{products.length} producten in totaal</p>
+          <h1 className="text-2xl font-display font-bold text-soft-black">Producten</h1>
+          <p className="text-slate">{products.length} producten in totaal</p>
         </div>
         <Link href="/admin/producten/nieuw">
           <Button>
@@ -112,7 +117,7 @@ export default function AdminProductsPage() {
 
       {/* Search */}
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted" />
         <Input
           placeholder="Zoek op naam of merk..."
           value={searchQuery}
@@ -122,54 +127,54 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Products Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-sand overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+              <tr className="bg-champagne/50 border-b border-sand">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Product
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Conditie
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Prijs
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Voorraad
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Status
                 </th>
-                <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-right px-4 py-3 text-sm font-medium text-slate">
                   Acties
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-sand">
               {filteredProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
+                <tr key={product.id} className="hover:bg-champagne/30 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
+                      <div className="w-12 h-12 bg-champagne rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
                         {product.image_urls?.[0] ? (
                           <Image
                             src={product.image_urls[0]}
                             alt={product.name}
                             width={48}
                             height={48}
-                            className="object-cover rounded-lg"
+                            className="object-cover w-full h-full"
                           />
                         ) : (
-                          <Package className="h-6 w-6 text-gray-400" />
+                          <Package className="h-6 w-6 text-muted" />
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-[#2C3E48]">
+                        <p className="font-medium text-soft-black">
                           {product.name}
                         </p>
-                        <p className="text-sm text-gray-500">{product.brand}</p>
+                        <p className="text-sm text-slate">{product.brand}</p>
                       </div>
                     </div>
                   </td>
@@ -177,11 +182,11 @@ export default function AdminProductsPage() {
                     <ConditionBadge grade={product.condition_grade} size="sm" />
                   </td>
                   <td className="px-4 py-3">
-                    <p className="font-medium text-[#094543]">
+                    <p className="font-semibold text-primary">
                       {formatPrice(product.price)}
                     </p>
                     {product.original_price && (
-                      <p className="text-sm text-gray-400 line-through">
+                      <p className="text-sm text-muted line-through">
                         {formatPrice(product.original_price)}
                       </p>
                     )}
@@ -190,10 +195,10 @@ export default function AdminProductsPage() {
                     <span
                       className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                         product.stock_quantity > 5
-                          ? 'bg-emerald-100 text-emerald-700'
+                          ? 'bg-success/10 text-success'
                           : product.stock_quantity > 0
-                          ? 'bg-amber-100 text-amber-700'
-                          : 'bg-red-100 text-red-700'
+                          ? 'bg-warning/10 text-warning'
+                          : 'bg-error/10 text-error'
                       }`}
                     >
                       {product.stock_quantity} op voorraad
@@ -201,23 +206,24 @@ export default function AdminProductsPage() {
                   </td>
                   <td className="px-4 py-3">
                     {product.featured ? (
-                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-copper/10 text-copper">
+                        <Star className="h-3 w-3 fill-current" />
                         Uitgelicht
                       </span>
                     ) : (
-                      <span className="text-sm text-gray-500">-</span>
+                      <span className="text-sm text-muted">-</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-1">
                       <Link href={`/admin/producten/${product.id}`}>
-                        <button className="p-2 text-gray-400 hover:text-[#094543] transition-colors">
+                        <button className="p-2 text-slate hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
                           <Edit className="h-4 w-4" />
                         </button>
                       </Link>
                       <button
                         onClick={() => handleDelete(product)}
-                        className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                        className="p-2 text-slate hover:text-error hover:bg-error/10 rounded-lg transition-colors"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -230,9 +236,17 @@ export default function AdminProductsPage() {
         </div>
 
         {filteredProducts.length === 0 && (
-          <div className="text-center py-12">
-            <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">Geen producten gevonden</p>
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-4">
+              <Package className="h-8 w-8 text-muted" />
+            </div>
+            <p className="text-slate mb-4">Geen producten gevonden</p>
+            <Link href="/admin/producten/nieuw">
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Nieuw product toevoegen
+              </Button>
+            </Link>
           </div>
         )}
       </div>

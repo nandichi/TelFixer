@@ -61,7 +61,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (isAdminRoute) {
-    // Check if user is admin
+    // Check if user is logged in
     if (!user) {
       const url = request.nextUrl.clone();
       url.pathname = '/login';
@@ -69,8 +69,19 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url);
     }
     
-    // Additional admin check would go here
-    // For now, we'll handle it in the admin layout
+    // Check if user is admin
+    const { data: adminData } = await supabase
+      .from('admins')
+      .select('id, role')
+      .eq('user_id', user.id)
+      .single();
+    
+    if (!adminData) {
+      // User is not an admin, redirect to home
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

@@ -130,6 +130,7 @@ export interface OrderItem {
   order_id: string;
   product_id: string;
   product?: Product;
+  product_name: string;
   quantity: number;
   price_at_purchase: number;
   created_at: string;

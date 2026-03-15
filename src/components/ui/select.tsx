@@ -1,4 +1,4 @@
-import { forwardRef, SelectHTMLAttributes } from 'react';
+import { forwardRef, SelectHTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface SelectOption {
@@ -7,17 +7,18 @@ export interface SelectOption {
   disabled?: boolean;
 }
 
-export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+export interface SelectProps extends Omit<SelectHTMLAttributes<HTMLSelectElement>, 'children'> {
   label?: string;
   error?: string;
   helperText?: string;
-  options: SelectOption[];
+  options?: SelectOption[];
   placeholder?: string;
+  children?: ReactNode;
 }
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
   (
-    { className, label, error, helperText, options, placeholder, id, ...props },
+    { className, label, error, helperText, options, placeholder, id, children, ...props },
     ref
   ) => {
     const selectId = id || label?.toLowerCase().replace(/\s/g, '-');
@@ -57,7 +58,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
                 {placeholder}
               </option>
             )}
-            {options.map((option) => (
+            {children || (options && options.map((option) => (
               <option
                 key={option.value}
                 value={option.value}
@@ -65,7 +66,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
               >
                 {option.label}
               </option>
-            ))}
+            )))}
           </select>
           <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
             <svg className="h-5 w-5 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">

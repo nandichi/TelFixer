@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, Eye, Package } from 'lucide-react';
+import { Search, Eye, ShoppingCart } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { StatusBadge } from '@/components/ui/badge';
 import { formatPrice, formatDate } from '@/lib/utils';
@@ -74,8 +74,8 @@ export default function AdminOrdersPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 bg-gray-200 rounded w-48 animate-pulse" />
-        <div className="h-64 bg-gray-200 rounded animate-pulse" />
+        <div className="h-8 bg-champagne rounded-lg w-48 animate-pulse" />
+        <div className="h-64 bg-champagne rounded-xl animate-pulse" />
       </div>
     );
   }
@@ -84,14 +84,14 @@ export default function AdminOrdersPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-[#2C3E48]">Bestellingen</h1>
-        <p className="text-gray-600">{orders.length} bestellingen in totaal</p>
+        <h1 className="text-2xl font-display font-bold text-soft-black">Bestellingen</h1>
+        <p className="text-slate">{orders.length} bestellingen in totaal</p>
       </div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted" />
           <Input
             placeholder="Zoek op ordernummer, klant..."
             value={searchQuery}
@@ -99,15 +99,15 @@ export default function AdminOrdersPage() {
             className="pl-10"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
           {statusFilters.map((filter) => (
             <button
               key={filter.value}
               onClick={() => setStatusFilter(filter.value)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                 statusFilter === filter.value
-                  ? 'bg-[#094543] text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'bg-champagne text-slate hover:bg-sand'
               }`}
             >
               {filter.label}
@@ -117,56 +117,56 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Orders Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-sand overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+              <tr className="bg-champagne/50 border-b border-sand">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Bestelling
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Klant
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Datum
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Status
                 </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
                   Betaling
                 </th>
-                <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-right px-4 py-3 text-sm font-medium text-slate">
                   Totaal
                 </th>
-                <th className="text-right px-4 py-3 text-sm font-medium text-gray-600">
+                <th className="text-right px-4 py-3 text-sm font-medium text-slate">
                   Actie
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-sand">
               {filteredOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50">
+                <tr key={order.id} className="hover:bg-champagne/30 transition-colors">
                   <td className="px-4 py-3">
                     <div>
-                      <p className="font-medium text-[#2C3E48]">
+                      <p className="font-medium text-soft-black">
                         {order.order_number}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-slate">
                         {order.items?.length || 0} {(order.items?.length || 0) === 1 ? 'product' : 'producten'}
                       </p>
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     <div>
-                      <p className="font-medium text-[#2C3E48]">
+                      <p className="font-medium text-soft-black">
                         {order.user?.first_name} {order.user?.last_name}
                       </p>
-                      <p className="text-sm text-gray-500">{order.user?.email}</p>
+                      <p className="text-sm text-slate">{order.user?.email}</p>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
+                  <td className="px-4 py-3 text-slate">
                     {formatDate(order.created_at)}
                   </td>
                   <td className="px-4 py-3">
@@ -176,13 +176,13 @@ export default function AdminOrdersPage() {
                     <StatusBadge status={order.payment_status} size="sm" />
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <span className="font-medium text-[#094543]">
+                    <span className="font-semibold text-primary">
                       {formatPrice(order.total_price)}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Link href={`/admin/bestellingen/${order.id}`}>
-                      <button className="p-2 text-gray-400 hover:text-[#094543] transition-colors">
+                      <button className="p-2 text-slate hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
                         <Eye className="h-4 w-4" />
                       </button>
                     </Link>
@@ -194,9 +194,11 @@ export default function AdminOrdersPage() {
         </div>
 
         {filteredOrders.length === 0 && (
-          <div className="text-center py-12">
-            <Package className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">Geen bestellingen gevonden</p>
+          <div className="text-center py-16">
+            <div className="w-16 h-16 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-4">
+              <ShoppingCart className="h-8 w-8 text-muted" />
+            </div>
+            <p className="text-slate">Geen bestellingen gevonden</p>
           </div>
         )}
       </div>

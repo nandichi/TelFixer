@@ -159,8 +159,15 @@ export async function getAllSubmissions(): Promise<DeviceSubmission[]> {
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (error || !data) {
-    console.error("Error fetching submissions:", error);
+  if (error) {
+    // Only log if there's an actual error message
+    if (error.message) {
+      console.error("Error fetching submissions:", error.message);
+    }
+    return [];
+  }
+
+  if (!data) {
     return [];
   }
 
