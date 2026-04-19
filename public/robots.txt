@@ -1,0 +1,9 @@
+User-agent: *
+Content-Signal: search=yes, ai-train=no, ai-input=yes
+Allow: /
+Disallow: /admin/
+Disallow: /account/
+Disallow: /checkout/
+Disallow: /api/
+
+Sitemap: https://telfixer.nl/sitemap.xml

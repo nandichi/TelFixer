@@ -2,6 +2,26 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Container } from './container';
 
+const company = {
+  kvk: '99703645',
+  btw: 'NL005404670B51',
+  kvkSearchUrl: 'https://www.kvk.nl/zoeken/?q=99703645',
+} as const;
+
+/** Afmetingen uit de officiële SVG (Currence CDN, zelfde asset als op ideal.nl). */
+const paymentMethods = [
+  {
+    src: '/payments/ideal.svg',
+    label: 'iDEAL | Wero',
+    width: 480,
+    height: 182,
+    wide: true,
+  },
+  { src: '/payments/visa.svg', label: 'Visa', width: 24, height: 24, wide: false },
+  { src: '/payments/mastercard.svg', label: 'Mastercard', width: 48, height: 32, wide: false },
+  { src: '/payments/klarna.svg', label: 'Klarna', width: 24, height: 24, wide: false },
+] as const;
+
 const footerLinks = {
   shop: [
     { name: 'Telefoons', href: '/producten?categorie=telefoons' },
@@ -146,27 +166,63 @@ export function Footer() {
         </div>
 
         <div className="relative py-4 sm:py-6 border-t border-sand">
-          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <p className="text-xs sm:text-sm text-muted text-center md:text-left">
-              © {currentYear} TelFixer. Alle rechten voorbehouden.
-            </p>
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex flex-col gap-2 text-center md:text-left">
+              <p className="text-xs sm:text-sm text-muted">
+                © {currentYear} TelFixer. Alle rechten voorbehouden.
+              </p>
+              <p className="text-xs text-muted leading-relaxed">
+                <span className="text-soft-black">KVK: </span>
+                <a
+                  href={company.kvkSearchUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-gold underline decoration-gold/80 underline-offset-2 hover:text-primary hover:decoration-primary"
+                >
+                  {company.kvk}
+                </a>
+                <span className="mx-2 text-sand" aria-hidden>
+                  |
+                </span>
+                <span className="text-soft-black">BTW: </span>
+                <span className="tabular-nums">{company.btw}</span>
+              </p>
+            </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
-              <span className="text-xs text-muted">Betaalmethodes:</span>
-              <div className="flex items-center gap-2 flex-wrap justify-center">
-                <div className="w-12 h-7 rounded-md bg-white border border-sand flex items-center justify-center shadow-sm">
-                  <span className="text-[10px] font-bold text-primary">iDEAL</span>
-                </div>
-                <div className="w-12 h-7 rounded-md bg-white border border-sand flex items-center justify-center shadow-sm">
-                  <span className="text-[10px] font-bold text-[#1A1F71]">VISA</span>
-                </div>
-                <div className="w-12 h-7 rounded-md bg-white border border-sand flex items-center justify-center shadow-sm">
-                  <span className="text-[10px] font-bold text-[#EB001B]">MC</span>
-                </div>
-                <div className="w-12 h-7 rounded-md bg-white border border-sand flex items-center justify-center shadow-sm">
-                  <span className="text-[10px] font-bold text-[#FFB3C7]">Klarna</span>
-                </div>
-              </div>
+            <div className="flex flex-col items-center gap-3 sm:items-end">
+              <span className="text-xs font-medium uppercase tracking-wide text-muted">
+                Veilig betalen met
+              </span>
+              <ul
+                className="flex flex-wrap items-center justify-center gap-2 sm:justify-end sm:gap-3"
+                aria-label="Geaccepteerde betaalmethodes"
+              >
+                {paymentMethods.map((method) => (
+                  <li key={method.label}>
+                    <div
+                      className={
+                        method.wide
+                          ? 'flex h-9 min-w-28 max-w-36 items-center justify-center rounded-md border border-sand bg-white px-2 py-1.5 shadow-sm sm:h-10 sm:min-w-32 sm:max-w-40'
+                          : 'flex h-9 min-w-13 items-center justify-center rounded-md border border-sand bg-white px-2 py-1.5 shadow-sm'
+                      }
+                    >
+                      <Image
+                        src={method.src}
+                        alt=""
+                        width={method.width}
+                        height={method.height}
+                        className={
+                          method.wide
+                            ? 'h-5 w-auto max-w-full object-contain object-center sm:h-6'
+                            : 'h-5 w-auto max-w-14 object-contain object-center sm:h-6 sm:max-w-none'
+                        }
+                        aria-hidden
+                      />
+                      <span className="sr-only">{method.label}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>

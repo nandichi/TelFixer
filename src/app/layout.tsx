@@ -8,6 +8,7 @@ import { WhatsAppFloat } from '@/components/layout/whatsapp-float';
 import { CartProvider } from '@/context/cart-context';
 import { AuthProvider } from '@/context/auth-context';
 import { ToastProvider } from '@/components/ui/toast';
+import { WebMcpProvider } from '@/components/agent/webmcp-provider';
 
 const manrope = Manrope({
   variable: '--font-sans',
@@ -116,6 +117,7 @@ export default function RootLayout({
               <Footer />
               <CartDrawer />
               <WhatsAppFloat />
+              <WebMcpProvider />
             </ToastProvider>
           </CartProvider>
         </AuthProvider>
