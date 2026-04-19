@@ -16,13 +16,28 @@ export default function AccountRepairsPage() {
   const [loading, setLoading] = useState(true);
 
   const fetchRepairs = useCallback(async () => {
-    if (!profile?.email) return;
+    if (!user?.id) return;
     const supabase = createClient();
-    const { data, error } = await supabase
+    const userEmail = profile?.email ?? user.email ?? '';
+    let query = supabase
       .from('repair_requests')
       .select('*')
-      .eq('customer_email', profile.email)
       .order('created_at', { ascending: false });
+
+    // Reparaties horen bij de ingelogde user OF bij hetzelfde e-mailadres
+    // (voor aanvragen die als 'gast' zijn ingediend).
+    if (userEmail) {
+      query = query.or(
+        `user_id.eq.${user.id},customer_email.eq.${userEmail}`
+      );
+    } else {
+      query = query.eq('user_id', user.id);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      console.error('fetchRepairs error:', error);
+    }
 
     if (!error && data) {
       setRepairs(
@@ -51,15 +66,15 @@ export default function AccountRepairsPage() {
       );
     }
     setLoading(false);
-  }, [profile?.email]);
+  }, [user?.id, user?.email, profile?.email]);
 
   useEffect(() => {
-    if (profile?.email) {
+    if (user?.id) {
       void fetchRepairs();
     } else if (!authLoading) {
       setLoading(false);
     }
-  }, [profile, authLoading, fetchRepairs]);
+  }, [user, authLoading, fetchRepairs]);
 
   if (authLoading || loading) {
     return (
