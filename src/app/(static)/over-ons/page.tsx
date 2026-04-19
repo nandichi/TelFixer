@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import { ArrowRight, Shield, Leaf, Heart, Award, Target, MapPin, GraduationCap, Wrench, ExternalLink } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
@@ -16,7 +15,7 @@ const values = [
     icon: Shield,
     title: 'Kwaliteit',
     description:
-      'Elk apparaat wordt door Ivan persoonlijk gerepareerd en grondig getest. We leveren alleen producten waar we volledig achter staan.',
+      'Elk apparaat wordt gerepareerd, getest en gereinigd. We leveren alleen producten waar we volledig achter staan.',
   },
   {
     icon: Leaf,
@@ -34,14 +33,14 @@ const values = [
     icon: Award,
     title: 'Garantie',
     description:
-      'Al onze producten komen met minimaal 12 maanden garantie. Je koopt met vertrouwen.',
+      'Al onze producten komen met minimaal 6 maanden garantie. Je koopt met vertrouwen.',
   },
 ];
 
 const stats = [
-  { value: '500+', label: 'Tevreden klanten' },
-  { value: '1.000+', label: 'Telefoons verkocht' },
-  { value: '800+', label: 'Apparaten gerepareerd' },
+  { value: '200+', label: 'Tevreden klanten' },
+  { value: '300+', label: 'Telefoons verkocht' },
+  { value: '400+', label: 'Apparaten gerepareerd' },
   { value: '98%', label: 'Klanttevredenheid' },
 ];
 
@@ -165,13 +164,17 @@ export default function AboutPage() {
               <div className="grid md:grid-cols-5 gap-0">
                 {/* Foto kolom */}
                 <div className="md:col-span-2 bg-gradient-to-br from-[#094543] to-[#0a5a57] p-8 flex flex-col items-center justify-center">
-                  <div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-white/20 shadow-xl mb-6">
-                    <Image
-                      src="https://media.licdn.com/dms/image/v2/D4D03AQFntoMXsxBODQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1726786165361?e=1769644800&v=beta&t=kfvBFGH9tvNGub3Xgc7Si-WZut4P6clcyDi1wgXNi4o"
-                      alt="Ivan Politin - Oprichter TelFixer"
-                      fill
-                      className="object-cover"
-                    />
+                  <div
+                    className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-white/20 shadow-xl mb-6 flex items-center justify-center"
+                    style={{
+                      background:
+                        'linear-gradient(135deg, #B8946A 0%, #D4A574 50%, #E2B887 100%)',
+                    }}
+                    aria-label="Ivan Politin - Oprichter TelFixer"
+                  >
+                    <span className="text-6xl font-display font-bold text-white drop-shadow-md select-none">
+                      IP
+                    </span>
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-1">Ivan Politin</h3>
                   <p className="text-emerald-300 font-medium mb-4">Oprichter & Telefoonreparateur</p>

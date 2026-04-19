@@ -1,32 +1,87 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { ChevronDown, ChevronUp, Search, MessageCircle } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 
-const faqCategories = [
+interface FaqItem {
+  q: string;
+  a: ReactNode;
+  /** Plain-text fallback for search matching */
+  searchText: string;
+}
+
+interface FaqCategory {
+  name: string;
+  questions: FaqItem[];
+}
+
+const faqCategories: FaqCategory[] = [
   {
     name: 'Refurbished producten',
     questions: [
       {
         q: 'Wat betekent refurbished?',
-        a: 'Refurbished betekent dat een product is gecontroleerd, gerepareerd indien nodig, en grondig schoongemaakt. Alle refurbished producten bij TelFixer worden getest op 50+ punten en komen met garantie.',
+        a: (
+          <p>
+            Refurbished betekent dat een product is gecontroleerd, gerepareerd
+            indien nodig, en grondig schoongemaakt. Alle refurbished producten
+            bij TelFixer worden getest en komen met garantie.
+          </p>
+        ),
+        searchText:
+          'Refurbished betekent dat een product is gecontroleerd, gerepareerd indien nodig, en grondig schoongemaakt. Alle refurbished producten bij TelFixer worden getest en komen met garantie.',
       },
       {
         q: 'Wat is het verschil tussen de conditie grades?',
-        a: 'Als nieuw: Nauwelijks of geen zichtbare gebruikssporen. Zeer goed: Minimale gebruikssporen, nauwelijks zichtbaar. Goed: Lichte gebruikssporen zichtbaar. Sterk gebruikt: Duidelijke gebruikssporen, maar volledig functioneel.',
+        a: (
+          <ul className="list-disc pl-5 space-y-2 text-gray-600">
+            <li>
+              <span className="font-medium text-[#2C3E48]">Als nieuw:</span>{' '}
+              nauwelijks of geen zichtbare gebruikssporen.
+            </li>
+            <li>
+              <span className="font-medium text-[#2C3E48]">Zeer goed:</span>{' '}
+              minimale gebruikssporen, nauwelijks zichtbaar.
+            </li>
+            <li>
+              <span className="font-medium text-[#2C3E48]">Goed:</span> lichte
+              gebruikssporen zichtbaar.
+            </li>
+            <li>
+              <span className="font-medium text-[#2C3E48]">Sterk gebruikt:</span>{' '}
+              duidelijke gebruikssporen, maar volledig functioneel.
+            </li>
+          </ul>
+        ),
+        searchText:
+          'Als nieuw Zeer goed Goed Sterk gebruikt conditie grades',
       },
       {
         q: 'Hoeveel garantie krijg ik?',
-        a: 'Alle refurbished producten komen met 12 maanden garantie. Accessoires hebben 6 maanden garantie.',
+        a: (
+          <ul className="list-disc pl-5 space-y-2 text-gray-600">
+            <li>Refurbished apparaten: 6 maanden garantie.</li>
+            <li>Accessoires en nieuwe apparaten: 2 jaar garantie.</li>
+          </ul>
+        ),
+        searchText:
+          'Refurbished 6 maanden garantie accessoires nieuwe apparaten 2 jaar',
       },
       {
         q: 'Is de batterij ook getest?',
-        a: 'Ja, bij telefoons en laptops controleren we de batterijconditie. Telefoons hebben minimaal 80% batterijcapaciteit, laptops minder dan 100 laadcycli (tenzij anders vermeld).',
+        a: (
+          <p>
+            Ja, bij telefoons en laptops controleren we de batterijconditie.
+            Telefoons hebben minimaal 85% batterijcapaciteit en laptops minder
+            dan 250 laadcycli (tenzij anders vermeld).
+          </p>
+        ),
+        searchText:
+          'batterij getest telefoons 85% batterijcapaciteit laptops 250 laadcycli',
       },
     ],
   },
@@ -35,19 +90,51 @@ const faqCategories = [
     questions: [
       {
         q: 'Welke betaalmethodes accepteren jullie?',
-        a: 'We accepteren iDEAL, creditcard (Visa, Mastercard, American Express) en PayPal.',
+        a: (
+          <ul className="list-disc pl-5 space-y-1 text-gray-600">
+            <li>iDEAL</li>
+            <li>Creditcard (Visa, Mastercard, American Express)</li>
+            <li>Klarna (achteraf betalen of gespreid)</li>
+            <li>Bankafschrift (handmatige overboeking)</li>
+          </ul>
+        ),
+        searchText:
+          'Betaalmethodes iDEAL creditcard Visa Mastercard American Express Klarna bankafschrift',
       },
       {
         q: 'Hoe lang duurt de levering?',
-        a: 'Bestellingen worden binnen 2-4 werkdagen geleverd. Je ontvangt een track & trace code zodra je bestelling is verzonden.',
+        a: (
+          <p>
+            Je bestelling wordt zo snel mogelijk verzonden. Je ontvangt een track
+            &amp; trace code zodra je bestelling is verzonden.
+          </p>
+        ),
+        searchText:
+          'levering zo snel mogelijk verzonden track trace code',
       },
       {
         q: 'Zijn er verzendkosten?',
-        a: 'Verzending kost 6,95 euro. Bij bestellingen vanaf 50 euro is verzending gratis.',
+        a: (
+          <p>
+            Verzending kost &euro;6,95. Bij bestellingen vanaf &euro;50 is
+            verzending gratis.
+          </p>
+        ),
+        searchText:
+          'Verzendkosten 6,95 euro gratis bestellingen vanaf 50',
       },
       {
         q: 'Kan ik mijn bestelling annuleren?',
-        a: 'Ja, je kunt je bestelling annuleren zolang deze nog niet is verzonden. Neem contact op met onze klantenservice.',
+        a: (
+          <p>
+            Ja, je kunt je bestelling annuleren zolang deze nog niet is
+            verzonden.
+            <br />
+            Neem contact op met onze klantenservice.
+          </p>
+        ),
+        searchText:
+          'bestelling annuleren klantenservice nog niet verzonden',
       },
     ],
   },
@@ -56,15 +143,37 @@ const faqCategories = [
     questions: [
       {
         q: 'Kan ik mijn aankoop retourneren?',
-        a: 'Ja, je hebt 30 dagen bedenktijd. Het product moet in originele staat zijn en onbeschadigd. Neem contact op voor een retourlabel.',
+        a: (
+          <p>
+            Ja, je hebt 14 dagen bedenktijd. Het product moet in originele staat
+            zijn en onbeschadigd. Neem contact op voor een retourlabel.
+          </p>
+        ),
+        searchText:
+          'retourneren 14 dagen bedenktijd originele staat retourlabel',
       },
       {
         q: 'Hoe werkt het retourproces?',
-        a: 'Neem contact op met onze klantenservice. Je ontvangt een gratis retourlabel. Na ontvangst en controle wordt het aankoopbedrag binnen 5 werkdagen teruggestort.',
+        a: (
+          <p>
+            Neem contact op met onze klantenservice. Je ontvangt een gratis
+            retourlabel. Na ontvangst en controle wordt het aankoopbedrag binnen
+            5 werkdagen teruggestort.
+          </p>
+        ),
+        searchText:
+          'retourproces klantenservice gratis retourlabel 5 werkdagen teruggestort',
       },
       {
         q: 'Wat als mijn product defect is?',
-        a: 'Bij defecten binnen de garantieperiode repareren of vervangen wij het product gratis. Neem contact op met ons voor een oplossing.',
+        a: (
+          <p>
+            Bij defecten binnen de garantieperiode repareren of vervangen wij
+            het product gratis. Neem contact op voor een oplossing.
+          </p>
+        ),
+        searchText:
+          'product defect garantieperiode repareren vervangen gratis',
       },
     ],
   },
@@ -73,19 +182,48 @@ const faqCategories = [
     questions: [
       {
         q: 'Hoe werkt apparaat inleveren?',
-        a: 'Vul het inleverformulier in met details over je apparaat. Binnen 2 werkdagen ontvang je een prijsaanbod. Bij akkoord ontvang je gratis verzendlabels.',
+        a: (
+          <p>
+            Vul het inleverformulier in met details over je apparaat. Binnen 2
+            werkdagen ontvang je een prijsaanbod. Bij akkoord ontvang je gratis
+            verzendlabels.
+          </p>
+        ),
+        searchText:
+          'apparaat inleveren formulier 2 werkdagen prijsaanbod gratis verzendlabels',
       },
       {
         q: 'Welke apparaten kunnen jullie inkopen?',
-        a: 'We kopen telefoons, laptops en tablets in van populaire merken zoals Apple, Samsung, Google, Lenovo en meer.',
+        a: (
+          <p>
+            We kopen telefoons, laptops en tablets in van populaire merken zoals
+            Apple, Samsung, Google, Lenovo en meer.
+          </p>
+        ),
+        searchText:
+          'apparaten inkopen telefoons laptops tablets Apple Samsung Google Lenovo',
       },
       {
         q: 'Hoe wordt de prijs bepaald?',
-        a: 'De prijs hangt af van het model, de conditie, en de huidige marktwaarde. Je krijgt altijd een eerlijk en transparant aanbod.',
+        a: (
+          <p>
+            De prijs hangt af van het model, de conditie en de huidige
+            marktwaarde. Je krijgt altijd een eerlijk en transparant aanbod.
+          </p>
+        ),
+        searchText:
+          'prijs bepaald model conditie marktwaarde eerlijk transparant',
       },
       {
         q: 'Hoe word ik uitbetaald?',
-        a: 'Na ontvangst en goedkeuring van je apparaat wordt het bedrag binnen 3 werkdagen overgemaakt naar je bankrekening.',
+        a: (
+          <p>
+            Na ontvangst en goedkeuring van je apparaat wordt het bedrag binnen
+            3 werkdagen overgemaakt naar je bankrekening.
+          </p>
+        ),
+        searchText:
+          'uitbetaald 3 werkdagen overgemaakt bankrekening',
       },
     ],
   },
@@ -105,13 +243,14 @@ export default function FAQPage() {
     setOpenQuestions(newOpen);
   };
 
+  const query = searchQuery.toLowerCase();
   const filteredCategories = faqCategories
     .map((category) => ({
       ...category,
       questions: category.questions.filter(
         (q) =>
-          q.q.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          q.a.toLowerCase().includes(searchQuery.toLowerCase())
+          q.q.toLowerCase().includes(query) ||
+          q.searchText.toLowerCase().includes(query)
       ),
     }))
     .filter((category) => category.questions.length > 0);
@@ -171,8 +310,8 @@ export default function FAQPage() {
                         )}
                       </button>
                       {isOpen && (
-                        <div className="px-4 pb-4">
-                          <p className="text-gray-600">{item.a}</p>
+                        <div className="px-4 pb-4 text-gray-600">
+                          {item.a}
                         </div>
                       )}
                     </div>
@@ -185,7 +324,7 @@ export default function FAQPage() {
           {filteredCategories.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500">
-                Geen vragen gevonden voor "{searchQuery}"
+                Geen vragen gevonden voor &ldquo;{searchQuery}&rdquo;
               </p>
             </div>
           )}

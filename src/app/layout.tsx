@@ -1,29 +1,26 @@
 import type { Metadata } from 'next';
-import { headers } from 'next/headers';
 import { Manrope, Playfair_Display, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { CartDrawer } from '@/components/cart/cart-drawer';
+import { WhatsAppFloat } from '@/components/layout/whatsapp-float';
 import { CartProvider } from '@/context/cart-context';
 import { AuthProvider } from '@/context/auth-context';
 import { ToastProvider } from '@/components/ui/toast';
 
-// Premium body font - clean, modern, highly legible
 const manrope = Manrope({
   variable: '--font-sans',
   subsets: ['latin'],
   display: 'swap',
 });
 
-// Elegant display font for headings - sophisticated serif
 const playfair = Playfair_Display({
   variable: '--font-display',
   subsets: ['latin'],
   display: 'swap',
 });
 
-// Monospace for technical details
 const jetbrainsMono = JetBrains_Mono({
   variable: '--font-mono',
   subsets: ['latin'],
@@ -99,21 +96,13 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    // Voeg hier je Google Search Console verificatie toe indien nodig
-    // google: 'your-google-verification-code',
-  },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = await headers();
-  const pathname = headersList.get('x-pathname') || '';
-  const isComingSoon = pathname === '/';
-
   return (
     <html lang="nl">
       <body
@@ -122,10 +111,11 @@ export default async function RootLayout({
         <AuthProvider>
           <CartProvider>
             <ToastProvider>
-              {!isComingSoon && <Header />}
-              <main className={isComingSoon ? '' : 'flex-1'}>{children}</main>
-              {!isComingSoon && <Footer />}
-              {!isComingSoon && <CartDrawer />}
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <CartDrawer />
+              <WhatsAppFloat />
             </ToastProvider>
           </CartProvider>
         </AuthProvider>

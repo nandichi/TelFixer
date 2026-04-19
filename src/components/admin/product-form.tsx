@@ -60,9 +60,12 @@ export function ProductForm({ product, mode }: ProductFormProps) {
     product?.stock_quantity?.toString() || '1'
   );
   const [warrantyMonths, setWarrantyMonths] = useState(
-    product?.warranty_months?.toString() || '12'
+    product?.warranty_months?.toString() || '6'
   );
   const [featured, setFeatured] = useState(product?.featured || false);
+  const [inStock, setInStock] = useState(
+    product?.in_stock === undefined ? true : product.in_stock
+  );
   const [marketplaceUrl, setMarketplaceUrl] = useState(
     product?.marketplace_url || ''
   );
@@ -212,6 +215,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
         stock_quantity: parseInt(stockQuantity),
         warranty_months: parseInt(warrantyMonths),
         featured,
+        in_stock: inStock,
         image_urls: imageUrls,
         marketplace_url: marketplaceUrl || null,
         facebook_url: facebookUrl || null,
@@ -449,6 +453,27 @@ export function ProductForm({ product, mode }: ProductFormProps) {
               helperText="Wordt doorgestreept getoond"
             />
 
+            {(() => {
+              const priceNum = parseFloat(price);
+              const originalNum = parseFloat(originalPrice);
+              if (
+                Number.isFinite(priceNum) &&
+                Number.isFinite(originalNum) &&
+                originalNum > priceNum
+              ) {
+                const discount = Math.round(
+                  ((originalNum - priceNum) / originalNum) * 100
+                );
+                return (
+                  <div className="rounded-xl border border-copper/30 bg-copper/5 px-4 py-3 text-sm text-copper">
+                    Korting: <span className="font-semibold">-{discount}%</span>{' '}
+                    (bespaart &euro;{(originalNum - priceNum).toFixed(2)})
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
             <Input
               label="Voorraad"
               type="number"
@@ -456,6 +481,18 @@ export function ProductForm({ product, mode }: ProductFormProps) {
               onChange={(e) => setStockQuantity(e.target.value)}
               required
             />
+
+            <label className="flex items-center gap-3 cursor-pointer pt-2">
+              <input
+                type="checkbox"
+                checked={inStock}
+                onChange={(e) => setInStock(e.target.checked)}
+                className="w-5 h-5 rounded border-sand text-primary focus:ring-primary"
+              />
+              <span className="text-sm text-soft-black">
+                Direct uit voorraad leverbaar
+              </span>
+            </label>
           </div>
 
           {/* Details */}

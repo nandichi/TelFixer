@@ -48,8 +48,39 @@ export interface Product {
   image_urls: string[];
   warranty_months: number;
   featured: boolean;
+  in_stock: boolean;
+  active: boolean;
   marketplace_url: string | null;
   facebook_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Repair Request Types
+export type RepairStatus =
+  | 'ontvangen'
+  | 'in_behandeling'
+  | 'klaar'
+  | 'afgehandeld'
+  | 'afgewezen';
+
+export interface RepairRequest {
+  id: string;
+  reference_number: string;
+  user_id: string | null;
+  device_type: string;
+  device_brand: string;
+  device_model: string;
+  repair_type: string;
+  problem_description: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  customer_address: string | null;
+  preferred_date: string | null;
+  status: RepairStatus;
+  notes: string | null;
+  price: number | null;
   created_at: string;
   updated_at: string;
 }

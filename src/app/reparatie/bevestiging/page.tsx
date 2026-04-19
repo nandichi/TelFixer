@@ -178,9 +178,9 @@ function ConfirmationContent() {
                 Terug naar home
               </Button>
             </Link>
-            <Link href="/contact">
+            <Link href={`/tracking?ref=${referenceNumber}`}>
               <Button size="lg" className="w-full sm:w-auto gap-2">
-                Neem contact op
+                Volg je reparatie
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
@@ -194,13 +194,13 @@ function ConfirmationContent() {
             className="mt-12 text-center"
           >
             <p className="text-sm text-muted">
-              Vragen? Neem contact op via{" "}
+              Vragen? Mail{" "}
               <a href="mailto:info@telfixer.nl" className="text-primary hover:underline">
                 info@telfixer.nl
               </a>{" "}
-              of bel{" "}
-              <a href="tel:+31612345678" className="text-primary hover:underline">
-                06 12345678
+              of WhatsApp{" "}
+              <a href="https://wa.me/31644642162" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                +31 6 44642162
               </a>
             </p>
           </motion.div>

@@ -9,6 +9,7 @@ import {
   Package,
   ShoppingCart,
   RefreshCw,
+  Wrench,
   Users,
   Settings,
   Menu,
@@ -29,6 +30,7 @@ const navigation = [
   { name: 'Categorieen', href: '/admin/categorieen', icon: FolderTree },
   { name: 'Bestellingen', href: '/admin/bestellingen', icon: ShoppingCart },
   { name: 'Inleveringen', href: '/admin/inleveringen', icon: RefreshCw },
+  { name: 'Reparaties', href: '/admin/reparaties', icon: Wrench },
   { name: 'Klanten', href: '/admin/klanten', icon: Users },
   { name: 'Instellingen', href: '/admin/instellingen', icon: Settings },
 ];

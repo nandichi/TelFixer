@@ -40,8 +40,7 @@ import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
 import { generateReferenceNumber } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
-import { brandsByType, modelsByTypeAndBrand, getModelsForBrand, hasPredefinedModels } from "@/lib/device-data";
+import { brandsByType, getModelsForBrand } from "@/lib/device-data";
 
 // Form validation schema
 const repairSchema = z.object({
@@ -49,10 +48,12 @@ const repairSchema = z.object({
   deviceBrand: z.string().min(1, "Selecteer een merk"),
   deviceModel: z.string().min(2, "Model is verplicht"),
   repairType: z.string().min(1, "Selecteer een reparatie type"),
-  problemDescription: z.string().min(20, "Beschrijf het probleem in minimaal 20 tekens"),
+  problemDescription: z.string().min(10, "Beschrijf het probleem in minimaal 10 tekens"),
   customerName: z.string().min(2, "Naam is verplicht"),
   customerEmail: z.string().email("Ongeldig e-mailadres"),
-  customerPhone: z.string().min(10, "Telefoonnummer is verplicht"),
+  customerPhone: z
+    .string()
+    .regex(/^\d{10}$/, "Telefoonnummer moet exact 10 cijfers zijn"),
   customerAddress: z.string().optional(),
   preferredDate: z.string().optional(),
   termsAccepted: z.boolean().refine((val) => val === true, {
@@ -219,10 +220,11 @@ export default function ReparatiePage() {
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isConfigured, setIsConfigured] = useState(true);
 
   useEffect(() => {
-    setIsConfigured(isSupabaseConfigured());
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }
   }, []);
 
   const {
@@ -273,22 +275,58 @@ export default function ReparatiePage() {
   };
 
   const onSubmit = async (data: RepairFormData) => {
+    // Guard: prevent accidental submits via Enter key on earlier steps
+    if (step !== 4) return;
+
     setIsSubmitting(true);
 
     try {
-      // Simulate API call for demo
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      const referenceNumber = generateReferenceNumber();
+      const response = await fetch("/api/repair-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deviceType: data.deviceType,
+          deviceBrand: data.deviceBrand,
+          deviceModel: data.deviceModel,
+          repairType: data.repairType,
+          problemDescription: data.problemDescription,
+          customerName: data.customerName,
+          customerEmail: data.customerEmail,
+          customerPhone: data.customerPhone,
+          customerAddress: data.customerAddress || null,
+          preferredDate: data.preferredDate || null,
+        }),
+      });
+
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || "Serverfout");
+      }
+
+      const result = await response.json();
+      const referenceNumber: string =
+        result.referenceNumber || generateReferenceNumber();
+
       success("Reparatie aanvraag ingediend!", `Referentienummer: ${referenceNumber}`);
-      
-      // Navigate to confirmation or reset
       router.push(`/reparatie/bevestiging?ref=${referenceNumber}`);
     } catch (err) {
       console.error("Submission error:", err);
-      showError("Er ging iets mis", "Probeer het opnieuw");
+      showError(
+        "Er ging iets mis",
+        err instanceof Error ? err.message : "Probeer het opnieuw"
+      );
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Prevent Enter-key from submitting the form on non-final steps
+  const handleFormKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    if (e.key === "Enter" && step !== 4) {
+      const target = e.target as HTMLElement;
+      if (target.tagName !== "TEXTAREA") {
+        e.preventDefault();
+      }
     }
   };
 
@@ -358,9 +396,9 @@ export default function ReparatiePage() {
               className="flex flex-wrap justify-center gap-4 sm:gap-6"
             >
               {[
-                { icon: Shield, text: "12 maanden garantie" },
+                { icon: Shield, text: "3 maanden garantie" },
                 { icon: Clock, text: "Vaak dezelfde dag klaar" },
-                { icon: Sparkles, text: "Gratis diagnose" },
+                { icon: Sparkles, text: "Gratis ophaal- & brengdienst" },
               ].map((item, index) => (
                 <motion.div
                   key={item.text}
@@ -494,7 +532,7 @@ export default function ReparatiePage() {
               {/* Decorative gradient border top */}
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-copper to-gold" />
 
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form onSubmit={handleSubmit(onSubmit)} onKeyDown={handleFormKeyDown}>
                 <AnimatePresence mode="wait" custom={direction}>
                   {/* Step 1: Device Selection */}
                   {step === 1 && (
@@ -1085,7 +1123,7 @@ export default function ReparatiePage() {
                 {
                   icon: Shield,
                   title: "Garantie",
-                  description: "12 maanden garantie op elke reparatie",
+                  description: "3 maanden garantie op elke reparatie",
                 },
                 {
                   icon: Clock,

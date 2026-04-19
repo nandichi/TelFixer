@@ -118,8 +118,8 @@ export async function getCompanySettings(): Promise<CompanySettings> {
     settings || {
       name: "TelFixer",
       email: "info@telfixer.nl",
-      phone: "+31 20 123 4567",
-      address: "Voorbeeldstraat 123, 1234 AB Amsterdam",
+      phone: "+31 6 44642162",
+      address: "Houtrakbos 34, 6718HD, Ede",
     }
   );
 }

@@ -43,6 +43,8 @@ export default function EditProductPage() {
         image_urls: data.image_urls || [],
         warranty_months: data.warranty_months,
         featured: data.featured,
+        in_stock: data.in_stock ?? true,
+        active: data.active ?? true,
         marketplace_url: data.marketplace_url,
         facebook_url: data.facebook_url,
         created_at: data.created_at,

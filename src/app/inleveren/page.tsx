@@ -33,9 +33,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
-import { generateReferenceNumber } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { brandsByType, getModelsForBrand } from "@/lib/device-data";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -170,10 +169,11 @@ export default function SubmitDevicePage() {
   const [direction, setDirection] = useState(1);
   const [photos, setPhotos] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isConfigured, setIsConfigured] = useState(true);
 
   useEffect(() => {
-    setIsConfigured(isSupabaseConfigured());
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
   }, []);
 
   const {
@@ -253,125 +253,91 @@ export default function SubmitDevicePage() {
   };
 
   const onSubmit = async (data: SubmissionFormData) => {
-    if (!isSupabaseConfigured()) {
-      showError(
-        "Database niet geconfigureerd",
-        "Neem contact op met de beheerder"
-      );
-      return;
-    }
+    // Prevent accidental submits via Enter on earlier steps
+    if (step !== 4) return;
 
     setIsSubmitting(true);
 
     try {
-      const supabase = createClient();
-      const referenceNumber = generateReferenceNumber();
-
-      // Upload photos if any
+      // Upload photos client-side to Supabase Storage first (if any)
       const photoUrls: string[] = [];
-      for (const photo of photos) {
-        const fileName = `${referenceNumber}/${Date.now()}-${photo.name}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from("submissions")
-          .upload(fileName, photo);
+      if (photos.length > 0) {
+        try {
+          const supabase = createClient();
+          const folder = `submissions/${Date.now()}`;
+          for (const photo of photos) {
+            const fileName = `${folder}/${photo.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from("submissions")
+              .upload(fileName, photo, { upsert: false });
 
-        if (!uploadError && uploadData) {
-          const { data: urlData } = supabase.storage
-            .from("submissions")
-            .getPublicUrl(uploadData.path);
-          if (urlData) {
-            photoUrls.push(urlData.publicUrl);
+            if (!uploadError && uploadData) {
+              const { data: urlData } = supabase.storage
+                .from("submissions")
+                .getPublicUrl(uploadData.path);
+              if (urlData?.publicUrl) {
+                photoUrls.push(urlData.publicUrl);
+              }
+            }
           }
+        } catch (uploadErr) {
+          console.warn("Photo upload failed, continuing without photos:", uploadErr);
         }
       }
 
-      // Get brand label
       const brandLabel =
-        brands.find((b) => b.value === data.deviceBrand)?.label ||
-        data.deviceBrand;
+        brands.find((b) => b.value === data.deviceBrand)?.label || data.deviceBrand;
+      const deviceTypeLabel =
+        deviceTypes.find((t) => t.value === data.deviceType)?.label || data.deviceType;
 
-      // Create submission in database
-      const { error: insertError } = await supabase
-        .from("device_submissions")
-        .insert({
-          reference_number: referenceNumber,
-          device_type: data.deviceType,
-          device_brand: brandLabel,
-          device_model: data.deviceModel,
-          condition_description: data.conditionDescription,
-          photos_urls: photoUrls,
-          customer_name: data.customerName,
-          customer_email: data.customerEmail,
-          customer_phone: data.customerPhone,
-          status: "ontvangen",
-        });
+      const response = await fetch("/api/submission", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deviceType: data.deviceType,
+          deviceTypeLabel,
+          deviceBrand: data.deviceBrand,
+          deviceBrandLabel: brandLabel,
+          deviceModel: data.deviceModel,
+          conditionDescription: data.conditionDescription,
+          customerName: data.customerName,
+          customerEmail: data.customerEmail,
+          customerPhone: data.customerPhone,
+          photoUrls,
+        }),
+      });
 
-      if (insertError) {
-        throw insertError;
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || "Serverfout");
       }
 
-      // Try to send confirmation email (don't block on failure)
-      try {
-        await fetch('/api/send-submission-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            customerName: data.customerName,
-            customerEmail: data.customerEmail,
-            referenceNumber,
-            deviceType: deviceTypes.find(t => t.value === data.deviceType)?.label || data.deviceType,
-            deviceBrand: brands.find(b => b.value === data.deviceBrand)?.label || data.deviceBrand,
-            deviceModel: data.deviceModel,
-            conditionDescription: data.conditionDescription,
-          }),
-        });
-      } catch (emailError) {
-        // Log but don't fail the submission
-        console.warn('Failed to send confirmation email:', emailError);
-      }
+      const result = await response.json();
+      const referenceNumber: string = result.referenceNumber;
 
-      success("Inlevering ingediend!", `Referentienummer: ${referenceNumber}. Je ontvangt een bevestiging per e-mail.`);
-      
-      // Wait 2 seconds before redirecting so user can see the confirmation
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      success(
+        "Inlevering ingediend!",
+        `Referentienummer: ${referenceNumber}. Je ontvangt een bevestiging per e-mail.`
+      );
+
       router.push(`/inleveren/bevestiging?ref=${referenceNumber}`);
     } catch (err) {
       console.error("Submission error:", err);
-      showError("Er ging iets mis", "Probeer het opnieuw");
+      showError(
+        "Er ging iets mis",
+        err instanceof Error ? err.message : "Probeer het opnieuw"
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (!isConfigured) {
-    return (
-      <div className="min-h-screen bg-cream">
-        <section className="py-16 lg:py-24">
-          <Container>
-            <div className="max-w-2xl mx-auto text-center">
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-3xl border border-sand p-12"
-                style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.06)" }}
-              >
-                <div className="w-20 h-20 rounded-2xl bg-amber-50 flex items-center justify-center mx-auto mb-6">
-                  <Info className="w-10 h-10 text-amber-600" />
-                </div>
-                <h1 className="text-2xl font-display font-bold text-soft-black mb-3">
-                  Database niet geconfigureerd
-                </h1>
-                <p className="text-muted">
-                  Configureer je Supabase credentials in de .env.local file om
-                  apparaten in te kunnen leveren.
-                </p>
-              </motion.div>
-            </div>
-          </Container>
-        </section>
-      </div>
-    );
-  }
+  const handleFormKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    const target = e.target as HTMLElement;
+    if (e.key === "Enter" && target.tagName !== "TEXTAREA" && step !== 4) {
+      e.preventDefault();
+    }
+  };
 
   return (
     <div className="min-h-screen bg-cream">
@@ -575,7 +541,7 @@ export default function SubmitDevicePage() {
               {/* Decorative gradient border top */}
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-copper via-gold to-primary" />
 
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form onSubmit={handleSubmit(onSubmit)} onKeyDown={handleFormKeyDown}>
                 <AnimatePresence mode="wait" custom={direction}>
                   {/* Step 1: Device Selection */}
                   {step === 1 && (

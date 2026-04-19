@@ -103,13 +103,15 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </h3>
 
-          {/* Quality indicator */}
-          <p className="text-[10px] sm:text-xs text-[#0D9488] font-medium flex items-center gap-1 mb-3 sm:mb-4">
-            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-            In ieder geval helemaal in orde
-          </p>
+          {/* Quality indicator - only show when product is in stock */}
+          {product.in_stock !== false && (
+            <p className="text-[10px] sm:text-xs text-[#0D9488] font-medium flex items-center gap-1 mb-3 sm:mb-4">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              Direct uit voorraad leverbaar
+            </p>
+          )}
 
           {/* Price and Social Links */}
           <div className="flex items-end justify-between mt-auto">

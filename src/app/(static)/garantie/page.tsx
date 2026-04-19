@@ -41,20 +41,28 @@ export default function WarrantyPage() {
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Telefoons</span>
-                  <span className="font-semibold text-[#094543]">12 maanden</span>
+                  <span className="text-gray-600">Refurbished telefoons</span>
+                  <span className="font-semibold text-[#094543]">6 maanden</span>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Laptops</span>
-                  <span className="font-semibold text-[#094543]">12 maanden</span>
+                  <span className="text-gray-600">Refurbished laptops</span>
+                  <span className="font-semibold text-[#094543]">6 maanden</span>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Tablets</span>
-                  <span className="font-semibold text-[#094543]">12 maanden</span>
+                  <span className="text-gray-600">Refurbished tablets</span>
+                  <span className="font-semibold text-[#094543]">6 maanden</span>
+                </div>
+                <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                  <span className="text-gray-600">Reparaties</span>
+                  <span className="font-semibold text-[#094543]">3 maanden</span>
+                </div>
+                <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                  <span className="text-gray-600">Accessoires</span>
+                  <span className="font-semibold text-[#094543]">2 jaar</span>
                 </div>
                 <div className="flex items-center justify-between py-3">
-                  <span className="text-gray-600">Accessoires</span>
-                  <span className="font-semibold text-[#094543]">6 maanden</span>
+                  <span className="text-gray-600">Nieuwe apparaten</span>
+                  <span className="font-semibold text-[#094543]">2 jaar</span>
                 </div>
               </div>
             </div>
@@ -99,10 +107,10 @@ export default function WarrantyPage() {
 
             <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6">
               <h3 className="text-lg font-semibold text-[#2C3E48] mb-4">
-                30 dagen bedenktijd
+                14 dagen bedenktijd
               </h3>
               <p className="text-gray-600 mb-4">
-                Je hebt 30 dagen bedenktijd na ontvangst van je bestelling. 
+                Je hebt 14 dagen bedenktijd na ontvangst van je bestelling.
                 Binnen deze periode kun je het product zonder opgaaf van reden retourneren.
               </p>
 
@@ -186,23 +194,77 @@ export default function WarrantyPage() {
 
           {/* Warranty Claim */}
           <section className="mb-16">
-            <div className="bg-amber-50 rounded-xl p-6 flex gap-4">
-              <AlertCircle className="h-6 w-6 text-amber-600 shrink-0" />
-              <div>
-                <h3 className="font-semibold text-amber-800 mb-2">
-                  Garantie claimen?
-                </h3>
-                <p className="text-sm text-amber-700 mb-4">
-                  Als je product binnen de garantieperiode defect raakt, neem dan 
-                  contact met ons op. We zorgen voor een snelle oplossing - reparatie, 
-                  vervanging of terugbetaling.
-                </p>
-                <Link href="/contact">
-                  <Button variant="outline" size="sm">
-                    Contact opnemen
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </Link>
+            <div
+              className="rounded-2xl border-2 p-6 sm:p-8"
+              style={{
+                borderColor: '#F59E0B',
+                backgroundColor: '#FFF7ED',
+                boxShadow: '0 6px 24px rgba(245, 158, 11, 0.15)',
+              }}
+            >
+              <div className="flex items-start gap-4">
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ backgroundColor: '#F59E0B' }}
+                >
+                  <AlertCircle className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold mb-3" style={{ color: '#B45309' }}>
+                    Garantie claimen?
+                  </h3>
+                  <p className="text-sm mb-4" style={{ color: '#92400E' }}>
+                    Als je product binnen de garantieperiode defect raakt, doorloop
+                    dan deze stappen:
+                  </p>
+                  <ol className="space-y-3 mb-5 text-sm" style={{ color: '#92400E' }}>
+                    <li className="flex gap-3">
+                      <span
+                        className="flex items-center justify-center w-6 h-6 rounded-full text-white font-semibold text-xs shrink-0"
+                        style={{ backgroundColor: '#F59E0B' }}
+                      >
+                        1
+                      </span>
+                      <span>
+                        Mail <a href="mailto:info@telfixer.nl" className="underline font-medium">info@telfixer.nl</a> met je ordernummer en een omschrijving van het defect.
+                      </span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span
+                        className="flex items-center justify-center w-6 h-6 rounded-full text-white font-semibold text-xs shrink-0"
+                        style={{ backgroundColor: '#F59E0B' }}
+                      >
+                        2
+                      </span>
+                      <span>
+                        Stuur foto&apos;s of video&apos;s mee van het probleem zodat we
+                        snel kunnen beoordelen.
+                      </span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span
+                        className="flex items-center justify-center w-6 h-6 rounded-full text-white font-semibold text-xs shrink-0"
+                        style={{ backgroundColor: '#F59E0B' }}
+                      >
+                        3
+                      </span>
+                      <span>
+                        Je ontvangt een gratis verzendlabel. Na controle kiezen
+                        we voor reparatie, vervanging of terugbetaling.
+                      </span>
+                    </li>
+                  </ol>
+                  <Link href="/contact">
+                    <Button
+                      size="sm"
+                      className="gap-2"
+                      style={{ backgroundColor: '#F59E0B', color: '#ffffff' }}
+                    >
+                      Contact opnemen
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </div>
           </section>

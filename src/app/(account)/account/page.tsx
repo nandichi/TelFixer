@@ -158,7 +158,7 @@ export default function AccountPage() {
         </div>
 
         {/* Quick Links */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8 sm:mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-10">
           <Link
             href="/account/bestellingen"
             className="group bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8 hover:border-primary/20 hover:shadow-lg transition-all duration-300"
@@ -189,6 +189,22 @@ export default function AccountPage() {
             </h3>
             <p className="text-xs sm:text-sm text-muted">
               Status van ingeleverde apparaten
+            </p>
+          </Link>
+          <Link
+            href="/account/reparaties"
+            className="group bg-white rounded-2xl sm:rounded-3xl border border-sand p-5 sm:p-8 hover:border-primary/20 hover:shadow-lg transition-all duration-300"
+          >
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-[#0284C7]/5 flex items-center justify-center text-[#0284C7] mb-4 sm:mb-5 group-hover:bg-[#0284C7] group-hover:text-white transition-all duration-300">
+              <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              </svg>
+            </div>
+            <h3 className="font-display font-semibold text-base sm:text-lg text-soft-black mb-1 sm:mb-2 group-hover:text-[#0284C7] transition-colors">
+              Mijn reparaties
+            </h3>
+            <p className="text-xs sm:text-sm text-muted">
+              Status van je reparatieaanvragen
             </p>
           </Link>
           <Link

@@ -102,6 +102,9 @@ const statusStyles: Record<string, string> = {
   aanbieding_geaccepteerd: 'bg-[#0D9488]/10 text-[#0D9488]',
   aanbieding_afgewezen: 'bg-[#DC2626]/10 text-[#DC2626]',
   afgehandeld: 'bg-sand text-slate',
+  // Repair statuses
+  klaar: 'bg-[#0D9488]/10 text-[#0D9488]',
+  afgewezen: 'bg-[#DC2626]/10 text-[#DC2626]',
   // Payment statuses
   pending: 'bg-[#D97706]/10 text-[#D97706]',
   paid: 'bg-[#0D9488]/10 text-[#0D9488]',
@@ -121,6 +124,8 @@ const statusLabels: Record<string, string> = {
   aanbieding_geaccepteerd: 'Geaccepteerd',
   aanbieding_afgewezen: 'Afgewezen',
   afgehandeld: 'Afgehandeld',
+  klaar: 'Klaar',
+  afgewezen: 'Afgewezen',
   pending: 'In afwachting',
   paid: 'Betaald',
   failed: 'Mislukt',

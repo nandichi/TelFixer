@@ -50,6 +50,8 @@ export default function AdminProductsPage() {
           image_urls: item.image_urls,
           warranty_months: item.warranty_months,
           featured: item.featured,
+          in_stock: item.in_stock ?? true,
+          active: item.active ?? true,
           marketplace_url: item.marketplace_url,
           facebook_url: item.facebook_url,
           created_at: item.created_at,
@@ -185,24 +187,42 @@ export default function AdminProductsPage() {
                     <p className="font-semibold text-primary">
                       {formatPrice(product.price)}
                     </p>
-                    {product.original_price && (
-                      <p className="text-sm text-muted line-through">
-                        {formatPrice(product.original_price)}
-                      </p>
+                    {product.original_price && product.original_price > product.price && (
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-muted line-through">
+                          {formatPrice(product.original_price)}
+                        </p>
+                        <span className="text-xs font-semibold text-copper">
+                          -
+                          {Math.round(
+                            ((product.original_price - product.price) /
+                              product.original_price) *
+                              100
+                          )}
+                          %
+                        </span>
+                      </div>
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                        product.stock_quantity > 5
-                          ? 'bg-success/10 text-success'
-                          : product.stock_quantity > 0
-                          ? 'bg-warning/10 text-warning'
-                          : 'bg-error/10 text-error'
-                      }`}
-                    >
-                      {product.stock_quantity} op voorraad
-                    </span>
+                    <div className="flex flex-col gap-1">
+                      <span
+                        className={`self-start px-2 py-0.5 rounded-full text-xs font-medium ${
+                          product.stock_quantity > 5
+                            ? 'bg-success/10 text-success'
+                            : product.stock_quantity > 0
+                            ? 'bg-warning/10 text-warning'
+                            : 'bg-error/10 text-error'
+                        }`}
+                      >
+                        {product.stock_quantity} op voorraad
+                      </span>
+                      {product.in_stock ? (
+                        <span className="text-xs text-[#0D9488]">Direct leverbaar</span>
+                      ) : (
+                        <span className="text-xs text-muted">Niet direct leverbaar</span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     {product.featured ? (
