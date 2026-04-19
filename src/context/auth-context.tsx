@@ -36,7 +36,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [configured, setConfigured] = useState(false);
 
   useEffect(() => {
-    // Check if Supabase is configured
     const isConfiguredNow = isSupabaseConfigured();
     setConfigured(isConfiguredNow);
 
@@ -49,60 +48,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const supabase = createClient();
+    let resolved = false;
 
-    // Timeout om te voorkomen dat de app blijft hangen
-    const timeout = setTimeout(() => {
-      console.warn("Auth check timeout - falling back to no user");
-      setLoading(false);
-    }, 5000);
-
-    // Get initial session
-    const getInitialSession = async () => {
-      try {
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession();
-
-        if (error) {
-          console.error("Error getting session:", error);
-          clearTimeout(timeout);
-          setLoading(false);
-          return;
-        }
-
-        setUser(session?.user ?? null);
-
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        }
-      } catch (err) {
-        console.error("Failed to get session:", err);
-      } finally {
-        clearTimeout(timeout);
+    // Vangnet: als onAuthStateChange niet binnen 6s vuurt, beschouwen we de
+    // gebruiker als niet ingelogd. We gebruiken bewust GEEN supabase.auth.getSession()
+    // omdat die in @supabase/ssr regelmatig oneindig hangt door web-lock issues.
+    const fallbackTimeout = setTimeout(() => {
+      if (!resolved) {
+        console.warn("Auth init timeout - geen sessie binnen 6s, wordt als uitgelogd behandeld");
+        resolved = true;
         setLoading(false);
       }
-    };
+    }, 6000);
 
-    getInitialSession();
-
-    // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null);
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      const sessionUser = session?.user ?? null;
+      setUser(sessionUser);
 
-      if (session?.user) {
-        await fetchProfile(session.user.id);
+      if (sessionUser) {
+        void fetchProfile(sessionUser.id);
       } else {
         setProfile(null);
       }
 
+      if (!resolved) {
+        resolved = true;
+        clearTimeout(fallbackTimeout);
+      }
       setLoading(false);
     });
 
     return () => {
-      clearTimeout(timeout);
+      clearTimeout(fallbackTimeout);
       subscription.unsubscribe();
     };
   }, []);
@@ -110,16 +89,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchProfile = async (userId: string) => {
     if (!isSupabaseConfigured()) return;
 
-    const supabase = createClient();
+    try {
+      const supabase = createClient();
 
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("id", userId)
-      .single();
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
 
-    if (!error && data) {
-      setProfile(data as User);
+      if (error) {
+        console.warn("fetchProfile fout:", error.message);
+        return;
+      }
+
+      if (data) {
+        setProfile(data as User);
+      }
+    } catch (err) {
+      console.warn("fetchProfile onverwachte fout:", err);
     }
   };
 
