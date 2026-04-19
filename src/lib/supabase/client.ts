@@ -1,4 +1,5 @@
 import { createBrowserClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 // Support both old anon key and new publishable key
@@ -13,6 +14,12 @@ const isConfigured =
   !supabaseUrl.includes("jouw-project-id") &&
   !supabaseAnonKey.includes("jouw-anon");
 
+// Cache the browser client instance so that the auth/session state is shared
+// between callers. Without this, every component that calls createClient()
+// receives a fresh instance which starts with an empty session, races against
+// cookie hydration, and can issue requests without the user's JWT.
+let cachedClient: SupabaseClient | null = null;
+
 export function createClient() {
   if (!isConfigured) {
     throw new Error(
@@ -22,7 +29,16 @@ export function createClient() {
     );
   }
 
-  return createBrowserClient(supabaseUrl!, supabaseAnonKey!);
+  if (typeof window === "undefined") {
+    // No window: cannot reuse, just create fresh instance.
+    return createBrowserClient(supabaseUrl!, supabaseAnonKey!);
+  }
+
+  if (!cachedClient) {
+    cachedClient = createBrowserClient(supabaseUrl!, supabaseAnonKey!);
+  }
+
+  return cachedClient;
 }
 
 export function isSupabaseConfigured(): boolean {

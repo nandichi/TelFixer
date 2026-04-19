@@ -35,6 +35,10 @@ export default function AdminRepairsPage() {
       .select('*')
       .order('created_at', { ascending: false });
 
+    if (error) {
+      console.error('Reparaties ophalen mislukt:', error);
+    }
+
     if (!error && data) {
       setRepairs(
         data.map(
