@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Shield, RotateCcw, CheckCircle, XCircle, AlertCircle, ArrowRight } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
+import { getWarrantySettings } from '@/lib/supabase/settings';
 
 export const metadata: Metadata = {
   title: 'Garantie & Retourbeleid',
@@ -10,7 +11,31 @@ export const metadata: Metadata = {
     'Informatie over garantie, retourneren en reparaties bij TelFixer.',
 };
 
-export default function WarrantyPage() {
+function formatTerm(months: number): string {
+  if (months <= 0) return '-';
+  if (months % 12 === 0) {
+    const years = months / 12;
+    return years === 1 ? '1 jaar' : `${years} jaar`;
+  }
+  return months === 1 ? '1 maand' : `${months} maanden`;
+}
+
+export default async function WarrantyPage() {
+  const warranty = await getWarrantySettings();
+
+  const warrantyRows = [
+    { label: 'Refurbished telefoons', months: warranty.phones_months },
+    { label: 'Refurbished laptops', months: warranty.laptops_months },
+    { label: 'Refurbished tablets', months: warranty.tablets_months },
+    { label: 'Reparaties', months: warranty.repairs_months },
+    { label: 'Accessoires (nieuw)', months: warranty.accessories_new_months },
+    {
+      label: 'Accessoires (gebruikt)',
+      months: warranty.accessories_used_months,
+    },
+    { label: 'Nieuwe apparaten', months: warranty.new_devices_months },
+  ];
+
   return (
     <div className="py-12 lg:py-16">
       <Container>
@@ -40,30 +65,21 @@ export default function WarrantyPage() {
                 Garantietermijnen
               </h3>
               <div className="space-y-3">
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Refurbished telefoons</span>
-                  <span className="font-semibold text-[#094543]">6 maanden</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Refurbished laptops</span>
-                  <span className="font-semibold text-[#094543]">6 maanden</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Refurbished tablets</span>
-                  <span className="font-semibold text-[#094543]">6 maanden</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Reparaties</span>
-                  <span className="font-semibold text-[#094543]">3 maanden</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600">Accessoires</span>
-                  <span className="font-semibold text-[#094543]">2 jaar</span>
-                </div>
-                <div className="flex items-center justify-between py-3">
-                  <span className="text-gray-600">Nieuwe apparaten</span>
-                  <span className="font-semibold text-[#094543]">2 jaar</span>
-                </div>
+                {warrantyRows.map((row, idx) => (
+                  <div
+                    key={row.label}
+                    className={`flex items-center justify-between py-3 ${
+                      idx < warrantyRows.length - 1
+                        ? 'border-b border-gray-100'
+                        : ''
+                    }`}
+                  >
+                    <span className="text-gray-600">{row.label}</span>
+                    <span className="font-semibold text-[#094543]">
+                      {formatTerm(row.months)}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
 

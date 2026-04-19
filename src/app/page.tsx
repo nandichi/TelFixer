@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { InstagramFeed } from '@/components/ui/instagram-feed';
 import { ProductCard } from '@/components/products/product-card';
 import { getFeaturedProducts, getCategoriesWithCount } from '@/lib/supabase/products';
+import { getInstagramSettings } from '@/lib/supabase/settings';
 
 const categoryData: Record<string, { icon: React.ReactNode; gradient: string }> = {
   telefoons: {
@@ -94,9 +95,10 @@ const trustPoints = [
 ];
 
 export default async function HomePage() {
-  const [featuredProducts, categories] = await Promise.all([
+  const [featuredProducts, categories, instagramSettings] = await Promise.all([
     getFeaturedProducts(6),
     getCategoriesWithCount(),
+    getInstagramSettings(),
   ]);
 
   return (
@@ -549,7 +551,10 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      <InstagramFeed />
+      <InstagramFeed
+        posts={instagramSettings.posts}
+        profileUrl={instagramSettings.profile_url}
+      />
     </>
   );
 }

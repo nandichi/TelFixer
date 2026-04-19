@@ -1,12 +1,26 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { FileText, ShoppingBag, RefreshCw, Shield, AlertCircle } from 'lucide-react';
+import {
+  FileText,
+  ShoppingBag,
+  RefreshCw,
+  Shield,
+  AlertCircle,
+  Wrench,
+  Package,
+  Truck,
+  CreditCard,
+  Ban,
+  Lock,
+  Cloud,
+  Scale,
+} from 'lucide-react';
 import { Container } from '@/components/layout/container';
 
 export const metadata: Metadata = {
   title: 'Algemene voorwaarden',
   description:
-    'Algemene voorwaarden van TelFixer voor levering van refurbished apparaten, reparaties en inname.',
+    'Algemene voorwaarden van TelFixer voor reparaties, verkoop en inkoop van elektronische apparaten.',
 };
 
 export default function TermsPage() {
@@ -21,305 +35,322 @@ export default function TermsPage() {
             Algemene voorwaarden
           </h1>
           <p className="text-gray-600">
-            Laatst bijgewerkt op 19 april 2026. Deze voorwaarden zijn van
-            toepassing op alle overeenkomsten met TelFixer.
+            Deze voorwaarden zijn van toepassing op alle diensten en
+            overeenkomsten van TelFixer.
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto space-y-10">
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* 1. Algemeen */}
           <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4">
-              Artikel 1 - Definities
+            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
+              <FileText className="h-6 w-6 text-[#094543]" />
+              1. Algemeen
             </h2>
-            <div className="space-y-3 text-gray-700">
-              <p>
-                <strong>TelFixer</strong>: de onderneming TelFixer, gevestigd aan
-                Houtrakbos 34, 6718HD Ede, ingeschreven bij de Kamer van
-                Koophandel.
-              </p>
-              <p>
-                <strong>Klant</strong>: de natuurlijke persoon of
-                rechtspersoon die een overeenkomst aangaat met TelFixer.
-              </p>
-              <p>
-                <strong>Overeenkomst</strong>: iedere koop-, reparatie- of
-                innameovereenkomst tussen TelFixer en de klant.
-              </p>
-              <p>
-                <strong>Producten</strong>: refurbished telefoons, laptops,
-                tablets, accessoires en nieuwe apparaten die TelFixer aanbiedt.
-              </p>
-              <p>
-                <strong>Diensten</strong>: reparatie- en innameservices die
-                TelFixer aanbiedt.
-              </p>
-            </div>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>
+                1.1 Deze algemene voorwaarden zijn van toepassing op alle
+                diensten en overeenkomsten van TelFixer.
+              </li>
+              <li>
+                1.2 Door gebruik te maken van onze diensten gaat de klant
+                akkoord met deze voorwaarden.
+              </li>
+            </ul>
           </section>
 
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4">
-              Artikel 2 - Toepasselijkheid
-            </h2>
-            <p className="text-gray-700 mb-3">
-              Deze algemene voorwaarden zijn van toepassing op elk aanbod van
-              TelFixer en op iedere tot stand gekomen overeenkomst. Afwijkingen
-              gelden uitsluitend indien schriftelijk overeengekomen.
-            </p>
-            <p className="text-gray-700">
-              Door een bestelling te plaatsen, een reparatie aan te vragen of
-              een apparaat in te leveren, gaat de klant akkoord met deze
-              voorwaarden.
-            </p>
-          </section>
-
+          {/* 2. Diensten */}
           <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
             <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
               <ShoppingBag className="h-6 w-6 text-[#094543]" />
-              Artikel 3 - Aanbod en overeenkomst
+              2. Diensten
             </h2>
             <ul className="list-disc pl-6 space-y-2 text-gray-700">
               <li>
-                Alle aanbiedingen op de website zijn vrijblijvend en onder
-                voorbehoud van beschikbaarheid.
+                2.1 TelFixer biedt reparaties, inkoop en verkoop van
+                elektronische apparaten, waaronder smartphones en tablets.
               </li>
               <li>
-                De overeenkomst komt tot stand op het moment dat TelFixer de
-                bestelling per e-mail bevestigt.
-              </li>
-              <li>
-                TelFixer behoudt zich het recht voor om een bestelling te
-                weigeren, bijvoorbeeld bij vermoeden van fraude of onjuiste
-                gegevens.
-              </li>
-              <li>
-                Kennelijke vergissingen of fouten in het aanbod binden TelFixer
-                niet.
+                2.2 Reparaties worden uitgevoerd naar beste inzicht en
+                vermogen.
               </li>
             </ul>
           </section>
 
+          {/* 3. Offertes en prijzen */}
           <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
             <h2 className="text-2xl font-bold text-[#2C3E48] mb-4">
-              Artikel 4 - Prijzen en betaling
+              3. Offertes en prijzen
             </h2>
             <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>3.1 Alle prijsopgaven zijn vrijblijvend en indicatief.</li>
               <li>
-                Alle prijzen zijn in euro&apos;s, inclusief btw, tenzij anders
-                vermeld.
+                3.2 De uiteindelijke prijs kan afwijken indien tijdens de
+                reparatie aanvullende gebreken worden vastgesteld.
               </li>
-              <li>
-                Verzendkosten worden duidelijk weergegeven voor het afronden van
-                de bestelling.
-              </li>
-              <li>
-                Betaling verloopt via Mollie. Beschikbare betaalmethoden zijn
-                onder andere iDEAL, Creditcard, Klarna en bankoverschrijving.
-              </li>
-              <li>
-                Bij reparaties wordt eerst een prijsopgave gedaan. De reparatie
-                start pas na akkoord van de klant.
-              </li>
+              <li>3.3 Prijzen zijn inclusief btw, tenzij anders vermeld.</li>
             </ul>
           </section>
 
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4">
-              Artikel 5 - Levering en verzending
-            </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
-              <li>
-                Bestellingen worden zo snel mogelijk verzonden na ontvangst van
-                de betaling.
-              </li>
-              <li>
-                Levertermijnen zijn indicatief en gelden nooit als fatale
-                termijn.
-              </li>
-              <li>
-                Het risico van beschadiging of verlies gaat over op de klant op
-                het moment van aflevering.
-              </li>
-              <li>
-                De klant is zelf verantwoordelijk voor het opgeven van een
-                juist en volledig afleveradres.
-              </li>
-            </ul>
-          </section>
-
+          {/* 4. Reparaties */}
           <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
             <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <RefreshCw className="h-6 w-6 text-[#094543]" />
-              Artikel 6 - Herroepingsrecht
+              <Wrench className="h-6 w-6 text-[#094543]" />
+              4. Reparaties
             </h2>
             <ul className="list-disc pl-6 space-y-2 text-gray-700">
               <li>
-                Consumenten hebben bij online aankopen 14 dagen bedenktijd na
-                ontvangst van het product.
+                4.1 De klant gaat akkoord met het openen van het apparaat voor
+                diagnose en reparatie.
               </li>
               <li>
-                Binnen deze termijn mag de klant het product zonder opgave van
-                reden retourneren, mits het in de originele staat en verpakking
-                verkeert.
+                4.2 TelFixer is niet aansprakelijk voor reeds aanwezige schade
+                die tijdens de reparatie zichtbaar wordt.
               </li>
               <li>
-                De klant is verantwoordelijk voor de kosten van retourzending,
-                tenzij anders overeengekomen.
-              </li>
-              <li>
-                Na ontvangst en controle van het geretourneerde product betalen
-                wij het aankoopbedrag binnen 14 dagen terug op dezelfde
-                betaalmethode.
-              </li>
-              <li>
-                Het herroepingsrecht geldt niet voor op maat gemaakte producten
-                of uitgevoerde reparaties.
+                4.3 Indien een apparaat niet te repareren blijkt, kunnen
+                onderzoekskosten in rekening worden gebracht (indien vooraf
+                gecommuniceerd).
               </li>
             </ul>
           </section>
 
+          {/* 5. Garantie op reparaties */}
           <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
             <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
               <Shield className="h-6 w-6 text-[#094543]" />
-              Artikel 7 - Garantie
+              5. Garantie op reparaties
+            </h2>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>5.1 Op uitgevoerde reparaties geldt 3 maanden garantie.</li>
+              <li>
+                5.2 Garantie dekt defecten die direct verband houden met de
+                uitgevoerde reparatie.
+              </li>
+              <li>
+                5.3 Garantie vervalt bij:
+                <ul className="list-disc pl-6 mt-2 space-y-1 text-gray-700">
+                  <li>Val-, stoot- of waterschade</li>
+                  <li>Onjuist gebruik</li>
+                  <li>Reparaties door derden</li>
+                  <li>
+                    Schade aan andere onderdelen dan het gerepareerde onderdeel
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+
+          {/* 6. Verkoop van toestellen */}
+          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
+            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
+              <ShoppingBag className="h-6 w-6 text-[#094543]" />
+              6. Verkoop van toestellen
             </h2>
             <ul className="list-disc pl-6 space-y-2 text-gray-700">
               <li>
-                Op refurbished telefoons, laptops en tablets geldt een garantie
-                van 6 maanden.
+                6.1 Op door TelFixer verkochte toestellen geldt 6 maanden
+                garantie, tenzij anders vermeld.
               </li>
-              <li>Op reparaties geldt een garantie van 3 maanden.</li>
-              <li>Op accessoires en nieuwe apparaten geldt 2 jaar garantie.</li>
               <li>
-                Garantie geldt op materiaal- en productiefouten, niet op schade
-                door eigen toedoen, val- of vochtschade, overbelasting of
-                normale slijtage.
+                6.2 Deze garantie dekt technische defecten die niet door de
+                gebruiker zijn veroorzaakt.
+              </li>
+              <li>
+                6.3 Garantie op toestellen dekt niet:
+                <ul className="list-disc pl-6 mt-2 space-y-1 text-gray-700">
+                  <li>Val-, stoot- of waterschade</li>
+                  <li>Slijtage van batterij (normaal gebruik)</li>
+                  <li>Schade door verkeerd gebruik of software-installaties</li>
+                </ul>
+              </li>
+              <li>
+                6.4 Eventuele gebruikssporen of cosmetische schade worden
+                vooraf gecommuniceerd en vallen niet onder garantie.
+              </li>
+            </ul>
+          </section>
+
+          {/* 7. Onderdelen */}
+          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
+            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
+              <Package className="h-6 w-6 text-[#094543]" />
+              7. Onderdelen
+            </h2>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>
+                7.1 TelFixer maakt gebruik van originele, refurbished of
+                compatibele onderdelen.
+              </li>
+              <li>
+                7.2 Indien geen originele onderdelen worden gebruikt, wordt dit
+                vooraf gecommuniceerd.
+              </li>
+            </ul>
+          </section>
+
+          {/* 8. Ophaal- en brengservice */}
+          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
+            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
+              <Truck className="h-6 w-6 text-[#094543]" />
+              8. Ophaal- en brengservice
+            </h2>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>
+                8.1 TelFixer biedt een ophaal- en brengservice binnen Ede en
+                een straal van 15 km.
+              </li>
+              <li>
+                8.2 De klant is verantwoordelijk voor het correct overdragen
+                van het apparaat.
+              </li>
+              <li>
+                8.3 TelFixer is niet aansprakelijk voor verlies van data
+                tijdens transport of reparatie.
+              </li>
+              <li>
+                8.4 Indien de klant niet aanwezig is op het afgesproken
+                tijdstip, kan een nieuwe afspraak worden ingepland.
+              </li>
+              <li>
+                8.5 TelFixer behoudt zich het recht voor om de ophaalservice te
+                weigeren of kosten in rekening te brengen bij misbruik of
+                herhaalde afwezigheid.
+              </li>
+            </ul>
+          </section>
+
+          {/* 9. Aansprakelijkheid */}
+          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
+            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
+              <AlertCircle className="h-6 w-6 text-[#094543]" />
+              9. Aansprakelijkheid
+            </h2>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>
+                9.1 TelFixer is niet aansprakelijk voor:
+                <ul className="list-disc pl-6 mt-2 space-y-1 text-gray-700">
+                  <li>Verlies van data</li>
+                  <li>Indirecte schade of gevolgschade</li>
+                </ul>
+              </li>
+              <li>
+                9.2 De klant is zelf verantwoordelijk voor het maken van een
+                back-up van gegevens.
+              </li>
+            </ul>
+          </section>
+
+          {/* 10. Betaling */}
+          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
+            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
+              <CreditCard className="h-6 w-6 text-[#094543]" />
+              10. Betaling
+            </h2>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>
+                10.1 Betaling dient te geschieden bij oplevering van de
+                reparatie of levering van het toestel, tenzij anders
+                afgesproken.
+              </li>
+              <li>
+                10.2 TelFixer behoudt zich het recht voor om een apparaat of
+                product onder zich te houden totdat volledige betaling is
+                ontvangen.
+              </li>
+            </ul>
+          </section>
+
+          {/* 11. Inkoop van toestellen */}
+          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
+            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
+              <RefreshCw className="h-6 w-6 text-[#094543]" />
+              11. Inkoop van toestellen
+            </h2>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>
+                11.1 De klant dient eigenaar te zijn van het aangeboden
+                apparaat.
+              </li>
+              <li>11.2 TelFixer kan vragen om legitimatie bij inkoop.</li>
+              <li>
+                11.3 TelFixer behoudt zich het recht voor om een aankoop te
+                weigeren zonder opgaaf van reden.
+              </li>
+            </ul>
+          </section>
+
+          {/* 12. Annulering */}
+          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
+            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
+              <Ban className="h-6 w-6 text-[#094543]" />
+              12. Annulering
+            </h2>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>
+                12.1 Annulering van een reparatie is mogelijk zolang de
+                reparatie nog niet is gestart.
+              </li>
+              <li>
+                12.2 Indien onderdelen speciaal zijn besteld, kunnen kosten in
+                rekening worden gebracht.
+              </li>
+            </ul>
+          </section>
+
+          {/* 13. Privacy */}
+          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
+            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
+              <Lock className="h-6 w-6 text-[#094543]" />
+              13. Privacy
+            </h2>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>
+                13.1 TelFixer gaat zorgvuldig om met persoonsgegevens en
+                gebruikt deze uitsluitend voor dienstverlening.
+              </li>
+              <li>
+                13.2 Gegevens worden niet gedeeld met derden zonder
+                toestemming, tenzij wettelijk verplicht.
               </li>
               <li>
                 Zie onze volledige{' '}
                 <Link
-                  href="/garantie"
+                  href="/privacy"
                   className="text-[#094543] font-medium hover:underline"
                 >
-                  garantiepagina
+                  privacyverklaring
                 </Link>{' '}
-                voor het volledige garantiebeleid.
+                voor meer informatie.
               </li>
             </ul>
           </section>
 
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4">
-              Artikel 8 - Inname van apparaten
-            </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
-              <li>
-                Bij inname van een apparaat ontvang je binnen 2 werkdagen een
-                prijsaanbod per e-mail en WhatsApp.
-              </li>
-              <li>
-                Na akkoord ontvang je kosteloos verzendlabels om het apparaat
-                naar ons te versturen.
-              </li>
-              <li>
-                De klant garandeert dat het aangeboden apparaat zijn eigendom
-                is en niet als gestolen gemeld is.
-              </li>
-              <li>
-                Wijkt de staat van het apparaat bij ontvangst substantieel af
-                van de beschrijving, dan kan het aanbod worden aangepast of
-                ingetrokken.
-              </li>
-              <li>
-                Uitbetaling geschiedt binnen 5 werkdagen na akkoord op ons
-                (aangepaste) aanbod.
-              </li>
-            </ul>
-          </section>
-
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4">
-              Artikel 9 - Reparaties
-            </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
-              <li>
-                Voor een reparatie wordt eerst een diagnose en prijsopgave
-                gemaakt. De reparatie start pas na schriftelijk akkoord.
-              </li>
-              <li>
-                TelFixer gebruikt waar mogelijk originele onderdelen. Indien
-                niet beschikbaar, worden kwalitatief gelijkwaardige onderdelen
-                ingezet.
-              </li>
-              <li>
-                Niet opgehaalde reparaties worden na 90 dagen eigendom van
-                TelFixer.
-              </li>
-              <li>
-                Wij adviseren altijd een backup te maken van data op het
-                apparaat. TelFixer is niet aansprakelijk voor verlies van data.
-              </li>
-            </ul>
-          </section>
-
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4">
-              Artikel 10 - Klachten
-            </h2>
-            <p className="text-gray-700 mb-3">
-              Klachten over de uitvoering van de overeenkomst moeten binnen
-              redelijke tijd, volledig en duidelijk omschreven worden ingediend
-              bij TelFixer via{' '}
-              <a
-                href="mailto:info@telfixer.nl"
-                className="text-[#094543] font-medium hover:underline"
-              >
-                info@telfixer.nl
-              </a>
-              . Wij reageren binnen 14 dagen. Komt er geen oplossing, dan kan de
-              klant het geschil voorleggen aan de Geschillencommissie via{' '}
-              <a
-                href="https://www.degeschillencommissie.nl"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[#094543] font-medium hover:underline"
-              >
-                degeschillencommissie.nl
-              </a>{' '}
-              of via het ODR-platform van de EU.
-            </p>
-          </section>
-
+          {/* 14. Overmacht */}
           <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
             <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <AlertCircle className="h-6 w-6 text-[#094543]" />
-              Artikel 11 - Aansprakelijkheid
+              <Cloud className="h-6 w-6 text-[#094543]" />
+              14. Overmacht
             </h2>
             <ul className="list-disc pl-6 space-y-2 text-gray-700">
               <li>
-                TelFixer is uitsluitend aansprakelijk voor directe schade die
-                het gevolg is van opzet of grove nalatigheid.
-              </li>
-              <li>
-                Aansprakelijkheid is beperkt tot maximaal het factuurbedrag van
-                de betreffende overeenkomst.
-              </li>
-              <li>
-                TelFixer is niet aansprakelijk voor indirecte schade, waaronder
-                gederfde winst, gemiste besparingen of bedrijfsstagnatie.
+                14.1 TelFixer is niet aansprakelijk voor vertragingen of schade
+                als gevolg van overmacht.
               </li>
             </ul>
           </section>
 
+          {/* 15. Toepasselijk recht */}
           <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4">
-              Artikel 12 - Toepasselijk recht
+            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
+              <Scale className="h-6 w-6 text-[#094543]" />
+              15. Toepasselijk recht
             </h2>
-            <p className="text-gray-700">
-              Op alle overeenkomsten tussen TelFixer en de klant is uitsluitend
-              Nederlands recht van toepassing. Geschillen worden voorgelegd aan
-              de bevoegde rechter in het arrondissement Gelderland, tenzij de
-              wet dwingend anders voorschrijft.
-            </p>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>
+                15.1 Op alle overeenkomsten is Nederlands recht van toepassing.
+              </li>
+            </ul>
           </section>
 
           <div className="bg-gradient-to-br from-[#094543] to-[#0D9488] text-white rounded-xl p-8 text-center">

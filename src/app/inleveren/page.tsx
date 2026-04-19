@@ -162,6 +162,9 @@ const pulseVariants = {
   },
 };
 
+const DEFAULT_FOLLOWUP_TEXT =
+  "Je ontvangt binnen 2 werkdagen een prijsaanbod per e-mail en WhatsApp. Als je akkoord gaat, ontvang je gratis verzendlabels om het apparaat naar ons toe te sturen.";
+
 export default function SubmitDevicePage() {
   const router = useRouter();
   const { success, error: showError } = useToast();
@@ -169,11 +172,34 @@ export default function SubmitDevicePage() {
   const [direction, setDirection] = useState(1);
   const [photos, setPhotos] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [followupText, setFollowupText] = useState(DEFAULT_FOLLOWUP_TEXT);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "auto" });
     }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data } = await supabase
+          .from("site_settings")
+          .select("value")
+          .eq("key", "content")
+          .maybeSingle();
+        if (active && data?.value?.submission_followup) {
+          setFollowupText(data.value.submission_followup);
+        }
+      } catch {
+        // silently fall back to default
+      }
+    })();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const {
@@ -1010,10 +1036,8 @@ export default function SubmitDevicePage() {
                           <p className="font-semibold text-soft-black mb-1">
                             Wat gebeurt er na het indienen?
                           </p>
-                          <p className="text-sm text-slate">
-                            Je ontvangt binnen 2 werkdagen een prijsaanbod per e-mail.
-                            Als je akkoord gaat, ontvang je gratis verzendlabels om het
-                            apparaat naar ons toe te sturen.
+                          <p className="text-sm text-slate whitespace-pre-line">
+                            {followupText}
                           </p>
                         </div>
                       </motion.div>

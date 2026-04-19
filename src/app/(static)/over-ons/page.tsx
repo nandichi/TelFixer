@@ -1,8 +1,10 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, Shield, Leaf, Heart, Award, Target, MapPin, GraduationCap, Wrench, ExternalLink } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
+import { getAboutStatsSettings } from '@/lib/supabase/settings';
 
 export const metadata: Metadata = {
   title: 'Over Ons',
@@ -37,14 +39,15 @@ const values = [
   },
 ];
 
-const stats = [
-  { value: '200+', label: 'Tevreden klanten' },
-  { value: '300+', label: 'Telefoons verkocht' },
-  { value: '400+', label: 'Apparaten gerepareerd' },
-  { value: '98%', label: 'Klanttevredenheid' },
-];
+export default async function AboutPage() {
+  const aboutStats = await getAboutStatsSettings();
+  const stats = [
+    { value: aboutStats.customers, label: 'Tevreden klanten' },
+    { value: aboutStats.phones_sold, label: 'Telefoons verkocht' },
+    { value: aboutStats.devices_repaired, label: 'Apparaten gerepareerd' },
+    { value: aboutStats.satisfaction, label: 'Klanttevredenheid' },
+  ];
 
-export default function AboutPage() {
   return (
     <div className="py-12 lg:py-16">
       {/* Hero */}
@@ -166,15 +169,29 @@ export default function AboutPage() {
                 <div className="md:col-span-2 bg-gradient-to-br from-[#094543] to-[#0a5a57] p-8 flex flex-col items-center justify-center">
                   <div
                     className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-white/20 shadow-xl mb-6 flex items-center justify-center"
-                    style={{
-                      background:
-                        'linear-gradient(135deg, #B8946A 0%, #D4A574 50%, #E2B887 100%)',
-                    }}
+                    style={
+                      aboutStats.ivan_photo_url
+                        ? undefined
+                        : {
+                            background:
+                              'linear-gradient(135deg, #B8946A 0%, #D4A574 50%, #E2B887 100%)',
+                          }
+                    }
                     aria-label="Ivan Politin - Oprichter TelFixer"
                   >
-                    <span className="text-6xl font-display font-bold text-white drop-shadow-md select-none">
-                      IP
-                    </span>
+                    {aboutStats.ivan_photo_url ? (
+                      <Image
+                        src={aboutStats.ivan_photo_url}
+                        alt="Ivan Politin - Oprichter TelFixer"
+                        fill
+                        sizes="192px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <span className="text-6xl font-display font-bold text-white drop-shadow-md select-none">
+                        IP
+                      </span>
+                    )}
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-1">Ivan Politin</h3>
                   <p className="text-emerald-300 font-medium mb-4">Oprichter & Telefoonreparateur</p>

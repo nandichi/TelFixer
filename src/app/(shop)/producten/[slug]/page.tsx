@@ -8,6 +8,7 @@ import { ProductCard } from '@/components/products/product-card';
 import { AddToCartButton } from './add-to-cart-button';
 import { formatPrice, calculateSavings } from '@/lib/utils';
 import { getProductBySlug, getRelatedProducts } from '@/lib/supabase/products';
+import { getContentSettings } from '@/lib/supabase/settings';
 
 interface PageProps {
   params: Promise<{
@@ -44,7 +45,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const relatedProducts = await getRelatedProducts(product.id, product.category_id, 3);
+  const [relatedProducts, contentSettings] = await Promise.all([
+    getRelatedProducts(product.id, product.category_id, 3),
+    getContentSettings(),
+  ]);
 
   const savings = calculateSavings(product.original_price, product.price);
   const conditionDescription = {
@@ -163,7 +167,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 <span className="font-medium">
                   {product.stock_quantity <= 3
                     ? `Nog ${product.stock_quantity} beschikbaar`
-                    : 'Op voorraad'}
+                    : contentSettings.product_stock_label}
                 </span>
               </div>
             ) : (

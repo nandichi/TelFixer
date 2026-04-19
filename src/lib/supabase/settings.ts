@@ -27,6 +27,37 @@ export interface TaxSettings {
   rate: number;
 }
 
+export interface WarrantySettings {
+  phones_months: number;
+  laptops_months: number;
+  tablets_months: number;
+  repairs_months: number;
+  accessories_new_months: number;
+  accessories_used_months: number;
+  new_devices_months: number;
+  battery_min_percentage: number;
+  laptop_max_cycles: number;
+}
+
+export interface AboutStatsSettings {
+  customers: string;
+  phones_sold: string;
+  devices_repaired: string;
+  satisfaction: string;
+  ivan_photo_url: string;
+}
+
+export interface InstagramSettings {
+  profile_url: string;
+  posts: string[];
+}
+
+export interface ContentSettings {
+  product_stock_label: string;
+  submission_followup: string;
+  checkout_dispatch: string;
+}
+
 export async function getSetting<T>(key: string): Promise<T | null> {
   if (!isSupabaseConfigured()) {
     return null;
@@ -143,6 +174,69 @@ export async function getSocialSettings(): Promise<SocialSettings> {
 export async function getTaxSettings(): Promise<TaxSettings> {
   const settings = await getSetting<TaxSettings>("tax");
   return settings || { rate: 21 };
+}
+
+export const DEFAULT_WARRANTY: WarrantySettings = {
+  phones_months: 6,
+  laptops_months: 6,
+  tablets_months: 6,
+  repairs_months: 3,
+  accessories_new_months: 24,
+  accessories_used_months: 6,
+  new_devices_months: 24,
+  battery_min_percentage: 85,
+  laptop_max_cycles: 250,
+};
+
+export async function getWarrantySettings(): Promise<WarrantySettings> {
+  const settings = await getSetting<WarrantySettings>("warranty");
+  return { ...DEFAULT_WARRANTY, ...(settings || {}) };
+}
+
+export const DEFAULT_ABOUT_STATS: AboutStatsSettings = {
+  customers: "200+",
+  phones_sold: "300+",
+  devices_repaired: "400+",
+  satisfaction: "98%",
+  ivan_photo_url: "",
+};
+
+export async function getAboutStatsSettings(): Promise<AboutStatsSettings> {
+  const settings = await getSetting<AboutStatsSettings>("about_stats");
+  return { ...DEFAULT_ABOUT_STATS, ...(settings || {}) };
+}
+
+export const DEFAULT_INSTAGRAM: InstagramSettings = {
+  profile_url: "https://www.instagram.com/telfixer/",
+  posts: [
+    "https://www.instagram.com/p/DQEN97EDEMK/",
+    "https://www.instagram.com/p/DRW2A48DOUc/",
+    "https://www.instagram.com/p/DSFJYuhjKYs/",
+  ],
+};
+
+export async function getInstagramSettings(): Promise<InstagramSettings> {
+  const settings = await getSetting<InstagramSettings>("instagram");
+  if (!settings) return DEFAULT_INSTAGRAM;
+  return {
+    profile_url: settings.profile_url || DEFAULT_INSTAGRAM.profile_url,
+    posts:
+      Array.isArray(settings.posts) && settings.posts.length > 0
+        ? settings.posts.filter((p) => typeof p === "string" && p.trim() !== "")
+        : DEFAULT_INSTAGRAM.posts,
+  };
+}
+
+export const DEFAULT_CONTENT: ContentSettings = {
+  product_stock_label: "Direct uit voorraad leverbaar",
+  submission_followup:
+    "Je ontvangt binnen 2 werkdagen een prijsaanbod per e-mail en WhatsApp. Als je akkoord gaat, ontvang je gratis verzendlabels om het apparaat naar ons toe te sturen.",
+  checkout_dispatch: "Je bestelling wordt zo snel mogelijk verzonden",
+};
+
+export async function getContentSettings(): Promise<ContentSettings> {
+  const settings = await getSetting<ContentSettings>("content");
+  return { ...DEFAULT_CONTENT, ...(settings || {}) };
 }
 
 export async function updateCompanySettings(

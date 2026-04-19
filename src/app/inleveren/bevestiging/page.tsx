@@ -95,7 +95,7 @@ export default async function SubmissionConfirmationPage({ searchParams }: PageP
             </h3>
             <ul className="space-y-3">
               {[
-                'Je ontvangt binnen 2 werkdagen een e-mail met een prijsaanbod',
+                'Je ontvangt binnen 2 werkdagen een prijsaanbod per e-mail en WhatsApp',
                 'Bij akkoord ontvang je gratis verzendlabels',
                 'Na ontvangst en controle wordt het bedrag uitbetaald',
               ].map((item) => (
