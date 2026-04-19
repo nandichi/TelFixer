@@ -41,15 +41,16 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Protected routes - skip protection if Supabase not configured (demo mode)
-  const protectedRoutes = ['/checkout'];
+  // Routes die expliciet inloggen vereisen.
+  // /checkout staat opzettelijk NIET in deze lijst: gast-checkout is toegestaan.
+  const protectedRoutes = ['/account'];
   const adminRoutes = ['/admin'];
-  
-  const isProtectedRoute = protectedRoutes.some(route => 
+
+  const isProtectedRoute = protectedRoutes.some(route =>
     request.nextUrl.pathname.startsWith(route)
   );
-  
-  const isAdminRoute = adminRoutes.some(route => 
+
+  const isAdminRoute = adminRoutes.some(route =>
     request.nextUrl.pathname.startsWith(route)
   );
 
