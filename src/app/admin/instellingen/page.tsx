@@ -16,6 +16,7 @@ import {
   Type,
   Plus,
   X,
+  Star,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 import { createClient } from '@/lib/supabase/client';
@@ -82,6 +83,25 @@ interface ContentSettings {
   checkout_dispatch: string;
 }
 
+interface GoogleReview {
+  id: string;
+  author_name: string;
+  author_photo_url?: string;
+  rating: number;
+  date: string;
+  text: string;
+}
+
+interface GoogleReviewsSettings {
+  enabled: boolean;
+  business_name: string;
+  overall_rating: number;
+  total_reviews: number;
+  review_url: string;
+  write_review_url: string;
+  reviews: GoogleReview[];
+}
+
 type TabId =
   | 'company'
   | 'shipping'
@@ -90,6 +110,7 @@ type TabId =
   | 'warranty'
   | 'about'
   | 'instagram'
+  | 'reviews'
   | 'content';
 
 const tabs: {
@@ -127,6 +148,12 @@ const tabs: {
     label: 'Instagram',
     description: 'Posts in homepage feed',
     icon: Instagram,
+  },
+  {
+    id: 'reviews',
+    label: 'Google Reviews',
+    description: 'Reviews op de homepage',
+    icon: Star,
   },
   {
     id: 'shipping',
@@ -213,6 +240,17 @@ export default function AdminSettingsPage() {
     checkout_dispatch: 'Je bestelling wordt zo snel mogelijk verzonden',
   });
 
+  const [googleReviews, setGoogleReviews] = useState<GoogleReviewsSettings>({
+    enabled: true,
+    business_name: 'TelFixer',
+    overall_rating: 5.0,
+    total_reviews: 0,
+    review_url:
+      'https://www.google.com/search?q=TelFixer+Reviews#lkt=LocalPoiReviews',
+    write_review_url: '',
+    reviews: [],
+  });
+
   const fetchSettings = useCallback(async () => {
     const supabase = createClient();
     const { data } = await supabase.from('site_settings').select('*');
@@ -241,6 +279,14 @@ export default function AdminSettingsPage() {
           }));
         if (item.key === 'content' && item.value)
           setContent((p) => ({ ...p, ...item.value }));
+        if (item.key === 'google_reviews' && item.value)
+          setGoogleReviews((p) => ({
+            ...p,
+            ...item.value,
+            reviews: Array.isArray(item.value.reviews)
+              ? item.value.reviews
+              : p.reviews,
+          }));
       });
     }
     setLoading(false);
@@ -742,6 +788,281 @@ export default function AdminSettingsPage() {
                     })
                   }
                   loading={savingKey === 'instagram'}
+                />
+              </div>
+            </Section>
+          )}
+
+          {activeTab === 'reviews' && (
+            <Section
+              title="Google Reviews"
+              description="Reviews die op de homepage worden getoond"
+              action={<Star className="h-4 w-4 text-[var(--a-text-3)]" />}
+            >
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between p-3 rounded-md border border-[var(--a-border)] bg-[var(--a-surface-2)]">
+                  <div>
+                    <p className="text-[13px] font-medium text-[var(--a-text)]">
+                      Sectie tonen op homepage
+                    </p>
+                    <p className="text-[11.5px] text-[var(--a-text-3)] mt-0.5">
+                      Schakel uit om de reviews-sectie tijdelijk te verbergen
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setGoogleReviews({
+                        ...googleReviews,
+                        enabled: !googleReviews.enabled,
+                      })
+                    }
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                      googleReviews.enabled
+                        ? 'bg-[var(--a-accent)]'
+                        : 'bg-[var(--a-border-strong)]'
+                    }`}
+                    aria-pressed={googleReviews.enabled}
+                    aria-label="Sectie aan/uit"
+                  >
+                    <span
+                      className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                        googleReviews.enabled ? 'translate-x-5' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div className="grid sm:grid-cols-3 gap-3">
+                  <AdminInput
+                    label="Bedrijfsnaam"
+                    value={googleReviews.business_name}
+                    onChange={(e) =>
+                      setGoogleReviews({
+                        ...googleReviews,
+                        business_name: e.target.value,
+                      })
+                    }
+                  />
+                  <AdminInput
+                    label="Gemiddelde score"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    suffix="/ 5"
+                    hint="bijv. 4.9"
+                    value={googleReviews.overall_rating}
+                    onChange={(e) =>
+                      setGoogleReviews({
+                        ...googleReviews,
+                        overall_rating: parseFloat(e.target.value) || 0,
+                      })
+                    }
+                  />
+                  <AdminInput
+                    label="Aantal reviews (totaal op Google)"
+                    type="number"
+                    min="0"
+                    hint="0 = automatisch tellen"
+                    value={googleReviews.total_reviews}
+                    onChange={(e) =>
+                      setGoogleReviews({
+                        ...googleReviews,
+                        total_reviews: parseInt(e.target.value) || 0,
+                      })
+                    }
+                  />
+                </div>
+
+                <AdminInput
+                  label="Link naar alle reviews op Google"
+                  placeholder="https://www.google.com/search?q=TelFixer+Reviews..."
+                  value={googleReviews.review_url}
+                  onChange={(e) =>
+                    setGoogleReviews({
+                      ...googleReviews,
+                      review_url: e.target.value,
+                    })
+                  }
+                />
+                <AdminInput
+                  label="Link 'Schrijf een review'"
+                  placeholder="https://g.page/r/.../review (laat leeg om te verbergen)"
+                  hint="Vraag aan Google: open je Google Business profiel, klik 'Vraag om reviews' en kopieer de korte link"
+                  value={googleReviews.write_review_url}
+                  onChange={(e) =>
+                    setGoogleReviews({
+                      ...googleReviews,
+                      write_review_url: e.target.value,
+                    })
+                  }
+                />
+
+                <div className="pt-3 border-t border-[var(--a-border)] space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-[13px] font-semibold text-[var(--a-text)]">
+                        Reviews ({googleReviews.reviews.length})
+                      </h3>
+                      <p className="text-[11.5px] text-[var(--a-text-3)] mt-0.5">
+                        Voeg reviews toe die op de homepage worden getoond
+                      </p>
+                    </div>
+                    <AdminButton
+                      variant="secondary"
+                      size="sm"
+                      onClick={() =>
+                        setGoogleReviews({
+                          ...googleReviews,
+                          reviews: [
+                            ...googleReviews.reviews,
+                            {
+                              id:
+                                typeof crypto !== 'undefined' &&
+                                'randomUUID' in crypto
+                                  ? crypto.randomUUID()
+                                  : `r-${Date.now()}-${Math.random()
+                                      .toString(36)
+                                      .slice(2, 8)}`,
+                              author_name: '',
+                              author_photo_url: '',
+                              rating: 5,
+                              date: '',
+                              text: '',
+                            },
+                          ],
+                        })
+                      }
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      Review toevoegen
+                    </AdminButton>
+                  </div>
+
+                  {googleReviews.reviews.length === 0 && (
+                    <div className="p-6 rounded-md border border-dashed border-[var(--a-border)] text-center">
+                      <Star className="h-5 w-5 mx-auto text-[var(--a-text-3)] mb-2" />
+                      <p className="text-[12.5px] text-[var(--a-text-3)]">
+                        Nog geen reviews toegevoegd
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
+                    {googleReviews.reviews.map((review, idx) => {
+                      const updateReview = (patch: Partial<GoogleReview>) => {
+                        const next = [...googleReviews.reviews];
+                        next[idx] = { ...next[idx]!, ...patch };
+                        setGoogleReviews({
+                          ...googleReviews,
+                          reviews: next,
+                        });
+                      };
+                      return (
+                        <div
+                          key={review.id}
+                          className="p-3.5 rounded-md border border-[var(--a-border)] bg-[var(--a-surface-2)] space-y-3"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="text-[11.5px] font-medium text-[var(--a-text-3)] uppercase tracking-wider">
+                              Review {idx + 1}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const next = googleReviews.reviews.filter(
+                                  (_, i) => i !== idx
+                                );
+                                setGoogleReviews({
+                                  ...googleReviews,
+                                  reviews: next,
+                                });
+                              }}
+                              className="p-1.5 text-[var(--a-text-3)] hover:text-[var(--a-danger)] hover:bg-[var(--a-danger-soft)] rounded-md transition-colors"
+                              aria-label="Verwijder review"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+
+                          <div className="grid sm:grid-cols-2 gap-3">
+                            <AdminInput
+                              label="Naam"
+                              placeholder="bijv. Jan Janssen"
+                              value={review.author_name}
+                              onChange={(e) =>
+                                updateReview({ author_name: e.target.value })
+                              }
+                            />
+                            <AdminInput
+                              label="Foto-URL (optioneel)"
+                              placeholder="https://lh3.googleusercontent.com/..."
+                              value={review.author_photo_url || ''}
+                              onChange={(e) =>
+                                updateReview({
+                                  author_photo_url: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+
+                          <div className="grid sm:grid-cols-[120px_1fr] gap-3">
+                            <div>
+                              <label className="block text-[12px] font-medium text-[var(--a-text-2)] mb-1.5">
+                                Sterren
+                              </label>
+                              <select
+                                value={review.rating}
+                                onChange={(e) =>
+                                  updateReview({
+                                    rating: parseInt(e.target.value) || 5,
+                                  })
+                                }
+                                className="w-full bg-[var(--a-surface)] border border-[var(--a-border)] rounded-md px-2.5 py-2 text-[13px] text-[var(--a-text)] focus:border-[var(--a-accent)] outline-none"
+                              >
+                                {[5, 4, 3, 2, 1].map((n) => (
+                                  <option key={n} value={n}>
+                                    {n} {n === 1 ? 'ster' : 'sterren'}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <AdminInput
+                              label="Datum / wanneer"
+                              placeholder="bijv. 2 weken geleden, of 12 maart 2025"
+                              value={review.date}
+                              onChange={(e) =>
+                                updateReview({ date: e.target.value })
+                              }
+                            />
+                          </div>
+
+                          <AdminTextarea
+                            label="Reviewtekst"
+                            rows={4}
+                            placeholder="Plak hier de tekst van de Google review..."
+                            value={review.text}
+                            onChange={(e) =>
+                              updateReview({ text: e.target.value })
+                            }
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <SaveBar
+                  onSave={() =>
+                    saveSettings('google_reviews', {
+                      ...googleReviews,
+                      reviews: googleReviews.reviews.filter(
+                        (r) => r.author_name.trim() !== '' || r.text.trim() !== ''
+                      ),
+                    })
+                  }
+                  loading={savingKey === 'google_reviews'}
                 />
               </div>
             </Section>

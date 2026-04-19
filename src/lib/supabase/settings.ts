@@ -58,6 +58,25 @@ export interface ContentSettings {
   checkout_dispatch: string;
 }
 
+export interface GoogleReview {
+  id: string;
+  author_name: string;
+  author_photo_url?: string;
+  rating: number;
+  date: string;
+  text: string;
+}
+
+export interface GoogleReviewsSettings {
+  enabled: boolean;
+  business_name: string;
+  overall_rating: number;
+  total_reviews: number;
+  review_url: string;
+  write_review_url: string;
+  reviews: GoogleReview[];
+}
+
 export async function getSetting<T>(key: string): Promise<T | null> {
   if (!isSupabaseConfigured()) {
     return null;
@@ -237,6 +256,27 @@ export const DEFAULT_CONTENT: ContentSettings = {
 export async function getContentSettings(): Promise<ContentSettings> {
   const settings = await getSetting<ContentSettings>("content");
   return { ...DEFAULT_CONTENT, ...(settings || {}) };
+}
+
+export const DEFAULT_GOOGLE_REVIEWS: GoogleReviewsSettings = {
+  enabled: true,
+  business_name: "TelFixer",
+  overall_rating: 5.0,
+  total_reviews: 0,
+  review_url:
+    "https://www.google.com/search?q=TelFixer+Reviews#lkt=LocalPoiReviews",
+  write_review_url: "",
+  reviews: [],
+};
+
+export async function getGoogleReviewsSettings(): Promise<GoogleReviewsSettings> {
+  const settings = await getSetting<GoogleReviewsSettings>("google_reviews");
+  if (!settings) return DEFAULT_GOOGLE_REVIEWS;
+  return {
+    ...DEFAULT_GOOGLE_REVIEWS,
+    ...settings,
+    reviews: Array.isArray(settings.reviews) ? settings.reviews : [],
+  };
 }
 
 export async function updateCompanySettings(

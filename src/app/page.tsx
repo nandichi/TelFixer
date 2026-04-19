@@ -2,9 +2,10 @@ import Link from 'next/link';
 import { Container } from '@/components/layout/container';
 import { Button } from '@/components/ui/button';
 import { InstagramFeed } from '@/components/ui/instagram-feed';
+import { GoogleReviews } from '@/components/ui/google-reviews';
 import { ProductCard } from '@/components/products/product-card';
 import { getFeaturedProducts, getCategoriesWithCount } from '@/lib/supabase/products';
-import { getInstagramSettings } from '@/lib/supabase/settings';
+import { getInstagramSettings, getGoogleReviewsSettings } from '@/lib/supabase/settings';
 
 const categoryData: Record<string, { icon: React.ReactNode; gradient: string }> = {
   telefoons: {
@@ -95,11 +96,13 @@ const trustPoints = [
 ];
 
 export default async function HomePage() {
-  const [featuredProducts, categories, instagramSettings] = await Promise.all([
-    getFeaturedProducts(6),
-    getCategoriesWithCount(),
-    getInstagramSettings(),
-  ]);
+  const [featuredProducts, categories, instagramSettings, googleReviews] =
+    await Promise.all([
+      getFeaturedProducts(6),
+      getCategoriesWithCount(),
+      getInstagramSettings(),
+      getGoogleReviewsSettings(),
+    ]);
 
   return (
     <>
@@ -550,6 +553,17 @@ export default async function HomePage() {
           </div>
         </Container>
       </section>
+
+      {googleReviews.enabled && googleReviews.reviews.length > 0 && (
+        <GoogleReviews
+          reviews={googleReviews.reviews}
+          overallRating={googleReviews.overall_rating}
+          totalReviews={googleReviews.total_reviews}
+          reviewUrl={googleReviews.review_url}
+          writeReviewUrl={googleReviews.write_review_url}
+          businessName={googleReviews.business_name}
+        />
+      )}
 
       <InstagramFeed
         posts={instagramSettings.posts}
