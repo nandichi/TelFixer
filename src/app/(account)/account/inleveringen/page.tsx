@@ -16,21 +16,32 @@ export default function SubmissionsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (profile?.email) {
+    if (user?.id) {
       fetchSubmissions();
     } else if (!authLoading) {
       setLoading(false);
     }
-  }, [profile, authLoading]);
+  }, [user, profile, authLoading]);
 
   const fetchSubmissions = async () => {
+    if (!user?.id) return;
     const supabase = createClient();
-    const { data, error } = await supabase
+    const userEmail = profile?.email ?? user.email ?? '';
+    let query = supabase
       .from('device_submissions')
       .select('*')
-      .eq('customer_email', profile?.email)
       .order('created_at', { ascending: false });
-
+    if (userEmail) {
+      query = query.or(
+        `user_id.eq.${user.id},customer_email.eq.${userEmail}`
+      );
+    } else {
+      query = query.eq('user_id', user.id);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.error('fetchSubmissions error:', error);
+    }
     if (!error && data) {
       setSubmissions(
         data.map((item) => ({

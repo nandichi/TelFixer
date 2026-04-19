@@ -6,6 +6,7 @@ import { Container } from '@/components/layout/container';
 import { StatusBadge } from '@/components/ui/badge';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
+// useAuth provides user and profile
 import { Order, OrderStatus, PaymentStatus } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 
@@ -14,26 +15,37 @@ interface OrderWithItems extends Omit<Order, 'items'> {
 }
 
 export default function OrdersPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<OrderWithItems[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       fetchOrders();
     } else if (!authLoading) {
       setLoading(false);
     }
-  }, [user, authLoading]);
+  }, [user, profile, authLoading]);
 
   const fetchOrders = async () => {
+    if (!user?.id) return;
     const supabase = createClient();
-    const { data, error } = await supabase
+    const userEmail = profile?.email ?? user.email ?? '';
+    let query = supabase
       .from('orders')
       .select('*, order_items(id, product_name, quantity, price_at_purchase)')
-      .eq('user_id', user?.id)
       .order('created_at', { ascending: false });
-
+    if (userEmail) {
+      query = query.or(
+        `user_id.eq.${user.id},customer_email.eq.${userEmail}`
+      );
+    } else {
+      query = query.eq('user_id', user.id);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.error('fetchOrders error:', error);
+    }
     if (!error && data) {
       setOrders(
         data.map((item) => ({

@@ -24,15 +24,30 @@ export default function AccountPage() {
   }, [user, loading]);
 
   const fetchData = async () => {
+    if (!user?.id) {
+      setDataLoading(false);
+      return;
+    }
     const supabase = createClient();
+    const userEmail = profile?.email ?? user.email ?? '';
 
-    // Fetch recent orders
-    const { data: ordersData } = await supabase
+    // Fetch recent orders (op user_id of klant-email)
+    let ordersQuery = supabase
       .from('orders')
       .select('*')
-      .eq('user_id', user?.id)
       .order('created_at', { ascending: false })
       .limit(2);
+    if (userEmail) {
+      ordersQuery = ordersQuery.or(
+        `user_id.eq.${user.id},customer_email.eq.${userEmail}`
+      );
+    } else {
+      ordersQuery = ordersQuery.eq('user_id', user.id);
+    }
+    const { data: ordersData, error: ordersError } = await ordersQuery;
+    if (ordersError) {
+      console.error('Recent orders error:', ordersError);
+    }
 
     if (ordersData) {
       setRecentOrders(
@@ -56,14 +71,25 @@ export default function AccountPage() {
       );
     }
 
-    // Fetch recent submissions by email
-    if (profile?.email) {
-      const { data: submissionsData } = await supabase
+    // Fetch recent submissions
+    {
+      let submissionsQuery = supabase
         .from('device_submissions')
         .select('*')
-        .eq('customer_email', profile.email)
         .order('created_at', { ascending: false })
         .limit(2);
+      if (userEmail) {
+        submissionsQuery = submissionsQuery.or(
+          `user_id.eq.${user.id},customer_email.eq.${userEmail}`
+        );
+      } else {
+        submissionsQuery = submissionsQuery.eq('user_id', user.id);
+      }
+      const { data: submissionsData, error: submissionsError } =
+        await submissionsQuery;
+      if (submissionsError) {
+        console.error('Recent submissions error:', submissionsError);
+      }
 
       if (submissionsData) {
         setRecentSubmissions(
