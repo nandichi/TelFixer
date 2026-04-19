@@ -17,7 +17,20 @@ export default function CartPage() {
     total,
     itemCount,
     clearCart,
+    isHydrated,
   } = useCart();
+
+  if (!isHydrated) {
+    return (
+      <div className="py-24 lg:py-32 bg-cream min-h-screen">
+        <Container>
+          <div className="max-w-md mx-auto text-center">
+            <div className="inline-block w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        </Container>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

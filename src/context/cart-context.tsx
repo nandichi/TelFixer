@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useReducer, useEffect, useState, ReactNode } from 'react';
 import { Product, CartItem, Cart } from '@/types';
 
 const SHIPPING_COST = 6.95;
@@ -25,6 +25,7 @@ type CartAction =
 interface CartContextType extends Cart {
   items: CartItem[];
   isOpen: boolean;
+  isHydrated: boolean;
   addItem: (product: Product, quantity?: number) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -123,6 +124,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     items: [],
     isOpen: false,
   });
+  const [isHydrated, setIsHydrated] = useState(false);
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -135,12 +137,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
         console.error('Failed to load cart from localStorage:', e);
       }
     }
+    setIsHydrated(true);
   }, []);
 
-  // Save cart to localStorage on changes
+  // Save cart to localStorage on changes (na hydratie, anders overschrijven we de opgeslagen state met [])
   useEffect(() => {
+    if (!isHydrated) return;
     localStorage.setItem('telfixer-cart', JSON.stringify(state.items));
-  }, [state.items]);
+  }, [state.items, isHydrated]);
 
   const cartCalculations = calculateCart(state.items);
   const itemCount = state.items.reduce((sum, item) => sum + item.quantity, 0);
@@ -148,6 +152,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const value: CartContextType = {
     items: state.items,
     isOpen: state.isOpen,
+    isHydrated,
     ...cartCalculations,
     itemCount,
     addItem: (product, quantity) =>

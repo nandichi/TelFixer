@@ -35,7 +35,7 @@ const checkoutSchema = z.object({
 type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
 export default function CheckoutPage() {
-  const { items, subtotal, shipping, total, itemCount } = useCart();
+  const { items, subtotal, shipping, total, itemCount, isHydrated } = useCart();
   const { error: showError } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState<'address' | 'review'>('address');
@@ -53,6 +53,18 @@ export default function CheckoutPage() {
       acceptTerms: false,
     },
   });
+
+  if (!isHydrated) {
+    return (
+      <div className="py-24 lg:py-32 bg-cream min-h-screen">
+        <Container>
+          <div className="max-w-md mx-auto text-center">
+            <div className="inline-block w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        </Container>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
