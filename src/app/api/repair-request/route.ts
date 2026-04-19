@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/service';
+import { createClient as createServerSupabaseClient } from '@/lib/supabase/server';
 import { generateReferenceNumber } from '@/lib/utils';
 import { sendRepairRequestEmail } from '@/lib/email';
 
@@ -32,6 +33,17 @@ export async function POST(request: Request) {
     const data = parsed.data;
     const supabase = createServiceClient();
 
+    let userId: string | null = null;
+    try {
+      const sessionClient = await createServerSupabaseClient();
+      const {
+        data: { user },
+      } = await sessionClient.auth.getUser();
+      userId = user?.id ?? null;
+    } catch (err) {
+      console.warn('Repair request: kon ingelogde gebruiker niet ophalen', err);
+    }
+
     const referenceNumber = generateReferenceNumber();
 
     const { error: insertError } = await supabase
@@ -49,6 +61,7 @@ export async function POST(request: Request) {
         customer_address: data.customerAddress || null,
         preferred_date: data.preferredDate || null,
         status: 'ontvangen',
+        user_id: userId,
       });
 
     if (insertError) {
