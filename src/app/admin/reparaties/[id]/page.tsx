@@ -2,10 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import {
-  ArrowLeft,
-  Loader2,
   Smartphone,
   User,
   Mail,
@@ -15,14 +12,17 @@ import {
   Wrench,
   Save,
   MapPin,
+  MessageCircle,
+  Loader2,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { StatusBadge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/toast';
 import { formatDate, formatPrice } from '@/lib/utils';
 import { RepairRequest, RepairStatus } from '@/types';
 import { createClient } from '@/lib/supabase/client';
+import { PageHeader } from '@/components/admin/ui/page-header';
+import { Section } from '@/components/admin/ui/section';
+import { StatusPill } from '@/components/admin/ui/status-pill';
+import { AdminButton } from '@/components/admin/ui/admin-button';
 
 const statusOptions: { value: RepairStatus; label: string }[] = [
   { value: 'ontvangen', label: 'Ontvangen' },
@@ -57,7 +57,6 @@ export default function AdminRepairDetailPage() {
       router.push('/admin/reparaties');
       return;
     }
-
     const mapped: RepairRequest = {
       id: data.id,
       reference_number: data.reference_number,
@@ -94,7 +93,10 @@ export default function AdminRepairDetailPage() {
     const supabase = createClient();
     const parsedPrice = priceInput.trim() ? parseFloat(priceInput) : null;
 
-    if (priceInput.trim() && (isNaN(parsedPrice as number) || (parsedPrice as number) < 0)) {
+    if (
+      priceInput.trim() &&
+      (isNaN(parsedPrice as number) || (parsedPrice as number) < 0)
+    ) {
       showError('Ongeldige prijs');
       setSaving(false);
       return;
@@ -122,207 +124,247 @@ export default function AdminRepairDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-          <p className="mt-3 text-slate">Reparatie laden...</p>
-        </div>
+        <Loader2 className="h-5 w-5 animate-spin text-[var(--a-text-3)]" />
       </div>
     );
   }
-
   if (!repair) return null;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/admin/reparaties"
-            className="p-2 text-slate hover:text-soft-black hover:bg-champagne rounded-lg transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-2xl font-display font-bold text-soft-black">
-                {repair.reference_number}
-              </h1>
-              <StatusBadge status={repair.status} />
-            </div>
-            <p className="text-slate">
-              Ingediend op {formatDate(repair.created_at)}
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="space-y-5">
+      <PageHeader
+        title={repair.reference_number}
+        description={`Ingediend op ${formatDate(repair.created_at)} · ${repair.device_brand} ${repair.device_model}`}
+        back={{ href: '/admin/reparaties', label: 'Alle reparaties' }}
+        meta={<StatusPill status={repair.status} />}
+      />
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-2xl border border-sand p-6">
-            <h2 className="font-semibold text-soft-black flex items-center gap-2 mb-4">
-              <Smartphone className="h-5 w-5 text-primary" />
-              Apparaat details
-            </h2>
-            <div className="grid sm:grid-cols-3 gap-4">
-              <div className="p-4 bg-champagne/50 rounded-xl">
-                <p className="text-sm text-slate">Type</p>
-                <p className="font-medium text-soft-black capitalize">
-                  {repair.device_type}
-                </p>
-              </div>
-              <div className="p-4 bg-champagne/50 rounded-xl">
-                <p className="text-sm text-slate">Merk</p>
-                <p className="font-medium text-soft-black">
-                  {repair.device_brand}
-                </p>
-              </div>
-              <div className="p-4 bg-champagne/50 rounded-xl">
-                <p className="text-sm text-slate">Model</p>
-                <p className="font-medium text-soft-black">
-                  {repair.device_model}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-sand p-6">
-            <h2 className="font-semibold text-soft-black flex items-center gap-2 mb-4">
-              <Wrench className="h-5 w-5 text-primary" />
-              Type reparatie
-            </h2>
-            <p className="text-slate">{repair.repair_type}</p>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-sand p-6">
-            <h2 className="font-semibold text-soft-black flex items-center gap-2 mb-4">
-              <FileText className="h-5 w-5 text-primary" />
-              Probleemomschrijving
-            </h2>
-            <p className="text-slate whitespace-pre-wrap">
-              {repair.problem_description}
-            </p>
-          </div>
-
-          <div className="bg-white rounded-2xl border border-sand p-6 space-y-4">
-            <h2 className="font-semibold text-soft-black mb-2">
-              Status & prijs
-            </h2>
-
-            <div>
-              <label className="block text-sm font-medium text-soft-black mb-2">
-                Status
-              </label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as RepairStatus)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-sand focus:border-primary focus:outline-none bg-white"
-              >
-                {statusOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <Input
-                label="Reparatieprijs (EUR)"
-                type="number"
-                step="0.01"
-                min="0"
-                value={priceInput}
-                onChange={(e) => setPriceInput(e.target.value)}
-                placeholder="bijv. 89.00"
-                helperText={
-                  repair.price !== null
-                    ? `Huidige prijs: ${formatPrice(repair.price)}`
-                    : 'Nog geen prijs ingesteld'
-                }
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 space-y-4">
+          <Section title="Apparaat">
+            <div className="grid sm:grid-cols-3 gap-3">
+              <DataField
+                icon={Smartphone}
+                label="Type"
+                value={repair.device_type}
+              />
+              <DataField
+                icon={Smartphone}
+                label="Merk"
+                value={repair.device_brand}
+              />
+              <DataField
+                icon={Smartphone}
+                label="Model"
+                value={repair.device_model}
               />
             </div>
+          </Section>
 
-            <div>
-              <label className="block text-sm font-medium text-soft-black mb-2">
-                Interne notities
-              </label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={4}
-                className="w-full px-4 py-3 rounded-xl border-2 border-sand focus:border-primary focus:outline-none bg-white text-soft-black"
-                placeholder="Notities voor interne communicatie..."
-              />
-            </div>
-
-            <Button onClick={handleSave} isLoading={saving} className="gap-2">
-              <Save className="h-4 w-4" />
-              Opslaan
-            </Button>
-          </div>
-        </div>
-
-        <div className="space-y-6">
-          <div className="bg-white rounded-2xl border border-sand p-6">
-            <h2 className="font-semibold text-soft-black flex items-center gap-2 mb-4">
-              <User className="h-5 w-5 text-primary" />
-              Klantgegevens
-            </h2>
-            <div className="space-y-3 text-sm">
+          <Section title="Reparatie">
+            <div className="space-y-3">
               <div>
-                <p className="text-slate">Naam</p>
-                <p className="font-medium text-soft-black">
-                  {repair.customer_name}
+                <div className="text-[11px] uppercase tracking-wider text-[var(--a-text-4)] font-semibold mb-1">
+                  Type
+                </div>
+                <div className="text-[13px] text-[var(--a-text)] inline-flex items-center gap-2">
+                  <Wrench className="h-3.5 w-3.5 text-[var(--a-text-3)]" />
+                  {repair.repair_type}
+                </div>
+              </div>
+              <div>
+                <div className="text-[11px] uppercase tracking-wider text-[var(--a-text-4)] font-semibold mb-1">
+                  Probleemomschrijving
+                </div>
+                <p className="text-[13px] text-[var(--a-text-2)] whitespace-pre-wrap leading-relaxed">
+                  {repair.problem_description}
                 </p>
               </div>
-              <div className="flex items-start gap-2">
-                <Mail className="h-4 w-4 text-slate mt-0.5" />
+            </div>
+          </Section>
+
+          <Section
+            title="Status & prijs"
+            description="Werk de status, prijs of interne notities bij"
+          >
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[11px] uppercase tracking-wider text-[var(--a-text-4)] font-semibold mb-1.5">
+                  Status
+                </label>
+                <select
+                  value={status}
+                  onChange={(e) =>
+                    setStatus(e.target.value as RepairStatus)
+                  }
+                  className="w-full h-9 px-2.5 text-[13px] rounded-md bg-[var(--a-surface)] border border-[var(--a-border)] text-[var(--a-text)] focus:border-[var(--a-accent)] focus:outline-none"
+                >
+                  {statusOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] uppercase tracking-wider text-[var(--a-text-4)] font-semibold mb-1.5">
+                  Reparatieprijs (EUR)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={priceInput}
+                  onChange={(e) => setPriceInput(e.target.value)}
+                  placeholder="bijv. 89.00"
+                  className="w-full h-9 px-2.5 text-[13px] admin-num rounded-md bg-[var(--a-surface)] border border-[var(--a-border)] text-[var(--a-text)] focus:border-[var(--a-accent)] focus:outline-none"
+                />
+                <p className="mt-1 text-[11.5px] text-[var(--a-text-4)]">
+                  {repair.price !== null
+                    ? `Huidige prijs: ${formatPrice(repair.price)}`
+                    : 'Nog geen prijs ingesteld'}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-[11px] uppercase tracking-wider text-[var(--a-text-4)] font-semibold mb-1.5">
+                  Interne notities
+                </label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={4}
+                  placeholder="Notities voor interne communicatie..."
+                  className="w-full px-2.5 py-2 text-[13px] rounded-md bg-[var(--a-surface)] border border-[var(--a-border)] text-[var(--a-text)] focus:border-[var(--a-accent)] focus:outline-none resize-y"
+                />
+              </div>
+
+              <div className="flex justify-end pt-1">
+                <AdminButton onClick={handleSave} loading={saving} size="md">
+                  <Save className="h-3.5 w-3.5" />
+                  Opslaan
+                </AdminButton>
+              </div>
+            </div>
+          </Section>
+
+          {repair.notes && (
+            <Section title="Opgeslagen notities">
+              <p className="text-[13px] text-[var(--a-text-2)] whitespace-pre-wrap">
+                {repair.notes}
+              </p>
+            </Section>
+          )}
+        </div>
+
+        <div className="space-y-4">
+          <Section title="Klant">
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2">
+                <User className="h-3.5 w-3.5 text-[var(--a-text-3)]" />
+                <span className="text-[13px] font-medium text-[var(--a-text)]">
+                  {repair.customer_name}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="h-3.5 w-3.5 text-[var(--a-text-3)]" />
                 <a
                   href={`mailto:${repair.customer_email}`}
-                  className="text-primary hover:underline break-all"
+                  className="text-[13px] text-[var(--a-text-2)] hover:text-[var(--a-accent)] truncate"
                 >
                   {repair.customer_email}
                 </a>
               </div>
-              <div className="flex items-start gap-2">
-                <Phone className="h-4 w-4 text-slate mt-0.5" />
+              <div className="flex items-center gap-2">
+                <Phone className="h-3.5 w-3.5 text-[var(--a-text-3)]" />
                 <a
                   href={`tel:${repair.customer_phone}`}
-                  className="text-primary hover:underline"
+                  className="text-[13px] text-[var(--a-text-2)] hover:text-[var(--a-accent)]"
                 >
                   {repair.customer_phone}
                 </a>
               </div>
               {repair.customer_address && (
                 <div className="flex items-start gap-2">
-                  <MapPin className="h-4 w-4 text-slate mt-0.5" />
-                  <span className="text-soft-black">
+                  <MapPin className="h-3.5 w-3.5 text-[var(--a-text-3)] mt-0.5" />
+                  <span className="text-[13px] text-[var(--a-text-2)]">
                     {repair.customer_address}
                   </span>
                 </div>
               )}
               {repair.preferred_date && (
-                <div className="flex items-start gap-2">
-                  <Calendar className="h-4 w-4 text-slate mt-0.5" />
-                  <span className="text-soft-black">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-3.5 w-3.5 text-[var(--a-text-3)]" />
+                  <span className="text-[13px] text-[var(--a-text-2)] admin-num">
                     {formatDate(repair.preferred_date)}
                   </span>
                 </div>
               )}
             </div>
-            <div className="pt-4 mt-4 border-t border-sand flex flex-col gap-2">
+            <div className="pt-3 mt-3 border-t border-[var(--a-border)] flex gap-2">
               <a
                 href={`https://wa.me/${repair.customer_phone.replace(/\D/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-center px-3 py-2 rounded-lg bg-[#25D366] text-white font-medium hover:opacity-90"
+                className="flex-1"
               >
-                WhatsApp klant
+                <AdminButton variant="success" size="sm" fullWidth>
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  WhatsApp
+                </AdminButton>
               </a>
             </div>
-          </div>
+          </Section>
+
+          <Section title="Tijdlijn">
+            <div className="space-y-2 text-[12.5px]">
+              <Row label="Aangemaakt" value={formatDate(repair.created_at)} />
+              <Row
+                label="Laatst bijgewerkt"
+                value={formatDate(repair.updated_at)}
+              />
+            </div>
+          </Section>
         </div>
       </div>
+    </div>
+  );
+}
+
+function DataField({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-md border border-[var(--a-border)] p-3 bg-[var(--a-surface-2)]/50">
+      <div className="text-[10.5px] uppercase tracking-wider text-[var(--a-text-4)] font-semibold mb-1">
+        {label}
+      </div>
+      <div className="text-[13px] font-medium text-[var(--a-text)] capitalize inline-flex items-center gap-1.5">
+        <Icon className="h-3 w-3 text-[var(--a-text-3)]" />
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function Row({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="flex justify-between items-center">
+      <span className="text-[var(--a-text-3)]">{label}</span>
+      <span className="text-[var(--a-text-2)] admin-num">{value}</span>
     </div>
   );
 }

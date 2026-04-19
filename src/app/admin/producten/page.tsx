@@ -1,74 +1,116 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Plus, Search, Edit, Trash2, Package, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ConditionBadge } from '@/components/ui/badge';
+import { useRouter } from 'next/navigation';
+import { Plus, Edit, Trash2, Package, Star } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/modal';
 import { useToast } from '@/components/ui/toast';
 import { formatPrice } from '@/lib/utils';
 import { Product } from '@/types';
 import { createClient } from '@/lib/supabase/client';
+import { PageHeader } from '@/components/admin/ui/page-header';
+import { FilterBar } from '@/components/admin/ui/filter-bar';
+import { DataTable, Column } from '@/components/admin/ui/data-table';
+import { EmptyState } from '@/components/admin/ui/empty-state';
+import { StatusPill, ConditionPill } from '@/components/admin/ui/status-pill';
+import { AdminButton } from '@/components/admin/ui/admin-button';
 
 export default function AdminProductsPage() {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [stockFilter, setStockFilter] = useState('all');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const { success, error: showError } = useToast();
 
   useEffect(() => {
+    const fetchProducts = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('products')
+        .select('*, categories(id, name, slug)')
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        setProducts(
+          data.map((item) => ({
+            id: item.id,
+            name: item.name,
+            slug: item.slug,
+            category_id: item.category_id,
+            category: item.categories,
+            brand: item.brand,
+            price: parseFloat(item.price),
+            original_price: item.original_price
+              ? parseFloat(item.original_price)
+              : null,
+            condition_grade: item.condition_grade,
+            description: item.description,
+            specifications: item.specifications,
+            stock_quantity: item.stock_quantity,
+            image_urls: item.image_urls,
+            warranty_months: item.warranty_months,
+            featured: item.featured,
+            in_stock: item.in_stock ?? true,
+            active: item.active ?? true,
+            marketplace_url: item.marketplace_url,
+            facebook_url: item.facebook_url,
+            created_at: item.created_at,
+            updated_at: item.updated_at,
+          }))
+        );
+      }
+      setLoading(false);
+    };
     fetchProducts();
   }, []);
 
-  const fetchProducts = async () => {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from('products')
-      .select('*, categories(id, name, slug)')
-      .order('created_at', { ascending: false });
+  const counts = useMemo(() => {
+    const c = {
+      all: products.length,
+      in_stock: 0,
+      low_stock: 0,
+      out_of_stock: 0,
+      featured: 0,
+    };
+    products.forEach((p) => {
+      if (p.stock_quantity === 0) c.out_of_stock++;
+      else if (p.stock_quantity <= 3) c.low_stock++;
+      else c.in_stock++;
+      if (p.featured) c.featured++;
+    });
+    return c;
+  }, [products]);
 
-    if (!error && data) {
-      setProducts(
-        data.map((item) => ({
-          id: item.id,
-          name: item.name,
-          slug: item.slug,
-          category_id: item.category_id,
-          category: item.categories,
-          brand: item.brand,
-          price: parseFloat(item.price),
-          original_price: item.original_price ? parseFloat(item.original_price) : null,
-          condition_grade: item.condition_grade,
-          description: item.description,
-          specifications: item.specifications,
-          stock_quantity: item.stock_quantity,
-          image_urls: item.image_urls,
-          warranty_months: item.warranty_months,
-          featured: item.featured,
-          in_stock: item.in_stock ?? true,
-          active: item.active ?? true,
-          marketplace_url: item.marketplace_url,
-          facebook_url: item.facebook_url,
-          created_at: item.created_at,
-          updated_at: item.updated_at,
-        }))
-      );
-    }
-    setLoading(false);
-  };
+  const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return products.filter((p) => {
+      const matches =
+        !q ||
+        p.name.toLowerCase().includes(q) ||
+        p.brand.toLowerCase().includes(q);
+      const matchesStock =
+        stockFilter === 'all'
+          ? true
+          : stockFilter === 'in_stock'
+            ? p.stock_quantity > 3
+            : stockFilter === 'low_stock'
+              ? p.stock_quantity > 0 && p.stock_quantity <= 3
+              : stockFilter === 'out_of_stock'
+                ? p.stock_quantity === 0
+                : stockFilter === 'featured'
+                  ? p.featured
+                  : true;
+      return matches && matchesStock;
+    });
+  }, [products, searchQuery, stockFilter]);
 
-  const filteredProducts = products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.brand.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleDelete = (product: Product) => {
+  const handleDelete = (product: Product, e: React.MouseEvent) => {
+    e.stopPropagation();
     setSelectedProduct(product);
     setDeleteModalOpen(true);
   };
@@ -92,186 +134,193 @@ export default function AdminProductsPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="h-8 bg-champagne rounded-lg w-48 animate-pulse" />
-        <div className="h-64 bg-champagne rounded-xl animate-pulse" />
-      </div>
-    );
-  }
+  const stockTone = (qty: number) => {
+    if (qty === 0) return 'danger';
+    if (qty <= 3) return 'warning';
+    return 'success';
+  };
+
+  const columns: Column<Product>[] = [
+    {
+      key: 'product',
+      header: 'Product',
+      sortable: true,
+      sortValue: (r) => r.name,
+      cell: (r) => (
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 bg-[var(--a-surface-2)] rounded-md flex items-center justify-center shrink-0 overflow-hidden">
+            {r.image_urls?.[0] ? (
+              <Image
+                src={r.image_urls[0]}
+                alt={r.name}
+                width={36}
+                height={36}
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <Package className="h-4 w-4 text-[var(--a-text-4)]" />
+            )}
+          </div>
+          <div className="min-w-0">
+            <div className="text-[13px] font-medium text-[var(--a-text)] truncate">
+              {r.name}
+            </div>
+            <div className="text-[11.5px] text-[var(--a-text-3)] truncate">
+              {r.brand}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'condition',
+      header: 'Conditie',
+      cell: (r) => <ConditionPill grade={r.condition_grade} size="xs" />,
+    },
+    {
+      key: 'price',
+      header: 'Prijs',
+      align: 'right',
+      sortable: true,
+      sortValue: (r) => r.price,
+      cell: (r) => (
+        <div className="text-right">
+          <div className="text-[13px] font-semibold text-[var(--a-text)] admin-num">
+            {formatPrice(r.price)}
+          </div>
+          {r.original_price && r.original_price > r.price && (
+            <div className="text-[11px] text-[var(--a-text-4)] line-through admin-num">
+              {formatPrice(r.original_price)}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'stock',
+      header: 'Voorraad',
+      sortable: true,
+      sortValue: (r) => r.stock_quantity,
+      cell: (r) => (
+        <StatusPill
+          status="custom"
+          tone={stockTone(r.stock_quantity)}
+          label={`${r.stock_quantity} stuks`}
+          size="xs"
+        />
+      ),
+    },
+    {
+      key: 'flags',
+      header: 'Status',
+      cell: (r) => (
+        <div className="flex items-center gap-1.5">
+          {r.featured && (
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[var(--a-warning)]">
+              <Star className="h-3 w-3 fill-current" />
+              Uitgelicht
+            </span>
+          )}
+          {!r.active && (
+            <StatusPill
+              status="inactive"
+              tone="neutral"
+              label="Inactief"
+              size="xs"
+            />
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      width: '80px',
+      cell: (r) => (
+        <div className="flex items-center justify-end gap-0.5">
+          <Link
+            href={`/admin/producten/${r.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="p-1.5 rounded-md text-[var(--a-text-3)] hover:text-[var(--a-text)] hover:bg-[var(--a-surface-3)] transition-colors"
+          >
+            <Edit className="h-3.5 w-3.5" />
+          </Link>
+          <button
+            onClick={(e) => handleDelete(r, e)}
+            className="p-1.5 rounded-md text-[var(--a-text-3)] hover:text-[var(--a-danger)] hover:bg-[var(--a-danger-soft)] transition-colors"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-display font-bold text-soft-black">Producten</h1>
-          <p className="text-slate">{products.length} producten in totaal</p>
-        </div>
-        <Link href="/admin/producten/nieuw">
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Nieuw product
-          </Button>
-        </Link>
-      </div>
+    <div className="space-y-4">
+      <PageHeader
+        title="Producten"
+        description={`${products.length} producten in catalogus`}
+        actions={
+          <Link href="/admin/producten/nieuw">
+            <AdminButton variant="primary">
+              <Plus className="h-3.5 w-3.5" />
+              Nieuw product
+            </AdminButton>
+          </Link>
+        }
+      />
 
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted" />
-        <Input
-          placeholder="Zoek op naam of merk..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
-      </div>
+      <FilterBar
+        search={{
+          value: searchQuery,
+          onChange: setSearchQuery,
+          placeholder: 'Zoek op naam of merk...',
+        }}
+        filters={{
+          value: stockFilter,
+          onChange: setStockFilter,
+          options: [
+            { value: 'all', label: 'Alle', count: counts.all },
+            { value: 'in_stock', label: 'Op voorraad', count: counts.in_stock },
+            { value: 'low_stock', label: 'Lage voorraad', count: counts.low_stock },
+            { value: 'out_of_stock', label: 'Uitverkocht', count: counts.out_of_stock },
+            { value: 'featured', label: 'Uitgelicht', count: counts.featured },
+          ],
+        }}
+      />
 
-      {/* Products Table */}
-      <div className="bg-white rounded-2xl border border-sand overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-champagne/50 border-b border-sand">
-                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
-                  Product
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
-                  Conditie
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
-                  Prijs
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
-                  Voorraad
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
-                  Status
-                </th>
-                <th className="text-right px-4 py-3 text-sm font-medium text-slate">
-                  Acties
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-sand">
-              {filteredProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-champagne/30 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-champagne rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
-                        {product.image_urls?.[0] ? (
-                          <Image
-                            src={product.image_urls[0]}
-                            alt={product.name}
-                            width={48}
-                            height={48}
-                            className="object-cover w-full h-full"
-                          />
-                        ) : (
-                          <Package className="h-6 w-6 text-muted" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-medium text-soft-black">
-                          {product.name}
-                        </p>
-                        <p className="text-sm text-slate">{product.brand}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <ConditionBadge grade={product.condition_grade} size="sm" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <p className="font-semibold text-primary">
-                      {formatPrice(product.price)}
-                    </p>
-                    {product.original_price && product.original_price > product.price && (
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm text-muted line-through">
-                          {formatPrice(product.original_price)}
-                        </p>
-                        <span className="text-xs font-semibold text-copper">
-                          -
-                          {Math.round(
-                            ((product.original_price - product.price) /
-                              product.original_price) *
-                              100
-                          )}
-                          %
-                        </span>
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col gap-1">
-                      <span
-                        className={`self-start px-2 py-0.5 rounded-full text-xs font-medium ${
-                          product.stock_quantity > 5
-                            ? 'bg-success/10 text-success'
-                            : product.stock_quantity > 0
-                            ? 'bg-warning/10 text-warning'
-                            : 'bg-error/10 text-error'
-                        }`}
-                      >
-                        {product.stock_quantity} op voorraad
-                      </span>
-                      {product.in_stock ? (
-                        <span className="text-xs text-[#0D9488]">Direct leverbaar</span>
-                      ) : (
-                        <span className="text-xs text-muted">Niet direct leverbaar</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    {product.featured ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-copper/10 text-copper">
-                        <Star className="h-3 w-3 fill-current" />
-                        Uitgelicht
-                      </span>
-                    ) : (
-                      <span className="text-sm text-muted">-</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <Link href={`/admin/producten/${product.id}`}>
-                        <button className="p-2 text-slate hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
-                          <Edit className="h-4 w-4" />
-                        </button>
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(product)}
-                        className="p-2 text-slate hover:text-error hover:bg-error/10 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <DataTable
+        columns={columns}
+        rows={filtered}
+        rowKey={(r) => r.id}
+        loading={loading}
+        onRowClick={(r) => router.push(`/admin/producten/${r.id}`)}
+        empty={
+          <EmptyState
+            icon={Package}
+            title="Geen producten gevonden"
+            description={
+              searchQuery || stockFilter !== 'all'
+                ? 'Pas je zoekfilters aan om resultaten te zien.'
+                : 'Voeg je eerste product toe om te beginnen.'
+            }
+            action={
+              !searchQuery && stockFilter === 'all' ? (
+                <Link href="/admin/producten/nieuw">
+                  <AdminButton variant="primary">
+                    <Plus className="h-3.5 w-3.5" />
+                    Nieuw product
+                  </AdminButton>
+                </Link>
+              ) : undefined
+            }
+            variant="compact"
+          />
+        }
+      />
 
-        {filteredProducts.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-4">
-              <Package className="h-8 w-8 text-muted" />
-            </div>
-            <p className="text-slate mb-4">Geen producten gevonden</p>
-            <Link href="/admin/producten/nieuw">
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Nieuw product toevoegen
-              </Button>
-            </Link>
-          </div>
-        )}
-      </div>
-
-      {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}

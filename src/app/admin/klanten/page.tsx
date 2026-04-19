@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Search, Users, Mail, Phone, Eye, ShoppingCart, RefreshCw } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import { Users } from 'lucide-react';
 import { formatDate, formatPrice } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
+import { PageHeader } from '@/components/admin/ui/page-header';
+import { FilterBar } from '@/components/admin/ui/filter-bar';
+import { DataTable, Column } from '@/components/admin/ui/data-table';
+import { EmptyState } from '@/components/admin/ui/empty-state';
 
 interface CustomerWithStats {
   id: string;
@@ -20,218 +23,229 @@ interface CustomerWithStats {
 }
 
 export default function AdminCustomersPage() {
+  const router = useRouter();
   const [customers, setCustomers] = useState<CustomerWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
+    const fetchCustomers = async () => {
+      const supabase = createClient();
+
+      const { data: users, error } = await supabase
+        .from('users')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error || !users) {
+        console.error('Error fetching customers:', error);
+        setLoading(false);
+        return;
+      }
+
+      // Bulk fetch orders + submissions to avoid N+1
+      const userIds = users.map((u) => u.id);
+      const userEmails = users.map((u) => u.email);
+
+      const [{ data: ordersData }, { data: subsData }] = await Promise.all([
+        supabase
+          .from('orders')
+          .select('user_id, customer_email, total_price')
+          .or(
+            `user_id.in.(${userIds.join(',')}),customer_email.in.(${userEmails.map((e) => `"${e}"`).join(',')})`
+          ),
+        supabase
+          .from('device_submissions')
+          .select('user_id, customer_email')
+          .or(
+            `user_id.in.(${userIds.join(',')}),customer_email.in.(${userEmails.map((e) => `"${e}"`).join(',')})`
+          ),
+      ]);
+
+      const ordersByEmail = new Map<string, { count: number; total: number }>();
+      (ordersData ?? []).forEach((o) => {
+        const key = (o.customer_email ?? '') as string;
+        const userObj = users.find(
+          (u) => u.id === o.user_id || u.email === o.customer_email
+        );
+        const k = userObj?.email ?? key;
+        if (!k) return;
+        const cur = ordersByEmail.get(k) ?? { count: 0, total: 0 };
+        cur.count += 1;
+        cur.total += parseFloat((o.total_price as string) ?? '0');
+        ordersByEmail.set(k, cur);
+      });
+
+      const subsByEmail = new Map<string, number>();
+      (subsData ?? []).forEach((s) => {
+        const userObj = users.find(
+          (u) => u.id === s.user_id || u.email === s.customer_email
+        );
+        const k = userObj?.email ?? (s.customer_email as string);
+        if (!k) return;
+        subsByEmail.set(k, (subsByEmail.get(k) ?? 0) + 1);
+      });
+
+      setCustomers(
+        users.map((u) => ({
+          id: u.id,
+          email: u.email,
+          first_name: u.first_name,
+          last_name: u.last_name,
+          phone: u.phone,
+          created_at: u.created_at,
+          orders_count: ordersByEmail.get(u.email)?.count ?? 0,
+          total_spent: ordersByEmail.get(u.email)?.total ?? 0,
+          submissions_count: subsByEmail.get(u.email) ?? 0,
+        }))
+      );
+      setLoading(false);
+    };
     fetchCustomers();
   }, []);
 
-  const fetchCustomers = async () => {
-    const supabase = createClient();
-
-    // Get all users
-    const { data: users, error } = await supabase
-      .from('users')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error || !users) {
-      console.error('Error fetching customers:', error);
-      setLoading(false);
-      return;
-    }
-
-    // Get stats for each user
-    const customersWithStats = await Promise.all(
-      users.map(async (user) => {
-        // Get order count and total spent
-        const { data: orders } = await supabase
-          .from('orders')
-          .select('total_price')
-          .eq('user_id', user.id);
-
-        const ordersCount = orders?.length || 0;
-        const totalSpent =
-          orders?.reduce(
-            (sum, order) => sum + parseFloat(order.total_price),
-            0
-          ) || 0;
-
-        // Get submissions count
-        const { count: submissionsCount } = await supabase
-          .from('device_submissions')
-          .select('*', { count: 'exact', head: true })
-          .eq('customer_email', user.email);
-
-        return {
-          id: user.id,
-          email: user.email,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          phone: user.phone,
-          created_at: user.created_at,
-          orders_count: ordersCount,
-          total_spent: totalSpent,
-          submissions_count: submissionsCount || 0,
-        };
-      })
+  const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return customers.filter(
+      (c) =>
+        !q ||
+        (c.first_name?.toLowerCase() ?? '').includes(q) ||
+        (c.last_name?.toLowerCase() ?? '').includes(q) ||
+        c.email.toLowerCase().includes(q) ||
+        (c.phone?.toLowerCase() ?? '').includes(q)
     );
+  }, [customers, searchQuery]);
 
-    setCustomers(customersWithStats);
-    setLoading(false);
-  };
-
-  const filteredCustomers = customers.filter(
-    (customer) =>
-      (customer.first_name?.toLowerCase() || '').includes(
-        searchQuery.toLowerCase()
-      ) ||
-      (customer.last_name?.toLowerCase() || '').includes(
-        searchQuery.toLowerCase()
-      ) ||
-      customer.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="h-8 bg-champagne rounded-lg w-48 animate-pulse" />
-        <div className="h-64 bg-champagne rounded-xl animate-pulse" />
-      </div>
-    );
-  }
+  const columns: Column<CustomerWithStats>[] = [
+    {
+      key: 'customer',
+      header: 'Klant',
+      sortable: true,
+      sortValue: (r) => `${r.first_name ?? ''} ${r.last_name ?? ''} ${r.email}`,
+      cell: (r) => {
+        const name =
+          [r.first_name, r.last_name].filter(Boolean).join(' ') ||
+          'Geen naam';
+        const initials =
+          (r.first_name?.[0] ?? r.email[0]).toUpperCase() +
+          (r.last_name?.[0] ?? '').toUpperCase();
+        return (
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-[var(--a-accent-soft)] text-[var(--a-accent)] flex items-center justify-center text-[11px] font-semibold shrink-0">
+              {initials}
+            </div>
+            <div className="min-w-0">
+              <div className="text-[13px] font-medium text-[var(--a-text)] truncate">
+                {name}
+              </div>
+              <div className="text-[11.5px] text-[var(--a-text-3)] truncate">
+                {r.email}
+              </div>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'phone',
+      header: 'Telefoon',
+      cell: (r) =>
+        r.phone ? (
+          <span className="text-[12.5px] text-[var(--a-text-2)] admin-num">
+            {r.phone}
+          </span>
+        ) : (
+          <span className="text-[12px] text-[var(--a-text-4)]">—</span>
+        ),
+    },
+    {
+      key: 'created_at',
+      header: 'Lid sinds',
+      sortable: true,
+      sortValue: (r) => new Date(r.created_at).getTime(),
+      cell: (r) => (
+        <span className="text-[12.5px] text-[var(--a-text-2)] admin-num">
+          {formatDate(r.created_at)}
+        </span>
+      ),
+    },
+    {
+      key: 'orders',
+      header: 'Best.',
+      align: 'right',
+      sortable: true,
+      sortValue: (r) => r.orders_count,
+      cell: (r) => (
+        <span
+          className={`text-[13px] admin-num ${r.orders_count > 0 ? 'text-[var(--a-text)] font-medium' : 'text-[var(--a-text-4)]'}`}
+        >
+          {r.orders_count}
+        </span>
+      ),
+    },
+    {
+      key: 'subs',
+      header: 'Inl.',
+      align: 'right',
+      sortable: true,
+      sortValue: (r) => r.submissions_count,
+      cell: (r) => (
+        <span
+          className={`text-[13px] admin-num ${r.submissions_count > 0 ? 'text-[var(--a-text)] font-medium' : 'text-[var(--a-text-4)]'}`}
+        >
+          {r.submissions_count}
+        </span>
+      ),
+    },
+    {
+      key: 'spent',
+      header: 'Totaal besteed',
+      align: 'right',
+      sortable: true,
+      sortValue: (r) => r.total_spent,
+      cell: (r) => (
+        <span className="text-[13px] font-semibold text-[var(--a-text)] admin-num">
+          {formatPrice(r.total_spent)}
+        </span>
+      ),
+    },
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-display font-bold text-soft-black">
-          Klanten
-        </h1>
-        <p className="text-slate">{customers.length} geregistreerde klanten</p>
-      </div>
+    <div className="space-y-4">
+      <PageHeader
+        title="Klanten"
+        description={`${customers.length} geregistreerde klanten`}
+      />
 
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted" />
-        <Input
-          placeholder="Zoek op naam of e-mail..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
-      </div>
+      <FilterBar
+        search={{
+          value: searchQuery,
+          onChange: setSearchQuery,
+          placeholder: 'Zoek op naam, email of telefoon...',
+        }}
+      />
 
-      {/* Customers Table */}
-      <div className="bg-white rounded-2xl border border-sand overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-champagne/50 border-b border-sand">
-                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
-                  Klant
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
-                  Contact
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
-                  Lid sinds
-                </th>
-                <th className="text-center px-4 py-3 text-sm font-medium text-slate">
-                  Bestellingen
-                </th>
-                <th className="text-center px-4 py-3 text-sm font-medium text-slate">
-                  Inleveringen
-                </th>
-                <th className="text-right px-4 py-3 text-sm font-medium text-slate">
-                  Totaal besteed
-                </th>
-                <th className="text-right px-4 py-3 text-sm font-medium text-slate">
-                  Actie
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-sand">
-              {filteredCustomers.map((customer) => (
-                <tr key={customer.id} className="hover:bg-champagne/30 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-xl flex items-center justify-center text-white font-medium text-sm">
-                        {customer.first_name?.[0]?.toUpperCase() ||
-                          customer.email[0].toUpperCase()}
-                        {customer.last_name?.[0]?.toUpperCase() || ''}
-                      </div>
-                      <div>
-                        <p className="font-medium text-soft-black">
-                          {customer.first_name || customer.last_name
-                            ? `${customer.first_name || ''} ${customer.last_name || ''}`.trim()
-                            : 'Geen naam'}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="space-y-1">
-                      <p className="text-sm text-slate flex items-center gap-1">
-                        <Mail className="h-4 w-4 text-muted" />
-                        {customer.email}
-                      </p>
-                      {customer.phone && (
-                        <p className="text-sm text-slate flex items-center gap-1">
-                          <Phone className="h-4 w-4 text-muted" />
-                          {customer.phone}
-                        </p>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-slate text-sm">
-                    {formatDate(customer.created_at)}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-champagne rounded-full text-sm">
-                      <ShoppingCart className="h-3 w-3 text-muted" />
-                      <span className="font-medium text-soft-black">
-                        {customer.orders_count}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <div className="inline-flex items-center gap-1 px-2 py-0.5 bg-champagne rounded-full text-sm">
-                      <RefreshCw className="h-3 w-3 text-muted" />
-                      <span className="font-medium text-soft-black">
-                        {customer.submissions_count}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="font-semibold text-primary">
-                      {formatPrice(customer.total_spent)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link href={`/admin/klanten/${customer.id}`}>
-                      <button className="p-2 text-slate hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
-                        <Eye className="h-4 w-4" />
-                      </button>
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {filteredCustomers.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-4">
-              <Users className="h-8 w-8 text-muted" />
-            </div>
-            <p className="text-slate">Geen klanten gevonden</p>
-          </div>
-        )}
-      </div>
+      <DataTable
+        columns={columns}
+        rows={filtered}
+        rowKey={(r) => r.id}
+        loading={loading}
+        onRowClick={(r) => router.push(`/admin/klanten/${r.id}`)}
+        initialSort={{ key: 'created_at', direction: 'desc' }}
+        empty={
+          <EmptyState
+            icon={Users}
+            title="Geen klanten gevonden"
+            description={
+              searchQuery
+                ? 'Pas je zoekfilters aan om resultaten te zien.'
+                : 'Klanten verschijnen hier zodra ze zich registreren.'
+            }
+            variant="compact"
+          />
+        }
+      />
     </div>
   );
 }

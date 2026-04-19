@@ -1,13 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, FolderTree, Package, GripVertical } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Plus, Edit, Trash2, FolderTree, Package } from 'lucide-react';
 import { ConfirmModal } from '@/components/ui/modal';
 import { CategoryModal } from '@/components/admin/category-modal';
 import { useToast } from '@/components/ui/toast';
 import { Category } from '@/types';
 import { createClient } from '@/lib/supabase/client';
+import { PageHeader } from '@/components/admin/ui/page-header';
+import { Section } from '@/components/admin/ui/section';
+import { EmptyState } from '@/components/admin/ui/empty-state';
+import { AdminButton } from '@/components/admin/ui/admin-button';
 
 interface CategoryWithCount extends Category {
   product_count: number;
@@ -19,13 +22,10 @@ export default function AdminCategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
-  const [selectedCategory, setSelectedCategory] = useState<CategoryWithCount | null>(null);
+  const [selectedCategory, setSelectedCategory] =
+    useState<CategoryWithCount | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const { success, error: showError } = useToast();
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
 
   const fetchCategories = async () => {
     const supabase = createClient();
@@ -50,22 +50,9 @@ export default function AdminCategoriesPage() {
     setLoading(false);
   };
 
-  const handleCreate = () => {
-    setSelectedCategory(null);
-    setModalMode('create');
-    setModalOpen(true);
-  };
-
-  const handleEdit = (category: CategoryWithCount) => {
-    setSelectedCategory(category);
-    setModalMode('edit');
-    setModalOpen(true);
-  };
-
-  const handleDelete = (category: CategoryWithCount) => {
-    setSelectedCategory(category);
-    setDeleteModalOpen(true);
-  };
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const handleSave = async (data: {
     name: string;
@@ -74,7 +61,6 @@ export default function AdminCategoriesPage() {
     sort_order: number;
   }) => {
     const supabase = createClient();
-
     if (modalMode === 'create') {
       const { error } = await supabase.from('categories').insert({
         name: data.name,
@@ -82,12 +68,10 @@ export default function AdminCategoriesPage() {
         description: data.description || null,
         sort_order: data.sort_order,
       });
-
       if (error) {
         showError(`Fout bij toevoegen: ${error.message}`);
         throw error;
       }
-
       success('Categorie toegevoegd');
     } else if (selectedCategory) {
       const { error } = await supabase
@@ -99,21 +83,17 @@ export default function AdminCategoriesPage() {
           sort_order: data.sort_order,
         })
         .eq('id', selectedCategory.id);
-
       if (error) {
         showError(`Fout bij opslaan: ${error.message}`);
         throw error;
       }
-
       success('Categorie bijgewerkt');
     }
-
     fetchCategories();
   };
 
   const confirmDelete = async () => {
     if (!selectedCategory) return;
-
     if (selectedCategory.product_count > 0) {
       showError(
         `Deze categorie bevat ${selectedCategory.product_count} product(en). Verwijder of verplaats eerst de producten.`
@@ -121,128 +101,132 @@ export default function AdminCategoriesPage() {
       setDeleteModalOpen(false);
       return;
     }
-
     const supabase = createClient();
     const { error } = await supabase
       .from('categories')
       .delete()
       .eq('id', selectedCategory.id);
-
     if (error) {
       showError(`Fout bij verwijderen: ${error.message}`);
     } else {
       success('Categorie verwijderd');
       fetchCategories();
     }
-
     setDeleteModalOpen(false);
     setSelectedCategory(null);
   };
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="h-8 bg-champagne rounded-lg w-48 animate-pulse" />
-        <div className="grid gap-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-20 bg-champagne rounded-xl animate-pulse" />
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-display font-bold text-soft-black">
-            Categorieen
-          </h1>
-          <p className="text-slate">{categories.length} categorieen in totaal</p>
-        </div>
-        <Button onClick={handleCreate}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nieuwe categorie
-        </Button>
-      </div>
+    <div className="space-y-4">
+      <PageHeader
+        title="Categorieen"
+        description={`${categories.length} categorieen in catalogus`}
+        actions={
+          <AdminButton
+            variant="primary"
+            onClick={() => {
+              setSelectedCategory(null);
+              setModalMode('create');
+              setModalOpen(true);
+            }}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Nieuwe categorie
+          </AdminButton>
+        }
+      />
 
-      {/* Categories List */}
-      <div className="bg-white rounded-2xl border border-sand overflow-hidden">
-        {categories.length > 0 ? (
-          <div className="divide-y divide-sand">
-            {categories.map((category) => (
-              <div
-                key={category.id}
-                className="flex items-center gap-4 p-4 hover:bg-champagne/30 transition-colors group"
+      <Section padding="none">
+        {loading ? (
+          <div className="divide-y divide-[var(--a-border)]">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3 px-4 py-3">
+                <div className="w-9 h-9 rounded-md bg-[var(--a-surface-2)] animate-pulse shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-3 w-1/3 rounded bg-[var(--a-surface-2)] animate-pulse" />
+                  <div className="h-2.5 w-1/2 rounded bg-[var(--a-surface-2)] animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : categories.length === 0 ? (
+          <EmptyState
+            icon={FolderTree}
+            title="Nog geen categorieen"
+            description="Categorieen helpen je producten organiseren in de catalogus."
+            action={
+              <AdminButton
+                variant="primary"
+                onClick={() => {
+                  setSelectedCategory(null);
+                  setModalMode('create');
+                  setModalOpen(true);
+                }}
               >
-                {/* Drag Handle */}
-                <div className="text-muted cursor-grab">
-                  <GripVertical className="h-5 w-5" />
+                <Plus className="h-3.5 w-3.5" />
+                Eerste categorie toevoegen
+              </AdminButton>
+            }
+          />
+        ) : (
+          <div className="divide-y divide-[var(--a-border)]">
+            {categories.map((c) => (
+              <div
+                key={c.id}
+                className="flex items-center gap-3 px-4 py-2.5 group hover:bg-[var(--a-surface-2)] transition-colors"
+              >
+                <div className="w-9 h-9 rounded-md bg-[var(--a-accent-soft)] text-[var(--a-accent)] flex items-center justify-center shrink-0">
+                  <FolderTree className="h-4 w-4" />
                 </div>
 
-                {/* Icon */}
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <FolderTree className="h-6 w-6 text-primary" />
-                </div>
-
-                {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-soft-black truncate">
-                      {category.name}
+                    <h3 className="text-[13px] font-semibold text-[var(--a-text)] truncate">
+                      {c.name}
                     </h3>
-                    <span className="text-xs text-muted bg-champagne px-2 py-0.5 rounded-full">
-                      /{category.slug}
-                    </span>
+                    <code className="text-[11px] font-mono text-[var(--a-text-3)] bg-[var(--a-surface-2)] px-1.5 py-0.5 rounded">
+                      /{c.slug}
+                    </code>
                   </div>
-                  {category.description && (
-                    <p className="text-sm text-slate truncate mt-0.5">
-                      {category.description}
+                  {c.description && (
+                    <p className="text-[12px] text-[var(--a-text-3)] truncate mt-0.5">
+                      {c.description}
                     </p>
                   )}
                 </div>
 
-                {/* Product Count */}
-                <div className="flex items-center gap-2 text-sm text-slate">
-                  <Package className="h-4 w-4" />
-                  <span>{category.product_count} producten</span>
+                <div className="flex items-center gap-1.5 text-[12px] text-[var(--a-text-3)] shrink-0">
+                  <Package className="h-3 w-3" />
+                  <span className="admin-num">{c.product_count}</span>
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
-                    onClick={() => handleEdit(category)}
-                    className="p-2 text-slate hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                    onClick={() => {
+                      setSelectedCategory(c);
+                      setModalMode('edit');
+                      setModalOpen(true);
+                    }}
+                    className="p-1.5 rounded-md text-[var(--a-text-3)] hover:text-[var(--a-text)] hover:bg-[var(--a-surface-3)] transition-colors"
                   >
-                    <Edit className="h-4 w-4" />
+                    <Edit className="h-3.5 w-3.5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(category)}
-                    className="p-2 text-slate hover:text-error hover:bg-error/10 rounded-lg transition-colors"
+                    onClick={() => {
+                      setSelectedCategory(c);
+                      setDeleteModalOpen(true);
+                    }}
+                    className="p-1.5 rounded-md text-[var(--a-text-3)] hover:text-[var(--a-danger)] hover:bg-[var(--a-danger-soft)] transition-colors"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </div>
             ))}
           </div>
-        ) : (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-4">
-              <FolderTree className="h-8 w-8 text-muted" />
-            </div>
-            <p className="text-slate mb-4">Nog geen categorieen</p>
-            <Button onClick={handleCreate}>
-              <Plus className="h-4 w-4 mr-2" />
-              Eerste categorie toevoegen
-            </Button>
-          </div>
         )}
-      </div>
+      </Section>
 
-      {/* Category Modal */}
       <CategoryModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -251,7 +235,6 @@ export default function AdminCategoriesPage() {
         mode={modalMode}
       />
 
-      {/* Delete Confirmation Modal */}
       <ConfirmModal
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}

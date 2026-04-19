@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Building,
   Truck,
@@ -8,11 +8,15 @@ import {
   Globe,
   Save,
   Loader2,
+  Settings,
+  CheckCircle2,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toast';
 import { createClient } from '@/lib/supabase/client';
+import { PageHeader } from '@/components/admin/ui/page-header';
+import { Section } from '@/components/admin/ui/section';
+import { AdminButton } from '@/components/admin/ui/admin-button';
+import { AdminInput, AdminTextarea } from '@/components/admin/ui/admin-input';
 
 interface CompanySettings {
   name: string;
@@ -41,16 +45,47 @@ interface TaxSettings {
   rate: number;
 }
 
+type TabId = 'company' | 'shipping' | 'tax' | 'social';
+
+const tabs: {
+  id: TabId;
+  label: string;
+  description: string;
+  icon: typeof Building;
+}[] = [
+  {
+    id: 'company',
+    label: 'Bedrijf',
+    description: 'Contact en juridische gegevens',
+    icon: Building,
+  },
+  {
+    id: 'shipping',
+    label: 'Verzending',
+    description: 'Kosten en levertijden',
+    icon: Truck,
+  },
+  {
+    id: 'tax',
+    label: 'BTW',
+    description: 'BTW-tarieven',
+    icon: Percent,
+  },
+  {
+    id: 'social',
+    label: 'Social Media',
+    description: 'Links naar profielen',
+    icon: Globe,
+  },
+];
+
 export default function AdminSettingsPage() {
   const { success, error: showError } = useToast();
 
   const [loading, setLoading] = useState(true);
-  const [savingCompany, setSavingCompany] = useState(false);
-  const [savingShipping, setSavingShipping] = useState(false);
-  const [savingSocial, setSavingSocial] = useState(false);
-  const [savingTax, setSavingTax] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabId>('company');
+  const [savingKey, setSavingKey] = useState<string | null>(null);
 
-  // Company settings
   const [company, setCompany] = useState<CompanySettings>({
     name: 'TelFixer',
     email: 'info@telfixer.nl',
@@ -59,15 +94,11 @@ export default function AdminSettingsPage() {
     kvk_number: '',
     vat_number: '',
   });
-
-  // Shipping settings
   const [shipping, setShipping] = useState<ShippingSettings>({
     standard_cost: 6.95,
     free_threshold: 50,
     estimated_days: '2-4 werkdagen',
   });
-
-  // Social settings
   const [social, setSocial] = useState<SocialSettings>({
     instagram_url: '',
     facebook_url: '',
@@ -75,336 +106,342 @@ export default function AdminSettingsPage() {
     linkedin_url: '',
     tiktok_url: '',
   });
+  const [tax, setTax] = useState<TaxSettings>({ rate: 21 });
 
-  // Tax settings
-  const [tax, setTax] = useState<TaxSettings>({
-    rate: 21,
-  });
+  const fetchSettings = useCallback(async () => {
+    const supabase = createClient();
+    const { data } = await supabase.from('site_settings').select('*');
+    if (data) {
+      data.forEach((item) => {
+        if (item.key === 'company' && item.value)
+          setCompany((p) => ({ ...p, ...item.value }));
+        if (item.key === 'shipping' && item.value)
+          setShipping((p) => ({ ...p, ...item.value }));
+        if (item.key === 'social' && item.value)
+          setSocial((p) => ({ ...p, ...item.value }));
+        if (item.key === 'tax' && item.value)
+          setTax((p) => ({ ...p, ...item.value }));
+      });
+    }
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     fetchSettings();
-  }, []);
+  }, [fetchSettings]);
 
-  const fetchSettings = async () => {
+  const saveSettings = async (key: string, value: unknown) => {
+    setSavingKey(key);
     const supabase = createClient();
-
-    const { data } = await supabase.from('site_settings').select('*');
-
-    if (data) {
-      data.forEach((item) => {
-        if (item.key === 'company' && item.value) {
-          setCompany({ ...company, ...item.value });
-        }
-        if (item.key === 'shipping' && item.value) {
-          setShipping({ ...shipping, ...item.value });
-        }
-        if (item.key === 'social' && item.value) {
-          setSocial({ ...social, ...item.value });
-        }
-        if (item.key === 'tax' && item.value) {
-          setTax({ ...tax, ...item.value });
-        }
-      });
-    }
-
-    setLoading(false);
-  };
-
-  const saveSettings = async (
-    key: string,
-    value: unknown,
-    setSaving: (v: boolean) => void
-  ) => {
-    setSaving(true);
-
-    const supabase = createClient();
-
-    // Check if exists
     const { data: existing } = await supabase
       .from('site_settings')
       .select('id')
       .eq('key', key)
-      .single();
+      .maybeSingle();
 
     if (existing) {
       const { error } = await supabase
         .from('site_settings')
         .update({ value, updated_at: new Date().toISOString() })
         .eq('key', key);
-
       if (error) {
         showError(`Fout bij opslaan: ${error.message}`);
-        setSaving(false);
+        setSavingKey(null);
         return;
       }
     } else {
-      const { error } = await supabase.from('site_settings').insert({
-        key,
-        value,
-      });
-
+      const { error } = await supabase
+        .from('site_settings')
+        .insert({ key, value });
       if (error) {
         showError(`Fout bij opslaan: ${error.message}`);
-        setSaving(false);
+        setSavingKey(null);
         return;
       }
     }
-
     success('Instellingen opgeslagen');
-    setSaving(false);
+    setSavingKey(null);
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-          <p className="mt-3 text-slate">Instellingen laden...</p>
-        </div>
+        <Loader2 className="h-5 w-5 animate-spin text-[var(--a-text-3)]" />
       </div>
     );
   }
 
+  const activeTabConfig = tabs.find((t) => t.id === activeTab)!;
+
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-display font-bold text-soft-black">
-          Instellingen
-        </h1>
-        <p className="text-slate">Beheer je bedrijfs- en webshopinstellingen</p>
+    <div className="space-y-5">
+      <PageHeader
+        title="Instellingen"
+        description="Beheer je bedrijfs- en webshopinstellingen"
+        meta={
+          <span className="inline-flex items-center gap-1.5 text-[12px] text-[var(--a-text-3)]">
+            <Settings className="h-3.5 w-3.5" />
+            Wijzigingen worden direct toegepast
+          </span>
+        }
+      />
+
+      <div className="grid lg:grid-cols-[220px_1fr] gap-5">
+        <nav className="bg-[var(--a-surface)] border border-[var(--a-border)] rounded-[10px] p-1.5 h-fit">
+          {tabs.map((t) => {
+            const Icon = t.icon;
+            const active = activeTab === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setActiveTab(t.id)}
+                className={`w-full text-left px-2.5 py-2 rounded-md flex items-center gap-2.5 transition-colors ${
+                  active
+                    ? 'bg-[var(--a-accent-soft)] text-[var(--a-accent)]'
+                    : 'text-[var(--a-text-2)] hover:bg-[var(--a-surface-2)]'
+                }`}
+              >
+                <Icon
+                  className={`h-3.5 w-3.5 shrink-0 ${
+                    active ? 'text-[var(--a-accent)]' : 'text-[var(--a-text-3)]'
+                  }`}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[13px] font-medium leading-tight">
+                    {t.label}
+                  </div>
+                  <div className="text-[11px] text-[var(--a-text-3)] truncate">
+                    {t.description}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="space-y-4">
+          {activeTab === 'company' && (
+            <Section
+              title="Bedrijfsgegevens"
+              description="Wordt gebruikt op facturen, e-mails en in de footer"
+              action={<activeTabConfig.icon className="h-4 w-4 text-[var(--a-text-3)]" />}
+            >
+              <div className="space-y-3.5">
+                <AdminInput
+                  label="Bedrijfsnaam"
+                  value={company.name}
+                  onChange={(e) =>
+                    setCompany({ ...company, name: e.target.value })
+                  }
+                />
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <AdminInput
+                    label="E-mailadres"
+                    type="email"
+                    value={company.email}
+                    onChange={(e) =>
+                      setCompany({ ...company, email: e.target.value })
+                    }
+                  />
+                  <AdminInput
+                    label="Telefoonnummer"
+                    value={company.phone}
+                    onChange={(e) =>
+                      setCompany({ ...company, phone: e.target.value })
+                    }
+                  />
+                </div>
+                <AdminTextarea
+                  label="Adres"
+                  rows={2}
+                  value={company.address}
+                  onChange={(e) =>
+                    setCompany({ ...company, address: e.target.value })
+                  }
+                />
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <AdminInput
+                    label="KvK-nummer"
+                    value={company.kvk_number}
+                    onChange={(e) =>
+                      setCompany({ ...company, kvk_number: e.target.value })
+                    }
+                  />
+                  <AdminInput
+                    label="BTW-nummer"
+                    value={company.vat_number}
+                    onChange={(e) =>
+                      setCompany({ ...company, vat_number: e.target.value })
+                    }
+                  />
+                </div>
+                <SaveBar
+                  onSave={() => saveSettings('company', company)}
+                  loading={savingKey === 'company'}
+                />
+              </div>
+            </Section>
+          )}
+
+          {activeTab === 'shipping' && (
+            <Section
+              title="Verzending"
+              description="Kosten en levertijden voor de webshop"
+              action={<Truck className="h-4 w-4 text-[var(--a-text-3)]" />}
+            >
+              <div className="space-y-3.5">
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <AdminInput
+                    label="Standaard verzendkosten"
+                    type="number"
+                    step="0.01"
+                    prefix="€"
+                    value={shipping.standard_cost}
+                    onChange={(e) =>
+                      setShipping({
+                        ...shipping,
+                        standard_cost: parseFloat(e.target.value) || 0,
+                      })
+                    }
+                  />
+                  <AdminInput
+                    label="Gratis verzending vanaf"
+                    type="number"
+                    step="0.01"
+                    prefix="€"
+                    hint="Bestelwaarde waarboven verzending gratis is"
+                    value={shipping.free_threshold}
+                    onChange={(e) =>
+                      setShipping({
+                        ...shipping,
+                        free_threshold: parseFloat(e.target.value) || 0,
+                      })
+                    }
+                  />
+                </div>
+                <AdminInput
+                  label="Geschatte levertijd"
+                  value={shipping.estimated_days}
+                  placeholder="bijv. 2-4 werkdagen"
+                  onChange={(e) =>
+                    setShipping({
+                      ...shipping,
+                      estimated_days: e.target.value,
+                    })
+                  }
+                />
+                <SaveBar
+                  onSave={() => saveSettings('shipping', shipping)}
+                  loading={savingKey === 'shipping'}
+                />
+              </div>
+            </Section>
+          )}
+
+          {activeTab === 'tax' && (
+            <Section
+              title="BTW-tarief"
+              description="Standaard BTW-percentage voor producten"
+              action={<Percent className="h-4 w-4 text-[var(--a-text-3)]" />}
+            >
+              <div className="space-y-3.5">
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <AdminInput
+                    label="BTW-percentage"
+                    type="number"
+                    suffix="%"
+                    hint="Standaard tarief in NL: 21%"
+                    value={tax.rate}
+                    onChange={(e) =>
+                      setTax({ ...tax, rate: parseFloat(e.target.value) || 0 })
+                    }
+                  />
+                </div>
+                <SaveBar
+                  onSave={() => saveSettings('tax', tax)}
+                  loading={savingKey === 'tax'}
+                />
+              </div>
+            </Section>
+          )}
+
+          {activeTab === 'social' && (
+            <Section
+              title="Social Media"
+              description="Links worden in de footer en op contactpagina getoond"
+              action={<Globe className="h-4 w-4 text-[var(--a-text-3)]" />}
+            >
+              <div className="space-y-3.5">
+                <AdminInput
+                  label="Instagram URL"
+                  placeholder="https://instagram.com/..."
+                  value={social.instagram_url}
+                  onChange={(e) =>
+                    setSocial({ ...social, instagram_url: e.target.value })
+                  }
+                />
+                <AdminInput
+                  label="Facebook URL"
+                  placeholder="https://facebook.com/..."
+                  value={social.facebook_url}
+                  onChange={(e) =>
+                    setSocial({ ...social, facebook_url: e.target.value })
+                  }
+                />
+                <AdminInput
+                  label="TikTok URL"
+                  placeholder="https://tiktok.com/..."
+                  value={social.tiktok_url}
+                  onChange={(e) =>
+                    setSocial({ ...social, tiktok_url: e.target.value })
+                  }
+                />
+                <AdminInput
+                  label="Twitter / X URL"
+                  placeholder="https://x.com/..."
+                  value={social.twitter_url}
+                  onChange={(e) =>
+                    setSocial({ ...social, twitter_url: e.target.value })
+                  }
+                />
+                <AdminInput
+                  label="LinkedIn URL"
+                  placeholder="https://linkedin.com/..."
+                  value={social.linkedin_url}
+                  onChange={(e) =>
+                    setSocial({ ...social, linkedin_url: e.target.value })
+                  }
+                />
+                <SaveBar
+                  onSave={() => saveSettings('social', social)}
+                  loading={savingKey === 'social'}
+                />
+              </div>
+            </Section>
+          )}
+        </div>
       </div>
+    </div>
+  );
+}
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Company Settings */}
-        <div className="bg-white rounded-2xl border border-sand p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-              <Building className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-soft-black">Bedrijfsgegevens</h2>
-              <p className="text-sm text-slate">
-                Contactinformatie en KvK-nummer
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <Input
-              label="Bedrijfsnaam"
-              value={company.name}
-              onChange={(e) => setCompany({ ...company, name: e.target.value })}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="E-mailadres"
-                type="email"
-                value={company.email}
-                onChange={(e) =>
-                  setCompany({ ...company, email: e.target.value })
-                }
-              />
-              <Input
-                label="Telefoonnummer"
-                value={company.phone}
-                onChange={(e) =>
-                  setCompany({ ...company, phone: e.target.value })
-                }
-              />
-            </div>
-            <Input
-              label="Adres"
-              value={company.address}
-              onChange={(e) =>
-                setCompany({ ...company, address: e.target.value })
-              }
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                label="KvK-nummer"
-                value={company.kvk_number}
-                onChange={(e) =>
-                  setCompany({ ...company, kvk_number: e.target.value })
-                }
-              />
-              <Input
-                label="BTW-nummer"
-                value={company.vat_number}
-                onChange={(e) =>
-                  setCompany({ ...company, vat_number: e.target.value })
-                }
-              />
-            </div>
-            <Button
-              className="w-full"
-              isLoading={savingCompany}
-              onClick={() => saveSettings('company', company, setSavingCompany)}
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Bedrijfsgegevens opslaan
-            </Button>
-          </div>
-        </div>
-
-        {/* Shipping Settings */}
-        <div className="bg-white rounded-2xl border border-sand p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-              <Truck className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-soft-black">
-                Verzendingsinstellingen
-              </h2>
-              <p className="text-sm text-slate">Kosten en levertijden</p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <Input
-              label="Standaard verzendkosten"
-              type="number"
-              step="0.01"
-              value={shipping.standard_cost}
-              onChange={(e) =>
-                setShipping({
-                  ...shipping,
-                  standard_cost: parseFloat(e.target.value) || 0,
-                })
-              }
-            />
-            <Input
-              label="Gratis verzending vanaf"
-              type="number"
-              step="0.01"
-              value={shipping.free_threshold}
-              onChange={(e) =>
-                setShipping({
-                  ...shipping,
-                  free_threshold: parseFloat(e.target.value) || 0,
-                })
-              }
-              helperText="Bestelwaarde waarboven verzending gratis is"
-            />
-            <Input
-              label="Geschatte levertijd"
-              value={shipping.estimated_days}
-              onChange={(e) =>
-                setShipping({ ...shipping, estimated_days: e.target.value })
-              }
-              placeholder="bijv. 2-4 werkdagen"
-            />
-            <Button
-              className="w-full"
-              isLoading={savingShipping}
-              onClick={() =>
-                saveSettings('shipping', shipping, setSavingShipping)
-              }
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Verzendingsinstellingen opslaan
-            </Button>
-          </div>
-        </div>
-
-        {/* Social Media Settings */}
-        <div className="bg-white rounded-2xl border border-sand p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-              <Globe className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-soft-black">Social Media</h2>
-              <p className="text-sm text-slate">Links naar je sociale media</p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <Input
-              label="Instagram URL"
-              value={social.instagram_url}
-              onChange={(e) =>
-                setSocial({ ...social, instagram_url: e.target.value })
-              }
-              placeholder="https://instagram.com/..."
-            />
-            <Input
-              label="Facebook URL"
-              value={social.facebook_url}
-              onChange={(e) =>
-                setSocial({ ...social, facebook_url: e.target.value })
-              }
-              placeholder="https://facebook.com/..."
-            />
-            <Input
-              label="TikTok URL"
-              value={social.tiktok_url}
-              onChange={(e) =>
-                setSocial({ ...social, tiktok_url: e.target.value })
-              }
-              placeholder="https://tiktok.com/..."
-            />
-            <Input
-              label="Twitter/X URL"
-              value={social.twitter_url}
-              onChange={(e) =>
-                setSocial({ ...social, twitter_url: e.target.value })
-              }
-              placeholder="https://twitter.com/..."
-            />
-            <Input
-              label="LinkedIn URL"
-              value={social.linkedin_url}
-              onChange={(e) =>
-                setSocial({ ...social, linkedin_url: e.target.value })
-              }
-              placeholder="https://linkedin.com/..."
-            />
-            <Button
-              className="w-full"
-              isLoading={savingSocial}
-              onClick={() => saveSettings('social', social, setSavingSocial)}
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Social media opslaan
-            </Button>
-          </div>
-        </div>
-
-        {/* Tax Settings */}
-        <div className="bg-white rounded-2xl border border-sand p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-              <Percent className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-soft-black">BTW-instellingen</h2>
-              <p className="text-sm text-slate">BTW-percentage voor producten</p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <Input
-              label="BTW-percentage (%)"
-              type="number"
-              value={tax.rate}
-              onChange={(e) =>
-                setTax({ ...tax, rate: parseFloat(e.target.value) || 0 })
-              }
-              helperText="Standaard BTW-tarief in Nederland is 21%"
-            />
-            <Button
-              className="w-full"
-              isLoading={savingTax}
-              onClick={() => saveSettings('tax', tax, setSavingTax)}
-            >
-              <Save className="h-4 w-4 mr-2" />
-              BTW-instellingen opslaan
-            </Button>
-          </div>
-        </div>
-      </div>
+function SaveBar({
+  onSave,
+  loading,
+}: {
+  onSave: () => void;
+  loading: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between pt-3 mt-2 border-t border-[var(--a-border)]">
+      <span className="inline-flex items-center gap-1.5 text-[11.5px] text-[var(--a-text-3)]">
+        <CheckCircle2 className="h-3 w-3" />
+        Wijzigingen worden direct toegepast op de site
+      </span>
+      <AdminButton onClick={onSave} loading={loading}>
+        <Save className="h-3.5 w-3.5" />
+        Opslaan
+      </AdminButton>
     </div>
   );
 }

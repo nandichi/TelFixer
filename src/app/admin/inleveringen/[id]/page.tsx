@@ -1,31 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ArrowLeft,
-  Loader2,
   Smartphone,
   User,
   Mail,
   Phone,
-  Calendar,
   FileText,
   Euro,
   Edit,
   Check,
   X as XIcon,
-  ExternalLink,
+  Loader2,
+  MessageCircle,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { StatusBadge } from '@/components/ui/badge';
 import { OfferModal } from '@/components/admin/offer-modal';
 import { useToast } from '@/components/ui/toast';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { DeviceSubmission, SubmissionStatus } from '@/types';
 import { createClient } from '@/lib/supabase/client';
+import { PageHeader } from '@/components/admin/ui/page-header';
+import { Section } from '@/components/admin/ui/section';
+import { StatusPill } from '@/components/admin/ui/status-pill';
+import { AdminButton } from '@/components/admin/ui/admin-button';
 
 export default function SubmissionDetailPage() {
   const params = useParams();
@@ -38,11 +37,7 @@ export default function SubmissionDetailPage() {
   const [modalMode, setModalMode] = useState<'status' | 'offer'>('status');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchSubmission();
-  }, [params.id]);
-
-  const fetchSubmission = async () => {
+  const fetchSubmission = useCallback(async () => {
     const supabase = createClient();
     const { data, error } = await supabase
       .from('device_submissions')
@@ -54,7 +49,6 @@ export default function SubmissionDetailPage() {
       router.push('/admin/inleveringen');
       return;
     }
-
     setSubmission({
       id: data.id,
       reference_number: data.reference_number,
@@ -75,7 +69,11 @@ export default function SubmissionDetailPage() {
       updated_at: data.updated_at,
     });
     setLoading(false);
-  };
+  }, [params.id, router]);
+
+  useEffect(() => {
+    fetchSubmission();
+  }, [fetchSubmission]);
 
   const handleStatusUpdate = async (data: {
     status: SubmissionStatus;
@@ -83,7 +81,6 @@ export default function SubmissionDetailPage() {
     evaluationNotes?: string;
   }) => {
     const supabase = createClient();
-
     const updateData: Record<string, unknown> = { status: data.status };
     if (data.offeredPrice !== undefined) {
       updateData.offered_price = data.offeredPrice;
@@ -91,7 +88,6 @@ export default function SubmissionDetailPage() {
     if (data.evaluationNotes !== undefined) {
       updateData.evaluation_notes = data.evaluationNotes;
     }
-
     const { error } = await supabase
       .from('device_submissions')
       .update(updateData)
@@ -101,22 +97,16 @@ export default function SubmissionDetailPage() {
       showError(`Fout bij bijwerken: ${error.message}`);
       throw error;
     }
-
-    success(
-      modalMode === 'offer' ? 'Aanbieding verstuurd' : 'Status bijgewerkt'
-    );
+    success(modalMode === 'offer' ? 'Aanbieding verstuurd' : 'Status bijgewerkt');
     fetchSubmission();
   };
 
   const handleQuickStatus = async (newStatus: SubmissionStatus) => {
     const supabase = createClient();
-
     const updateData: Record<string, unknown> = { status: newStatus };
-    if (newStatus === 'aanbieding_geaccepteerd') {
-      updateData.offer_accepted = true;
-    } else if (newStatus === 'aanbieding_afgewezen') {
+    if (newStatus === 'aanbieding_geaccepteerd') updateData.offer_accepted = true;
+    else if (newStatus === 'aanbieding_afgewezen')
       updateData.offer_accepted = false;
-    }
 
     const { error } = await supabase
       .from('device_submissions')
@@ -127,7 +117,6 @@ export default function SubmissionDetailPage() {
       showError(`Fout bij bijwerken: ${error.message}`);
       return;
     }
-
     success('Status bijgewerkt');
     fetchSubmission();
   };
@@ -135,17 +124,11 @@ export default function SubmissionDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-          <p className="mt-3 text-slate">Inlevering laden...</p>
-        </div>
+        <Loader2 className="h-5 w-5 animate-spin text-[var(--a-text-3)]" />
       </div>
     );
   }
-
-  if (!submission) {
-    return null;
-  }
+  if (!submission) return null;
 
   const canMakeOffer =
     submission.status === 'evaluatie' || submission.status === 'ontvangen';
@@ -153,107 +136,83 @@ export default function SubmissionDetailPage() {
   const awaitingResponse = submission.status === 'aanbieding_gemaakt';
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/admin/inleveringen"
-            className="p-2 text-slate hover:text-soft-black hover:bg-champagne rounded-lg transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-display font-bold text-soft-black">
-                {submission.reference_number}
-              </h1>
-              <StatusBadge status={submission.status} />
-            </div>
-            <p className="text-slate">
-              Ingediend op {formatDate(submission.created_at)}
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-3">
-          {canMakeOffer && (
-            <Button
+    <div className="space-y-5">
+      <PageHeader
+        title={submission.reference_number}
+        description={`Ingediend op ${formatDate(submission.created_at)} · ${submission.device_brand} ${submission.device_model}`}
+        back={{ href: '/admin/inleveringen', label: 'Alle inleveringen' }}
+        meta={<StatusPill status={submission.status} />}
+        actions={
+          <>
+            <AdminButton
+              variant="secondary"
               onClick={() => {
-                setModalMode('offer');
+                setModalMode('status');
                 setModalOpen(true);
               }}
             >
-              <Euro className="h-4 w-4 mr-2" />
-              Aanbieding maken
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            onClick={() => {
-              setModalMode('status');
-              setModalOpen(true);
-            }}
-          >
-            <Edit className="h-4 w-4 mr-2" />
-            Status wijzigen
-          </Button>
-        </div>
-      </div>
+              <Edit className="h-3.5 w-3.5" />
+              Status
+            </AdminButton>
+            {canMakeOffer && (
+              <AdminButton
+                onClick={() => {
+                  setModalMode('offer');
+                  setModalOpen(true);
+                }}
+              >
+                <Euro className="h-3.5 w-3.5" />
+                Aanbieding
+              </AdminButton>
+            )}
+          </>
+        }
+      />
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Device Info */}
-          <div className="bg-white rounded-2xl border border-sand p-6">
-            <h2 className="font-semibold text-soft-black flex items-center gap-2 mb-4">
-              <Smartphone className="h-5 w-5 text-primary" />
-              Apparaat details
-            </h2>
-            <div className="grid sm:grid-cols-3 gap-4">
-              <div className="p-4 bg-champagne/50 rounded-xl">
-                <p className="text-sm text-slate">Type</p>
-                <p className="font-medium text-soft-black capitalize">
-                  {submission.device_type}
-                </p>
-              </div>
-              <div className="p-4 bg-champagne/50 rounded-xl">
-                <p className="text-sm text-slate">Merk</p>
-                <p className="font-medium text-soft-black">
-                  {submission.device_brand}
-                </p>
-              </div>
-              <div className="p-4 bg-champagne/50 rounded-xl">
-                <p className="text-sm text-slate">Model</p>
-                <p className="font-medium text-soft-black">
-                  {submission.device_model}
-                </p>
-              </div>
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 space-y-4">
+          <Section title="Apparaat">
+            <div className="grid sm:grid-cols-3 gap-3">
+              <Field
+                icon={Smartphone}
+                label="Type"
+                value={submission.device_type}
+              />
+              <Field
+                icon={Smartphone}
+                label="Merk"
+                value={submission.device_brand}
+              />
+              <Field
+                icon={Smartphone}
+                label="Model"
+                value={submission.device_model}
+              />
             </div>
-          </div>
+          </Section>
 
-          {/* Condition Description */}
-          <div className="bg-white rounded-2xl border border-sand p-6">
-            <h2 className="font-semibold text-soft-black flex items-center gap-2 mb-4">
-              <FileText className="h-5 w-5 text-primary" />
-              Omschrijving conditie
-            </h2>
-            <p className="text-slate whitespace-pre-wrap">
+          <Section
+            title="Conditie"
+            action={
+              <FileText className="h-3.5 w-3.5 text-[var(--a-text-3)]" />
+            }
+          >
+            <p className="text-[13px] text-[var(--a-text-2)] whitespace-pre-wrap leading-relaxed">
               {submission.condition_description}
             </p>
-          </div>
+          </Section>
 
-          {/* Photos */}
           {submission.photos_urls.length > 0 && (
-            <div className="bg-white rounded-2xl border border-sand p-6">
-              <h2 className="font-semibold text-soft-black mb-4">
-                Foto's ({submission.photos_urls.length})
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Section
+              title={`Foto's (${submission.photos_urls.length})`}
+              description="Klik op een foto om te vergroten"
+            >
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {submission.photos_urls.map((url, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(url)}
-                    className="aspect-square bg-champagne rounded-xl overflow-hidden hover:ring-2 hover:ring-primary transition-all"
+                    className="aspect-square bg-[var(--a-surface-2)] rounded-md overflow-hidden hover:ring-2 hover:ring-[var(--a-accent)] transition-all"
                   >
                     <Image
                       src={url}
@@ -265,162 +224,141 @@ export default function SubmissionDetailPage() {
                   </button>
                 ))}
               </div>
-            </div>
+            </Section>
           )}
 
-          {/* Evaluation Notes */}
           {submission.evaluation_notes && (
-            <div className="bg-white rounded-2xl border border-sand p-6">
-              <h2 className="font-semibold text-soft-black mb-3">
-                Evaluatie notities
-              </h2>
-              <p className="text-slate whitespace-pre-wrap">
+            <Section title="Evaluatie notities">
+              <p className="text-[13px] text-[var(--a-text-2)] whitespace-pre-wrap">
                 {submission.evaluation_notes}
               </p>
-            </div>
+            </Section>
           )}
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Offer Status */}
+        <div className="space-y-4">
           {hasOffer && (
-            <div className="bg-white rounded-2xl border border-sand p-6">
-              <h2 className="font-semibold text-soft-black flex items-center gap-2 mb-4">
-                <Euro className="h-5 w-5 text-primary" />
-                Aanbieding
-              </h2>
-              <div className="p-4 bg-gradient-to-br from-primary/10 to-copper/10 rounded-xl text-center mb-4">
-                <p className="text-sm text-slate mb-1">Aangeboden prijs</p>
-                <p className="text-3xl font-display font-bold text-primary">
+            <Section title="Aanbieding">
+              <div className="rounded-md bg-[var(--a-accent-soft)] p-4 text-center mb-3">
+                <div className="text-[11px] uppercase tracking-wider text-[var(--a-accent)] font-semibold mb-1">
+                  Aangeboden prijs
+                </div>
+                <div className="text-[28px] font-semibold text-[var(--a-accent)] admin-num leading-none">
                   {formatPrice(submission.offered_price!)}
-                </p>
+                </div>
               </div>
 
               {awaitingResponse && (
                 <div className="space-y-2">
-                  <p className="text-sm text-center text-slate mb-3">
-                    Wachten op reactie klant
+                  <p className="text-[12px] text-center text-[var(--a-text-3)]">
+                    Wacht op reactie klant
                   </p>
                   <div className="grid grid-cols-2 gap-2">
-                    <Button
+                    <AdminButton
+                      variant="success"
                       size="sm"
                       onClick={() =>
                         handleQuickStatus('aanbieding_geaccepteerd')
                       }
-                      className="bg-success hover:bg-success/90"
                     >
-                      <Check className="h-4 w-4 mr-1" />
-                      Accepteren
-                    </Button>
-                    <Button
+                      <Check className="h-3.5 w-3.5" />
+                      Geaccepteerd
+                    </AdminButton>
+                    <AdminButton
+                      variant="danger"
                       size="sm"
-                      variant="outline"
-                      onClick={() => handleQuickStatus('aanbieding_afgewezen')}
-                      className="text-error border-error hover:bg-error/10"
+                      onClick={() =>
+                        handleQuickStatus('aanbieding_afgewezen')
+                      }
                     >
-                      <XIcon className="h-4 w-4 mr-1" />
-                      Afwijzen
-                    </Button>
+                      <XIcon className="h-3.5 w-3.5" />
+                      Afgewezen
+                    </AdminButton>
                   </div>
                 </div>
               )}
 
               {submission.offer_accepted === true && (
-                <div className="flex items-center gap-2 p-3 bg-success/10 text-success rounded-lg">
-                  <Check className="h-5 w-5" />
-                  <span className="font-medium">Aanbieding geaccepteerd</span>
-                </div>
+                <StatusPill
+                  status="aanbieding_geaccepteerd"
+                  size="sm"
+                  className="w-full justify-center"
+                />
               )}
-
               {submission.offer_accepted === false && (
-                <div className="flex items-center gap-2 p-3 bg-error/10 text-error rounded-lg">
-                  <XIcon className="h-5 w-5" />
-                  <span className="font-medium">Aanbieding afgewezen</span>
-                </div>
+                <StatusPill
+                  status="aanbieding_afgewezen"
+                  size="sm"
+                  className="w-full justify-center"
+                />
               )}
-            </div>
+            </Section>
           )}
 
-          {/* Customer Info */}
-          <div className="bg-white rounded-2xl border border-sand p-6">
-            <h2 className="font-semibold text-soft-black flex items-center gap-2 mb-4">
-              <User className="h-5 w-5 text-primary" />
-              Klant
-            </h2>
-            <div className="space-y-3">
-              <p className="font-medium text-soft-black">
-                {submission.customer_name}
-              </p>
-              <div className="flex items-center gap-2 text-sm text-slate">
-                <Mail className="h-4 w-4" />
+          <Section title="Klant">
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2">
+                <User className="h-3.5 w-3.5 text-[var(--a-text-3)]" />
+                <span className="text-[13px] font-medium text-[var(--a-text)]">
+                  {submission.customer_name}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="h-3.5 w-3.5 text-[var(--a-text-3)]" />
                 <a
                   href={`mailto:${submission.customer_email}`}
-                  className="hover:text-primary"
+                  className="text-[13px] text-[var(--a-text-2)] hover:text-[var(--a-accent)] truncate"
                 >
                   {submission.customer_email}
                 </a>
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate">
-                <Phone className="h-4 w-4" />
+              <div className="flex items-center gap-2">
+                <Phone className="h-3.5 w-3.5 text-[var(--a-text-3)]" />
                 <a
                   href={`tel:${submission.customer_phone}`}
-                  className="hover:text-primary"
+                  className="text-[13px] text-[var(--a-text-2)] hover:text-[var(--a-accent)]"
                 >
                   {submission.customer_phone}
                 </a>
               </div>
             </div>
-          </div>
-
-          {/* Timeline */}
-          <div className="bg-white rounded-2xl border border-sand p-6">
-            <h2 className="font-semibold text-soft-black flex items-center gap-2 mb-4">
-              <Calendar className="h-5 w-5 text-primary" />
-              Tijdlijn
-            </h2>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-slate">Ingediend</span>
-                <span className="text-soft-black">
-                  {formatDate(submission.created_at)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate">Laatst bijgewerkt</span>
-                <span className="text-soft-black">
-                  {formatDate(submission.updated_at)}
-                </span>
-              </div>
+            <div className="pt-3 mt-3 border-t border-[var(--a-border)]">
+              <a
+                href={`https://wa.me/${submission.customer_phone.replace(/\D/g, '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <AdminButton variant="success" size="sm" fullWidth>
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  WhatsApp
+                </AdminButton>
+              </a>
             </div>
-          </div>
+          </Section>
 
-          {/* Quick Actions */}
-          <div className="bg-white rounded-2xl border border-sand p-6">
-            <h2 className="font-semibold text-soft-black mb-4">Snelle acties</h2>
-            <div className="space-y-2">
-              <Button
-                variant="outline"
+          <Section title="Snelle acties">
+            <div className="space-y-1.5">
+              <AdminButton
+                variant="secondary"
                 size="sm"
-                className="w-full justify-start"
+                fullWidth
                 onClick={() => handleQuickStatus('evaluatie')}
               >
                 Start evaluatie
-              </Button>
-              <Button
-                variant="outline"
+              </AdminButton>
+              <AdminButton
+                variant="secondary"
                 size="sm"
-                className="w-full justify-start"
+                fullWidth
                 onClick={() => handleQuickStatus('afgehandeld')}
               >
                 Markeer als afgehandeld
-              </Button>
+              </AdminButton>
             </div>
-          </div>
+          </Section>
         </div>
       </div>
 
-      {/* Offer Modal */}
       <OfferModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -431,17 +369,16 @@ export default function SubmissionDetailPage() {
         mode={modalMode}
       />
 
-      {/* Image Lightbox */}
       {selectedImage && (
         <div
-          className="fixed inset-0 z-50 bg-soft-black/90 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
           onClick={() => setSelectedImage(null)}
         >
           <button
             className="absolute top-4 right-4 p-2 text-white hover:bg-white/20 rounded-lg transition-colors"
             onClick={() => setSelectedImage(null)}
           >
-            <XIcon className="h-6 w-6" />
+            <XIcon className="h-5 w-5" />
           </button>
           <Image
             src={selectedImage}
@@ -452,6 +389,28 @@ export default function SubmissionDetailPage() {
           />
         </div>
       )}
+    </div>
+  );
+}
+
+function Field({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-md border border-[var(--a-border)] p-3 bg-[var(--a-surface-2)]/50">
+      <div className="text-[10.5px] uppercase tracking-wider text-[var(--a-text-4)] font-semibold mb-1">
+        {label}
+      </div>
+      <div className="text-[13px] font-medium text-[var(--a-text)] capitalize inline-flex items-center gap-1.5">
+        <Icon className="h-3 w-3 text-[var(--a-text-3)]" />
+        {value}
+      </div>
     </div>
   );
 }

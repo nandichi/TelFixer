@@ -1,12 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ArrowLeft,
-  Loader2,
   Package,
   Truck,
   MapPin,
@@ -16,14 +13,18 @@ import {
   CreditCard,
   Edit,
   Printer,
+  Loader2,
+  ExternalLink,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { StatusBadge } from '@/components/ui/badge';
 import { OrderStatusModal } from '@/components/admin/order-status-modal';
 import { useToast } from '@/components/ui/toast';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { Order, OrderStatus } from '@/types';
 import { createClient } from '@/lib/supabase/client';
+import { PageHeader } from '@/components/admin/ui/page-header';
+import { Section } from '@/components/admin/ui/section';
+import { StatusPill } from '@/components/admin/ui/status-pill';
+import { AdminButton } from '@/components/admin/ui/admin-button';
 
 export default function OrderDetailPage() {
   const params = useParams();
@@ -34,11 +35,7 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
 
-  useEffect(() => {
-    fetchOrder();
-  }, [params.id]);
-
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
     const supabase = createClient();
     const { data, error } = await supabase
       .from('orders')
@@ -72,18 +69,26 @@ export default function OrderDetailPage() {
       updated_at: data.updated_at,
       items:
         data.order_items?.map((item: Record<string, unknown>) => ({
-          id: item.id,
-          order_id: item.order_id,
-          product_id: item.product_id,
-          product: item.products,
-          product_name: item.product_name,
-          quantity: item.quantity,
+          id: item.id as string,
+          order_id: item.order_id as string,
+          product_id: item.product_id as string,
+          product: item.products as Order['items'] extends Array<infer T>
+            ? T extends { product?: infer P }
+              ? P
+              : never
+            : never,
+          product_name: item.product_name as string,
+          quantity: item.quantity as number,
           price_at_purchase: parseFloat(item.price_at_purchase as string),
-          created_at: item.created_at,
+          created_at: item.created_at as string,
         })) || [],
     });
     setLoading(false);
-  };
+  }, [params.id, router]);
+
+  useEffect(() => {
+    fetchOrder();
+  }, [fetchOrder]);
 
   const handleStatusUpdate = async (data: {
     status: OrderStatus;
@@ -91,14 +96,11 @@ export default function OrderDetailPage() {
     notes?: string;
   }) => {
     const supabase = createClient();
-
     const updateData: Record<string, unknown> = { status: data.status };
     if (data.trackingNumber !== undefined) {
       updateData.tracking_number = data.trackingNumber;
     }
-    if (data.notes !== undefined) {
-      updateData.notes = data.notes;
-    }
+    if (data.notes !== undefined) updateData.notes = data.notes;
 
     const { error } = await supabase
       .from('orders')
@@ -109,7 +111,6 @@ export default function OrderDetailPage() {
       showError(`Fout bij bijwerken: ${error.message}`);
       throw error;
     }
-
     success('Status bijgewerkt');
     fetchOrder();
   };
@@ -117,251 +118,245 @@ export default function OrderDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-          <p className="mt-3 text-slate">Bestelling laden...</p>
-        </div>
+        <Loader2 className="h-5 w-5 animate-spin text-[var(--a-text-3)]" />
       </div>
     );
   }
+  if (!order) return null;
 
-  if (!order) {
-    return null;
-  }
+  const subtotal =
+    order.items?.reduce(
+      (sum, item) => sum + item.price_at_purchase * item.quantity,
+      0
+    ) || 0;
 
-  const subtotal = order.items?.reduce(
-    (sum, item) => sum + item.price_at_purchase * item.quantity,
-    0
-  ) || 0;
+  const customerName =
+    [order.user?.first_name, order.user?.last_name].filter(Boolean).join(' ') ||
+    'Gast';
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/admin/bestellingen"
-            className="p-2 text-slate hover:text-soft-black hover:bg-champagne rounded-lg transition-colors"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-display font-bold text-soft-black">
-                {order.order_number}
-              </h1>
-              <StatusBadge status={order.status} />
-            </div>
-            <p className="text-slate">
-              Geplaatst op {formatDate(order.created_at)}
-            </p>
+    <div className="space-y-5">
+      <PageHeader
+        title={order.order_number}
+        description={`Geplaatst op ${formatDate(order.created_at)} · ${customerName}`}
+        back={{ href: '/admin/bestellingen', label: 'Alle bestellingen' }}
+        meta={
+          <div className="flex items-center gap-1.5">
+            <StatusPill status={order.status} />
+            <StatusPill status={order.payment_status} />
           </div>
-        </div>
-        <div className="flex gap-3">
-          <Button variant="outline" size="sm">
-            <Printer className="h-4 w-4 mr-2" />
-            Afdrukken
-          </Button>
-          <Button size="sm" onClick={() => setStatusModalOpen(true)}>
-            <Edit className="h-4 w-4 mr-2" />
-            Status wijzigen
-          </Button>
-        </div>
-      </div>
+        }
+        actions={
+          <>
+            <AdminButton variant="secondary" onClick={() => window.print()}>
+              <Printer className="h-3.5 w-3.5" />
+              Afdrukken
+            </AdminButton>
+            <AdminButton onClick={() => setStatusModalOpen(true)}>
+              <Edit className="h-3.5 w-3.5" />
+              Status wijzigen
+            </AdminButton>
+          </>
+        }
+      />
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Order Items */}
-          <div className="bg-white rounded-2xl border border-sand overflow-hidden">
-            <div className="p-4 border-b border-sand">
-              <h2 className="font-semibold text-soft-black flex items-center gap-2">
-                <Package className="h-5 w-5 text-primary" />
-                Bestelde producten
-              </h2>
-            </div>
-            <div className="divide-y divide-sand">
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 space-y-4">
+          <Section
+            title="Bestelde producten"
+            description={`${order.items?.length ?? 0} ${(order.items?.length ?? 0) === 1 ? 'item' : 'items'}`}
+            padding="none"
+          >
+            <div className="divide-y divide-[var(--a-border)]">
               {order.items?.map((item) => (
-                <div key={item.id} className="p-4 flex gap-4">
-                  <div className="w-16 h-16 bg-champagne rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                <div key={item.id} className="px-4 py-3 flex items-center gap-3">
+                  <div className="w-12 h-12 bg-[var(--a-surface-2)] rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {item.product?.image_urls?.[0] ? (
                       <Image
                         src={item.product.image_urls[0]}
                         alt={item.product_name}
-                        width={64}
-                        height={64}
+                        width={48}
+                        height={48}
                         className="object-cover w-full h-full"
                       />
                     ) : (
-                      <Package className="h-6 w-6 text-muted" />
+                      <Package className="h-4 w-4 text-[var(--a-text-4)]" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-soft-black truncate">
+                    <div className="text-[13px] font-medium text-[var(--a-text)] truncate">
                       {item.product_name}
-                    </p>
-                    <p className="text-sm text-slate">
-                      Aantal: {item.quantity}
-                    </p>
+                    </div>
+                    <div className="text-[11.5px] text-[var(--a-text-3)] admin-num">
+                      {item.quantity} × {formatPrice(item.price_at_purchase)}
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-primary">
-                      {formatPrice(item.price_at_purchase * item.quantity)}
-                    </p>
-                    {item.quantity > 1 && (
-                      <p className="text-sm text-slate">
-                        {formatPrice(item.price_at_purchase)} per stuk
-                      </p>
-                    )}
+                  <div className="text-[13px] font-semibold text-[var(--a-text)] admin-num shrink-0">
+                    {formatPrice(item.price_at_purchase * item.quantity)}
                   </div>
                 </div>
               ))}
             </div>
-
-            {/* Totals */}
-            <div className="p-4 bg-champagne/50 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate">Subtotaal</span>
-                <span className="text-soft-black">{formatPrice(subtotal)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate">Verzendkosten</span>
-                <span className="text-soft-black">
-                  {order.shipping_cost === 0
+            <div className="px-4 py-3 border-t border-[var(--a-border)] bg-[var(--a-surface-2)] space-y-1.5">
+              <Row
+                label="Subtotaal"
+                value={formatPrice(subtotal)}
+              />
+              <Row
+                label="Verzendkosten"
+                value={
+                  order.shipping_cost === 0
                     ? 'Gratis'
-                    : formatPrice(order.shipping_cost)}
-                </span>
-              </div>
+                    : formatPrice(order.shipping_cost)
+                }
+              />
               {order.tax > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate">BTW</span>
-                  <span className="text-soft-black">
-                    {formatPrice(order.tax)}
-                  </span>
-                </div>
+                <Row label="BTW" value={formatPrice(order.tax)} />
               )}
-              <div className="flex justify-between pt-2 border-t border-sand">
-                <span className="font-semibold text-soft-black">Totaal</span>
-                <span className="font-bold text-primary text-lg">
+              <div className="pt-2 mt-1 border-t border-[var(--a-border)] flex justify-between items-baseline">
+                <span className="text-[13px] font-semibold text-[var(--a-text)]">
+                  Totaal
+                </span>
+                <span className="text-[18px] font-semibold text-[var(--a-text)] admin-num">
                   {formatPrice(order.total_price)}
                 </span>
               </div>
             </div>
-          </div>
+          </Section>
 
-          {/* Shipping Info */}
           {order.tracking_number && (
-            <div className="bg-white rounded-2xl border border-sand p-6">
-              <h2 className="font-semibold text-soft-black flex items-center gap-2 mb-4">
-                <Truck className="h-5 w-5 text-primary" />
-                Verzending
-              </h2>
-              <div className="flex items-center justify-between p-4 bg-champagne/50 rounded-xl">
-                <div>
-                  <p className="text-sm text-slate">Track & trace nummer</p>
-                  <p className="font-mono font-medium text-soft-black">
-                    {order.tracking_number}
-                  </p>
+            <Section title="Verzending">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-md bg-[var(--a-info-soft)] text-[var(--a-info)] flex items-center justify-center">
+                    <Truck className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="text-[12px] text-[var(--a-text-3)]">
+                      Track & trace
+                    </div>
+                    <div className="text-[13px] font-mono font-medium text-[var(--a-text)]">
+                      {order.tracking_number}
+                    </div>
+                  </div>
                 </div>
                 <a
                   href={`https://postnl.nl/tracktrace/?L=NL&T=${order.tracking_number}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Button variant="outline" size="sm">
+                  <AdminButton variant="secondary">
+                    <ExternalLink className="h-3.5 w-3.5" />
                     Volgen
-                  </Button>
+                  </AdminButton>
                 </a>
               </div>
-            </div>
+            </Section>
           )}
 
-          {/* Notes */}
           {order.notes && (
-            <div className="bg-white rounded-2xl border border-sand p-6">
-              <h2 className="font-semibold text-soft-black mb-3">Notities</h2>
-              <p className="text-slate whitespace-pre-wrap">{order.notes}</p>
-            </div>
+            <Section title="Notities">
+              <p className="text-[13px] text-[var(--a-text-2)] whitespace-pre-wrap">
+                {order.notes}
+              </p>
+            </Section>
           )}
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Customer Info */}
-          <div className="bg-white rounded-2xl border border-sand p-6">
-            <h2 className="font-semibold text-soft-black flex items-center gap-2 mb-4">
-              <User className="h-5 w-5 text-primary" />
-              Klant
-            </h2>
-            <div className="space-y-3">
-              <p className="font-medium text-soft-black">
-                {order.user?.first_name} {order.user?.last_name}
-              </p>
-              <div className="flex items-center gap-2 text-sm text-slate">
-                <Mail className="h-4 w-4" />
+        <div className="space-y-4">
+          <Section title="Klant">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <User className="h-3.5 w-3.5 text-[var(--a-text-3)]" />
+                <span className="text-[13px] font-medium text-[var(--a-text)]">
+                  {customerName}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail className="h-3.5 w-3.5 text-[var(--a-text-3)]" />
                 <a
                   href={`mailto:${order.user?.email}`}
-                  className="hover:text-primary"
+                  className="text-[13px] text-[var(--a-text-2)] hover:text-[var(--a-accent)] truncate"
                 >
                   {order.user?.email}
                 </a>
               </div>
               {order.user?.phone && (
-                <div className="flex items-center gap-2 text-sm text-slate">
-                  <Phone className="h-4 w-4" />
+                <div className="flex items-center gap-2">
+                  <Phone className="h-3.5 w-3.5 text-[var(--a-text-3)]" />
                   <a
                     href={`tel:${order.user.phone}`}
-                    className="hover:text-primary"
+                    className="text-[13px] text-[var(--a-text-2)] hover:text-[var(--a-accent)]"
                   >
                     {order.user.phone}
                   </a>
                 </div>
               )}
+              {order.user_id && (
+                <div className="pt-2 mt-2 border-t border-[var(--a-border)]">
+                  <a
+                    href={`/admin/klanten/${order.user_id}`}
+                    className="text-[12px] text-[var(--a-accent)] hover:underline inline-flex items-center gap-1"
+                  >
+                    Klantprofiel openen
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              )}
             </div>
-          </div>
+          </Section>
 
-          {/* Shipping Address */}
-          <div className="bg-white rounded-2xl border border-sand p-6">
-            <h2 className="font-semibold text-soft-black flex items-center gap-2 mb-4">
-              <MapPin className="h-5 w-5 text-primary" />
-              Verzendadres
-            </h2>
-            <div className="text-sm text-slate space-y-1">
-              <p>
-                {order.shipping_address?.street}{' '}
-                {order.shipping_address?.house_number}
-              </p>
-              <p>
-                {order.shipping_address?.postal_code}{' '}
-                {order.shipping_address?.city}
-              </p>
-              <p>{order.shipping_address?.country || 'Nederland'}</p>
-            </div>
-          </div>
+          {order.shipping_address && (
+            <Section title="Verzendadres">
+              <div className="flex items-start gap-2">
+                <MapPin className="h-3.5 w-3.5 text-[var(--a-text-3)] mt-0.5 shrink-0" />
+                <div className="text-[13px] text-[var(--a-text-2)] leading-relaxed">
+                  <div>
+                    {order.shipping_address.street}{' '}
+                    {order.shipping_address.house_number}
+                  </div>
+                  <div>
+                    {order.shipping_address.postal_code}{' '}
+                    {order.shipping_address.city}
+                  </div>
+                  <div className="text-[var(--a-text-3)]">
+                    {order.shipping_address.country || 'Nederland'}
+                  </div>
+                </div>
+              </div>
+            </Section>
+          )}
 
-          {/* Payment Info */}
-          <div className="bg-white rounded-2xl border border-sand p-6">
-            <h2 className="font-semibold text-soft-black flex items-center gap-2 mb-4">
-              <CreditCard className="h-5 w-5 text-primary" />
-              Betaling
-            </h2>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-sm text-slate">Methode</span>
-                <span className="text-sm font-medium text-soft-black capitalize">
-                  {order.payment_method || 'Onbekend'}
+          <Section title="Betaling">
+            <div className="space-y-2">
+              <Row
+                label="Methode"
+                value={
+                  <span className="capitalize text-[var(--a-text)]">
+                    {order.payment_method || 'Onbekend'}
+                  </span>
+                }
+              />
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] text-[var(--a-text-3)]">
+                  Status
+                </span>
+                <StatusPill status={order.payment_status} size="xs" />
+              </div>
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[12px] text-[var(--a-text-3)] inline-flex items-center gap-1.5">
+                  <CreditCard className="h-3 w-3" />
+                  Bedrag
+                </span>
+                <span className="text-[13px] font-semibold text-[var(--a-text)] admin-num">
+                  {formatPrice(order.total_price)}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-slate">Status</span>
-                <StatusBadge status={order.payment_status} size="sm" />
-              </div>
             </div>
-          </div>
+          </Section>
         </div>
       </div>
 
-      {/* Status Modal */}
       <OrderStatusModal
         isOpen={statusModalOpen}
         onClose={() => setStatusModalOpen(false)}
@@ -370,6 +365,21 @@ export default function OrderDetailPage() {
         currentTrackingNumber={order.tracking_number}
         currentNotes={order.notes}
       />
+    </div>
+  );
+}
+
+function Row({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="flex justify-between items-center text-[12.5px]">
+      <span className="text-[var(--a-text-3)]">{label}</span>
+      <span className="text-[var(--a-text-2)] admin-num">{value}</span>
     </div>
   );
 }

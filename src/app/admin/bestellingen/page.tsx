@@ -1,207 +1,304 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Search, Eye, ShoppingCart } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { StatusBadge } from '@/components/ui/badge';
+import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Download, ShoppingCart } from 'lucide-react';
 import { formatPrice, formatDate } from '@/lib/utils';
-import { Order, OrderStatus, PaymentStatus } from '@/types';
 import { createClient } from '@/lib/supabase/client';
+import { PageHeader } from '@/components/admin/ui/page-header';
+import { FilterBar } from '@/components/admin/ui/filter-bar';
+import { DataTable, Column } from '@/components/admin/ui/data-table';
+import { EmptyState } from '@/components/admin/ui/empty-state';
+import { StatusPill } from '@/components/admin/ui/status-pill';
+import { AdminButton } from '@/components/admin/ui/admin-button';
 
-const statusFilters = [
-  { value: 'all', label: 'Alle' },
-  { value: 'in_behandeling', label: 'In behandeling' },
-  { value: 'betaald', label: 'Betaald' },
-  { value: 'verzonden', label: 'Verzonden' },
-  { value: 'afgeleverd', label: 'Afgeleverd' },
-];
+interface OrderRow {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  customer_email: string;
+  total_price: number;
+  status: string;
+  payment_status: string;
+  item_count: number;
+  created_at: string;
+}
 
-export default function AdminOrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
+function OrdersContent() {
+  const router = useRouter();
+  const params = useSearchParams();
+  const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState(
+    params.get('status') ?? 'all'
+  );
 
   useEffect(() => {
+    let mounted = true;
+    const fetchOrders = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('orders')
+        .select(
+          'id, order_number, customer_name, customer_email, total_price, status, payment_status, created_at, order_items(id), users(first_name, last_name, email)'
+        )
+        .order('created_at', { ascending: false });
+
+      if (!mounted) return;
+      if (!error && data) {
+        setOrders(
+          data.map((item: Record<string, unknown>) => {
+            const u = item.users as
+              | { first_name?: string; last_name?: string; email?: string }
+              | null;
+            const name =
+              (item.customer_name as string) ||
+              [u?.first_name, u?.last_name].filter(Boolean).join(' ') ||
+              '';
+            const email =
+              (item.customer_email as string) || u?.email || '';
+            const items = (item.order_items as { id: string }[]) ?? [];
+            return {
+              id: item.id as string,
+              order_number: item.order_number as string,
+              customer_name: name,
+              customer_email: email,
+              total_price: parseFloat((item.total_price as string) ?? '0'),
+              status: item.status as string,
+              payment_status: item.payment_status as string,
+              item_count: items.length,
+              created_at: item.created_at as string,
+            };
+          })
+        );
+      }
+      setLoading(false);
+    };
     fetchOrders();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const fetchOrders = async () => {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*, users(id, email, first_name, last_name), order_items(id)')
-      .order('created_at', { ascending: false });
+  const counts = useMemo(() => {
+    const c: Record<string, number> = {
+      all: orders.length,
+      in_behandeling: 0,
+      betaald: 0,
+      verzonden: 0,
+      afgeleverd: 0,
+      geannuleerd: 0,
+    };
+    orders.forEach((o) => {
+      if (c[o.status] != null) c[o.status]++;
+    });
+    return c;
+  }, [orders]);
 
-    if (!error && data) {
-      setOrders(
-        data.map((item) => ({
-          id: item.id,
-          order_number: item.order_number,
-          user_id: item.user_id,
-          user: item.users,
-          total_price: parseFloat(item.total_price),
-          shipping_cost: parseFloat(item.shipping_cost || '0'),
-          tax: parseFloat(item.tax || '0'),
-          status: item.status as OrderStatus,
-          shipping_address: item.shipping_address,
-          billing_address: item.billing_address,
-          payment_status: item.payment_status as PaymentStatus,
-          payment_method: item.payment_method,
-          tracking_number: item.tracking_number,
-          notes: item.notes,
-          created_at: item.created_at,
-          updated_at: item.updated_at,
-          items: item.order_items || [],
-        }))
-      );
-    }
-    setLoading(false);
+  const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return orders.filter((o) => {
+      const matchesSearch =
+        !q ||
+        o.order_number.toLowerCase().includes(q) ||
+        o.customer_name.toLowerCase().includes(q) ||
+        o.customer_email.toLowerCase().includes(q);
+      const matchesStatus =
+        statusFilter === 'all' || o.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [orders, searchQuery, statusFilter]);
+
+  const totalRevenue = useMemo(
+    () =>
+      filtered
+        .filter((o) => o.payment_status === 'paid')
+        .reduce((s, o) => s + o.total_price, 0),
+    [filtered]
+  );
+
+  const exportCsv = () => {
+    const header = [
+      'Ordernummer',
+      'Klant',
+      'Email',
+      'Status',
+      'Betaling',
+      'Bedrag',
+      'Items',
+      'Datum',
+    ];
+    const rows = filtered.map((o) => [
+      o.order_number,
+      o.customer_name,
+      o.customer_email,
+      o.status,
+      o.payment_status,
+      o.total_price.toFixed(2),
+      String(o.item_count),
+      o.created_at,
+    ]);
+    const csv = [header, ...rows]
+      .map((r) =>
+        r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')
+      )
+      .join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bestellingen-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
-  const filteredOrders = orders.filter((order) => {
-    const matchesSearch =
-      order.order_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (order.user?.first_name?.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (order.user?.last_name?.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (order.user?.email?.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesStatus =
-      statusFilter === 'all' || order.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const columns: Column<OrderRow>[] = [
+    {
+      key: 'order_number',
+      header: 'Bestelling',
+      sortable: true,
+      sortValue: (r) => r.order_number,
+      cell: (r) => (
+        <div>
+          <div className="text-[13px] font-medium text-[var(--a-text)] admin-num">
+            {r.order_number}
+          </div>
+          <div className="text-[11.5px] text-[var(--a-text-3)]">
+            {r.item_count}{' '}
+            {r.item_count === 1 ? 'product' : 'producten'}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'customer',
+      header: 'Klant',
+      sortable: true,
+      sortValue: (r) => r.customer_name || r.customer_email,
+      cell: (r) => (
+        <div className="min-w-0">
+          <div className="text-[13px] text-[var(--a-text)] truncate">
+            {r.customer_name || '—'}
+          </div>
+          <div className="text-[11.5px] text-[var(--a-text-3)] truncate">
+            {r.customer_email}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'created_at',
+      header: 'Datum',
+      sortable: true,
+      sortValue: (r) => new Date(r.created_at).getTime(),
+      cell: (r) => (
+        <span className="text-[12.5px] text-[var(--a-text-2)] admin-num">
+          {formatDate(r.created_at)}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      cell: (r) => <StatusPill status={r.status} size="xs" />,
+    },
+    {
+      key: 'payment',
+      header: 'Betaling',
+      cell: (r) => <StatusPill status={r.payment_status} size="xs" />,
+    },
+    {
+      key: 'total',
+      header: 'Totaal',
+      align: 'right',
+      sortable: true,
+      sortValue: (r) => r.total_price,
+      cell: (r) => (
+        <span className="text-[13px] font-semibold text-[var(--a-text)] admin-num">
+          {formatPrice(r.total_price)}
+        </span>
+      ),
+    },
+  ];
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="h-8 bg-champagne rounded-lg w-48 animate-pulse" />
-        <div className="h-64 bg-champagne rounded-xl animate-pulse" />
-      </div>
-    );
-  }
+  const filterOptions = [
+    { value: 'all', label: 'Alle', count: counts.all },
+    {
+      value: 'in_behandeling',
+      label: 'In behandeling',
+      count: counts.in_behandeling,
+    },
+    { value: 'betaald', label: 'Betaald', count: counts.betaald },
+    { value: 'verzonden', label: 'Verzonden', count: counts.verzonden },
+    { value: 'afgeleverd', label: 'Afgeleverd', count: counts.afgeleverd },
+    {
+      value: 'geannuleerd',
+      label: 'Geannuleerd',
+      count: counts.geannuleerd,
+    },
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-display font-bold text-soft-black">Bestellingen</h1>
-        <p className="text-slate">{orders.length} bestellingen in totaal</p>
-      </div>
+    <div className="space-y-4">
+      <PageHeader
+        title="Bestellingen"
+        description={`${orders.length} totaal · ${formatPrice(totalRevenue)} aan gefilterde omzet`}
+        actions={
+          <AdminButton variant="secondary" onClick={exportCsv}>
+            <Download className="h-3.5 w-3.5" />
+            Exporteer CSV
+          </AdminButton>
+        }
+      />
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted" />
-          <Input
-            placeholder="Zoek op ordernummer, klant..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+      <FilterBar
+        search={{
+          value: searchQuery,
+          onChange: setSearchQuery,
+          placeholder: 'Zoek op nummer, naam of email...',
+        }}
+        filters={{
+          value: statusFilter,
+          onChange: (v) => {
+            setStatusFilter(v);
+            const q = new URLSearchParams(params.toString());
+            if (v === 'all') q.delete('status');
+            else q.set('status', v);
+            router.replace(`/admin/bestellingen?${q.toString()}`);
+          },
+          options: filterOptions,
+        }}
+      />
+
+      <DataTable
+        columns={columns}
+        rows={filtered}
+        rowKey={(r) => r.id}
+        loading={loading}
+        onRowClick={(r) => router.push(`/admin/bestellingen/${r.id}`)}
+        initialSort={{ key: 'created_at', direction: 'desc' }}
+        empty={
+          <EmptyState
+            icon={ShoppingCart}
+            title="Geen bestellingen gevonden"
+            description={
+              searchQuery || statusFilter !== 'all'
+                ? 'Pas je zoekfilters aan om resultaten te zien.'
+                : 'Zodra klanten een bestelling plaatsen, verschijnen ze hier.'
+            }
+            variant="compact"
           />
-        </div>
-        <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
-          {statusFilters.map((filter) => (
-            <button
-              key={filter.value}
-              onClick={() => setStatusFilter(filter.value)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
-                statusFilter === filter.value
-                  ? 'bg-primary text-white shadow-md'
-                  : 'bg-champagne text-slate hover:bg-sand'
-              }`}
-            >
-              {filter.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Orders Table */}
-      <div className="bg-white rounded-2xl border border-sand overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-champagne/50 border-b border-sand">
-                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
-                  Bestelling
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
-                  Klant
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
-                  Datum
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
-                  Status
-                </th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-slate">
-                  Betaling
-                </th>
-                <th className="text-right px-4 py-3 text-sm font-medium text-slate">
-                  Totaal
-                </th>
-                <th className="text-right px-4 py-3 text-sm font-medium text-slate">
-                  Actie
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-sand">
-              {filteredOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-champagne/30 transition-colors">
-                  <td className="px-4 py-3">
-                    <div>
-                      <p className="font-medium text-soft-black">
-                        {order.order_number}
-                      </p>
-                      <p className="text-sm text-slate">
-                        {order.items?.length || 0} {(order.items?.length || 0) === 1 ? 'product' : 'producten'}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div>
-                      <p className="font-medium text-soft-black">
-                        {order.user?.first_name} {order.user?.last_name}
-                      </p>
-                      <p className="text-sm text-slate">{order.user?.email}</p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-slate">
-                    {formatDate(order.created_at)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={order.status} size="sm" />
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={order.payment_status} size="sm" />
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="font-semibold text-primary">
-                      {formatPrice(order.total_price)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link href={`/admin/bestellingen/${order.id}`}>
-                      <button className="p-2 text-slate hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
-                        <Eye className="h-4 w-4" />
-                      </button>
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {filteredOrders.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-4">
-              <ShoppingCart className="h-8 w-8 text-muted" />
-            </div>
-            <p className="text-slate">Geen bestellingen gevonden</p>
-          </div>
-        )}
-      </div>
+        }
+      />
     </div>
+  );
+}
+
+export default function AdminOrdersPage() {
+  return (
+    <Suspense fallback={null}>
+      <OrdersContent />
+    </Suspense>
   );
 }

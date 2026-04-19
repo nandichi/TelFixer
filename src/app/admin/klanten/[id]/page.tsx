@@ -1,25 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
 import {
-  ArrowLeft,
   Loader2,
-  User,
   Mail,
   Phone,
   Calendar,
   ShoppingCart,
   RefreshCw,
   Euro,
-  Eye,
   Package,
+  ExternalLink,
+  MessageCircle,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { StatusBadge } from '@/components/ui/badge';
 import { formatPrice, formatDate } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
+import { PageHeader } from '@/components/admin/ui/page-header';
+import { Section } from '@/components/admin/ui/section';
+import { StatusPill } from '@/components/admin/ui/status-pill';
+import { AdminButton } from '@/components/admin/ui/admin-button';
+import { DataTable, Column } from '@/components/admin/ui/data-table';
+import { EmptyState } from '@/components/admin/ui/empty-state';
+import { KpiCard } from '@/components/admin/ui/kpi-card';
 
 interface CustomerWithStats {
   id: string;
@@ -31,6 +34,7 @@ interface CustomerWithStats {
   orders_count: number;
   total_spent: number;
   submissions_count: number;
+  repairs_count: number;
 }
 
 interface OrderSummary {
@@ -53,6 +57,19 @@ interface SubmissionSummary {
   created_at: string;
 }
 
+interface RepairSummary {
+  id: string;
+  reference_number: string;
+  device_brand: string;
+  device_model: string;
+  repair_type: string;
+  status: string;
+  estimated_price: number | null;
+  created_at: string;
+}
+
+type Tab = 'orders' | 'submissions' | 'repairs';
+
 export default function CustomerDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -60,17 +77,13 @@ export default function CustomerDetailPage() {
   const [customer, setCustomer] = useState<CustomerWithStats | null>(null);
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [submissions, setSubmissions] = useState<SubmissionSummary[]>([]);
+  const [repairs, setRepairs] = useState<RepairSummary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'orders' | 'submissions'>('orders');
+  const [activeTab, setActiveTab] = useState<Tab>('orders');
 
-  useEffect(() => {
-    fetchCustomerData();
-  }, [params.id]);
-
-  const fetchCustomerData = async () => {
+  const fetchCustomerData = useCallback(async () => {
     const supabase = createClient();
 
-    // Get user
     const { data: user, error } = await supabase
       .from('users')
       .select('*')
@@ -82,19 +95,25 @@ export default function CustomerDetailPage() {
       return;
     }
 
-    // Get orders
+    const ordersOr = `user_id.eq.${user.id},customer_email.eq.${user.email}`;
+
     const { data: ordersData } = await supabase
       .from('orders')
       .select('*, order_items(id)')
-      .eq('user_id', user.id)
+      .or(ordersOr)
       .order('created_at', { ascending: false });
 
-    const ordersCount = ordersData?.length || 0;
-    const totalSpent =
-      ordersData?.reduce(
-        (sum, order) => sum + parseFloat(order.total_price),
-        0
-      ) || 0;
+    const { data: submissionsData } = await supabase
+      .from('device_submissions')
+      .select('*')
+      .or(ordersOr)
+      .order('created_at', { ascending: false });
+
+    const { data: repairsData } = await supabase
+      .from('repair_requests')
+      .select('*')
+      .or(ordersOr)
+      .order('created_at', { ascending: false });
 
     const ordersSummary: OrderSummary[] =
       ordersData?.map((order) => ({
@@ -107,25 +126,34 @@ export default function CustomerDetailPage() {
         created_at: order.created_at,
       })) || [];
 
-    // Get submissions
-    const { data: submissionsData } = await supabase
-      .from('device_submissions')
-      .select('*')
-      .eq('customer_email', user.email)
-      .order('created_at', { ascending: false });
-
     const submissionsSummary: SubmissionSummary[] =
-      submissionsData?.map((submission) => ({
-        id: submission.id,
-        reference_number: submission.reference_number,
-        device_brand: submission.device_brand,
-        device_model: submission.device_model,
-        status: submission.status,
-        offered_price: submission.offered_price
-          ? parseFloat(submission.offered_price)
-          : null,
-        created_at: submission.created_at,
+      submissionsData?.map((s) => ({
+        id: s.id,
+        reference_number: s.reference_number,
+        device_brand: s.device_brand,
+        device_model: s.device_model,
+        status: s.status,
+        offered_price: s.offered_price ? parseFloat(s.offered_price) : null,
+        created_at: s.created_at,
       })) || [];
+
+    const repairsSummary: RepairSummary[] =
+      repairsData?.map((r) => ({
+        id: r.id,
+        reference_number: r.reference_number,
+        device_brand: r.device_brand,
+        device_model: r.device_model,
+        repair_type: r.repair_type,
+        status: r.status,
+        estimated_price: r.estimated_price
+          ? parseFloat(r.estimated_price)
+          : null,
+        created_at: r.created_at,
+      })) || [];
+
+    const totalSpent = ordersSummary
+      .filter((o) => o.payment_status === 'paid')
+      .reduce((sum, o) => sum + o.total_price, 0);
 
     setCustomer({
       id: user.id,
@@ -134,265 +162,433 @@ export default function CustomerDetailPage() {
       last_name: user.last_name,
       phone: user.phone,
       created_at: user.created_at,
-      orders_count: ordersCount,
+      orders_count: ordersSummary.length,
       total_spent: totalSpent,
-      submissions_count: submissionsData?.length || 0,
+      submissions_count: submissionsSummary.length,
+      repairs_count: repairsSummary.length,
     });
     setOrders(ordersSummary);
     setSubmissions(submissionsSummary);
+    setRepairs(repairsSummary);
     setLoading(false);
-  };
+  }, [params.id, router]);
+
+  useEffect(() => {
+    fetchCustomerData();
+  }, [fetchCustomerData]);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-          <p className="mt-3 text-slate">Klant laden...</p>
-        </div>
+        <Loader2 className="h-5 w-5 animate-spin text-[var(--a-text-3)]" />
       </div>
     );
   }
-
-  if (!customer) {
-    return null;
-  }
+  if (!customer) return null;
 
   const customerName =
     customer.first_name || customer.last_name
       ? `${customer.first_name || ''} ${customer.last_name || ''}`.trim()
-      : 'Geen naam';
+      : customer.email;
+
+  const initials =
+    (customer.first_name?.[0] ?? customer.email[0] ?? '?').toUpperCase() +
+    (customer.last_name?.[0]?.toUpperCase() ?? '');
+
+  const orderColumns: Column<OrderSummary>[] = [
+    {
+      key: 'order_number',
+      header: 'Bestelling',
+      cell: (r) => (
+        <div className="flex items-center gap-2">
+          <Package className="h-3.5 w-3.5 text-[var(--a-text-3)]" />
+          <span className="font-medium text-[var(--a-text)] admin-num">
+            {r.order_number}
+          </span>
+        </div>
+      ),
+      sortable: true,
+      sortValue: (r) => r.order_number,
+    },
+    {
+      key: 'items',
+      header: 'Items',
+      align: 'right',
+      cell: (r) => <span className="admin-num">{r.items_count}</span>,
+      sortable: true,
+      sortValue: (r) => r.items_count,
+    },
+    {
+      key: 'total',
+      header: 'Bedrag',
+      align: 'right',
+      cell: (r) => (
+        <span className="admin-num font-medium text-[var(--a-text)]">
+          {formatPrice(r.total_price)}
+        </span>
+      ),
+      sortable: true,
+      sortValue: (r) => r.total_price,
+    },
+    {
+      key: 'payment',
+      header: 'Betaling',
+      cell: (r) => <StatusPill status={r.payment_status} size="xs" />,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      cell: (r) => <StatusPill status={r.status} size="xs" />,
+    },
+    {
+      key: 'date',
+      header: 'Datum',
+      cell: (r) => (
+        <span className="text-[var(--a-text-3)] admin-num">
+          {formatDate(r.created_at)}
+        </span>
+      ),
+      sortable: true,
+      sortValue: (r) => new Date(r.created_at).getTime(),
+    },
+    {
+      key: 'open',
+      header: '',
+      align: 'right',
+      width: '40px',
+      cell: () => (
+        <ExternalLink className="h-3.5 w-3.5 text-[var(--a-text-3)] inline-block" />
+      ),
+    },
+  ];
+
+  const submissionColumns: Column<SubmissionSummary>[] = [
+    {
+      key: 'ref',
+      header: 'Referentie',
+      cell: (r) => (
+        <span className="font-medium text-[var(--a-text)] admin-num">
+          {r.reference_number}
+        </span>
+      ),
+      sortable: true,
+      sortValue: (r) => r.reference_number,
+    },
+    {
+      key: 'device',
+      header: 'Apparaat',
+      cell: (r) => (
+        <span className="text-[var(--a-text)]">
+          {r.device_brand} {r.device_model}
+        </span>
+      ),
+    },
+    {
+      key: 'price',
+      header: 'Aanbieding',
+      align: 'right',
+      cell: (r) =>
+        r.offered_price ? (
+          <span className="admin-num font-medium text-[var(--a-text)]">
+            {formatPrice(r.offered_price)}
+          </span>
+        ) : (
+          <span className="text-[var(--a-text-4)]">—</span>
+        ),
+      sortable: true,
+      sortValue: (r) => r.offered_price ?? -1,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      cell: (r) => <StatusPill status={r.status} size="xs" />,
+    },
+    {
+      key: 'date',
+      header: 'Datum',
+      cell: (r) => (
+        <span className="text-[var(--a-text-3)] admin-num">
+          {formatDate(r.created_at)}
+        </span>
+      ),
+      sortable: true,
+      sortValue: (r) => new Date(r.created_at).getTime(),
+    },
+    {
+      key: 'open',
+      header: '',
+      align: 'right',
+      width: '40px',
+      cell: () => (
+        <ExternalLink className="h-3.5 w-3.5 text-[var(--a-text-3)] inline-block" />
+      ),
+    },
+  ];
+
+  const repairColumns: Column<RepairSummary>[] = [
+    {
+      key: 'ref',
+      header: 'Referentie',
+      cell: (r) => (
+        <span className="font-medium text-[var(--a-text)] admin-num">
+          {r.reference_number}
+        </span>
+      ),
+      sortable: true,
+      sortValue: (r) => r.reference_number,
+    },
+    {
+      key: 'device',
+      header: 'Apparaat',
+      cell: (r) => (
+        <span className="text-[var(--a-text)]">
+          {r.device_brand} {r.device_model}
+        </span>
+      ),
+    },
+    {
+      key: 'type',
+      header: 'Type',
+      cell: (r) => (
+        <span className="text-[var(--a-text-2)]">{r.repair_type}</span>
+      ),
+    },
+    {
+      key: 'price',
+      header: 'Prijs',
+      align: 'right',
+      cell: (r) =>
+        r.estimated_price ? (
+          <span className="admin-num font-medium text-[var(--a-text)]">
+            {formatPrice(r.estimated_price)}
+          </span>
+        ) : (
+          <span className="text-[var(--a-text-4)]">—</span>
+        ),
+      sortable: true,
+      sortValue: (r) => r.estimated_price ?? -1,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      cell: (r) => <StatusPill status={r.status} size="xs" />,
+    },
+    {
+      key: 'date',
+      header: 'Datum',
+      cell: (r) => (
+        <span className="text-[var(--a-text-3)] admin-num">
+          {formatDate(r.created_at)}
+        </span>
+      ),
+      sortable: true,
+      sortValue: (r) => new Date(r.created_at).getTime(),
+    },
+    {
+      key: 'open',
+      header: '',
+      align: 'right',
+      width: '40px',
+      cell: () => (
+        <ExternalLink className="h-3.5 w-3.5 text-[var(--a-text-3)] inline-block" />
+      ),
+    },
+  ];
+
+  const tabConfig: { id: Tab; label: string; count: number }[] = [
+    { id: 'orders', label: 'Bestellingen', count: orders.length },
+    { id: 'submissions', label: 'Inleveringen', count: submissions.length },
+    { id: 'repairs', label: 'Reparaties', count: repairs.length },
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link
-          href="/admin/klanten"
-          className="p-2 text-slate hover:text-soft-black hover:bg-champagne rounded-lg transition-colors"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-display font-bold text-soft-black">
-            {customerName}
-          </h1>
-          <p className="text-slate">{customer.email}</p>
-        </div>
-      </div>
+    <div className="space-y-5">
+      <PageHeader
+        title={customerName}
+        description={customer.email}
+        back={{ href: '/admin/klanten', label: 'Alle klanten' }}
+        actions={
+          <>
+            <a href={`mailto:${customer.email}`}>
+              <AdminButton variant="secondary">
+                <Mail className="h-3.5 w-3.5" />
+                E-mail
+              </AdminButton>
+            </a>
+            {customer.phone && (
+              <a
+                href={`https://wa.me/${customer.phone.replace(/\D/g, '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <AdminButton variant="success">
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  WhatsApp
+                </AdminButton>
+              </a>
+            )}
+          </>
+        }
+      />
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Customer Info */}
-          <div className="bg-white rounded-2xl border border-sand p-6">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary-light rounded-2xl flex items-center justify-center text-white text-xl font-bold">
-                {customer.first_name?.[0]?.toUpperCase() ||
-                  customer.email[0].toUpperCase()}
-                {customer.last_name?.[0]?.toUpperCase() || ''}
+      <div className="grid lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-1 space-y-4">
+          <Section>
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-12 h-12 rounded-full bg-[var(--a-accent)] text-white flex items-center justify-center text-[15px] font-semibold uppercase">
+                {initials}
               </div>
-              <div>
-                <h2 className="font-semibold text-soft-black">{customerName}</h2>
-                <p className="text-sm text-slate">Klant</p>
+              <div className="min-w-0 flex-1">
+                <div className="font-semibold text-[var(--a-text)] truncate">
+                  {customerName}
+                </div>
+                <div className="text-[12px] text-[var(--a-text-3)]">Klant</div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center gap-3 text-sm">
-                <Mail className="h-4 w-4 text-muted" />
-                <a
-                  href={`mailto:${customer.email}`}
-                  className="text-slate hover:text-primary"
-                >
-                  {customer.email}
-                </a>
-              </div>
+            <div className="space-y-2.5 text-[13px]">
+              <ContactRow
+                icon={Mail}
+                value={customer.email}
+                href={`mailto:${customer.email}`}
+              />
               {customer.phone && (
-                <div className="flex items-center gap-3 text-sm">
-                  <Phone className="h-4 w-4 text-muted" />
-                  <a
-                    href={`tel:${customer.phone}`}
-                    className="text-slate hover:text-primary"
-                  >
-                    {customer.phone}
-                  </a>
-                </div>
+                <ContactRow
+                  icon={Phone}
+                  value={customer.phone}
+                  href={`tel:${customer.phone}`}
+                />
               )}
-              <div className="flex items-center gap-3 text-sm">
-                <Calendar className="h-4 w-4 text-muted" />
-                <span className="text-slate">
-                  Lid sinds {formatDate(customer.created_at)}
-                </span>
-              </div>
+              <ContactRow
+                icon={Calendar}
+                value={`Lid sinds ${formatDate(customer.created_at)}`}
+              />
             </div>
-          </div>
+          </Section>
 
-          {/* Stats */}
-          <div className="bg-white rounded-2xl border border-sand p-6 space-y-4">
-            <h3 className="font-semibold text-soft-black">Statistieken</h3>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-champagne/50 rounded-xl text-center">
-                <div className="flex items-center justify-center gap-1 text-muted mb-1">
-                  <ShoppingCart className="h-4 w-4" />
-                </div>
-                <p className="text-2xl font-bold text-soft-black">
-                  {customer.orders_count}
-                </p>
-                <p className="text-xs text-slate">Bestellingen</p>
-              </div>
-
-              <div className="p-4 bg-champagne/50 rounded-xl text-center">
-                <div className="flex items-center justify-center gap-1 text-muted mb-1">
-                  <RefreshCw className="h-4 w-4" />
-                </div>
-                <p className="text-2xl font-bold text-soft-black">
-                  {customer.submissions_count}
-                </p>
-                <p className="text-xs text-slate">Inleveringen</p>
-              </div>
-            </div>
-
-            <div className="p-4 bg-gradient-to-br from-primary/10 to-copper/10 rounded-xl text-center">
-              <div className="flex items-center justify-center gap-1 text-primary mb-1">
-                <Euro className="h-4 w-4" />
-              </div>
-              <p className="text-2xl font-bold text-primary">
-                {formatPrice(customer.total_spent)}
-              </p>
-              <p className="text-xs text-slate">Totaal besteed</p>
-            </div>
+          <div className="grid grid-cols-2 gap-3">
+            <KpiCard
+              label="Bestellingen"
+              value={String(customer.orders_count)}
+              icon={ShoppingCart}
+            />
+            <KpiCard
+              label="Inleveringen"
+              value={String(customer.submissions_count)}
+              icon={RefreshCw}
+            />
+            <KpiCard
+              label="Reparaties"
+              value={String(customer.repairs_count)}
+              icon={Package}
+            />
+            <KpiCard
+              label="Besteed"
+              value={formatPrice(customer.total_spent)}
+              icon={Euro}
+            />
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="lg:col-span-2">
-          {/* Tabs */}
-          <div className="flex gap-2 mb-6">
-            <button
-              onClick={() => setActiveTab('orders')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                activeTab === 'orders'
-                  ? 'bg-primary text-white'
-                  : 'bg-champagne text-slate hover:bg-sand'
-              }`}
-            >
-              Bestellingen ({orders.length})
-            </button>
-            <button
-              onClick={() => setActiveTab('submissions')}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                activeTab === 'submissions'
-                  ? 'bg-primary text-white'
-                  : 'bg-champagne text-slate hover:bg-sand'
-              }`}
-            >
-              Inleveringen ({submissions.length})
-            </button>
+        <div className="lg:col-span-2 space-y-3">
+          <div className="flex items-center gap-1 bg-[var(--a-surface)] border border-[var(--a-border)] rounded-[10px] p-1">
+            {tabConfig.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setActiveTab(t.id)}
+                className={`flex-1 px-3 py-1.5 rounded-md text-[12.5px] font-medium transition-colors ${
+                  activeTab === t.id
+                    ? 'bg-[var(--a-accent)] text-white'
+                    : 'text-[var(--a-text-2)] hover:bg-[var(--a-surface-2)]'
+                }`}
+              >
+                {t.label}{' '}
+                <span
+                  className={`admin-num ml-1 ${
+                    activeTab === t.id
+                      ? 'text-white/70'
+                      : 'text-[var(--a-text-4)]'
+                  }`}
+                >
+                  {t.count}
+                </span>
+              </button>
+            ))}
           </div>
 
-          {/* Orders Tab */}
           {activeTab === 'orders' && (
-            <div className="bg-white rounded-2xl border border-sand overflow-hidden">
-              {orders.length > 0 ? (
-                <div className="divide-y divide-sand">
-                  {orders.map((order) => (
-                    <div
-                      key={order.id}
-                      className="p-4 flex items-center justify-between hover:bg-champagne/30 transition-colors"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-champagne rounded-xl flex items-center justify-center">
-                          <Package className="h-5 w-5 text-muted" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-soft-black">
-                            {order.order_number}
-                          </p>
-                          <p className="text-sm text-slate">
-                            {order.items_count} product(en) -{' '}
-                            {formatDate(order.created_at)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <p className="font-semibold text-primary">
-                            {formatPrice(order.total_price)}
-                          </p>
-                          <StatusBadge status={order.status} size="sm" />
-                        </div>
-                        <Link href={`/admin/bestellingen/${order.id}`}>
-                          <button className="p-2 text-slate hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
-                            <Eye className="h-4 w-4" />
-                          </button>
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-16">
-                  <ShoppingCart className="h-12 w-12 text-muted mx-auto mb-4" />
-                  <p className="text-slate">Nog geen bestellingen</p>
-                </div>
-              )}
-            </div>
+            <DataTable
+              columns={orderColumns}
+              rows={orders}
+              rowKey={(r) => r.id}
+              onRowClick={(r) => router.push(`/admin/bestellingen/${r.id}`)}
+              empty={
+                <EmptyState
+                  icon={ShoppingCart}
+                  title="Nog geen bestellingen"
+                  variant="compact"
+                />
+              }
+              initialSort={{ key: 'date', direction: 'desc' }}
+              pageSize={15}
+            />
           )}
 
-          {/* Submissions Tab */}
           {activeTab === 'submissions' && (
-            <div className="bg-white rounded-2xl border border-sand overflow-hidden">
-              {submissions.length > 0 ? (
-                <div className="divide-y divide-sand">
-                  {submissions.map((submission) => (
-                    <div
-                      key={submission.id}
-                      className="p-4 flex items-center justify-between hover:bg-champagne/30 transition-colors"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-champagne rounded-xl flex items-center justify-center">
-                          <RefreshCw className="h-5 w-5 text-muted" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-soft-black">
-                            {submission.device_brand} {submission.device_model}
-                          </p>
-                          <p className="text-sm text-slate">
-                            {submission.reference_number} -{' '}
-                            {formatDate(submission.created_at)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          {submission.offered_price && (
-                            <p className="font-semibold text-primary">
-                              {formatPrice(submission.offered_price)}
-                            </p>
-                          )}
-                          <StatusBadge status={submission.status} size="sm" />
-                        </div>
-                        <Link href={`/admin/inleveringen/${submission.id}`}>
-                          <button className="p-2 text-slate hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
-                            <Eye className="h-4 w-4" />
-                          </button>
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-16">
-                  <RefreshCw className="h-12 w-12 text-muted mx-auto mb-4" />
-                  <p className="text-slate">Nog geen inleveringen</p>
-                </div>
-              )}
-            </div>
+            <DataTable
+              columns={submissionColumns}
+              rows={submissions}
+              rowKey={(r) => r.id}
+              onRowClick={(r) => router.push(`/admin/inleveringen/${r.id}`)}
+              empty={
+                <EmptyState
+                  icon={RefreshCw}
+                  title="Nog geen inleveringen"
+                  variant="compact"
+                />
+              }
+              initialSort={{ key: 'date', direction: 'desc' }}
+              pageSize={15}
+            />
+          )}
+
+          {activeTab === 'repairs' && (
+            <DataTable
+              columns={repairColumns}
+              rows={repairs}
+              rowKey={(r) => r.id}
+              onRowClick={(r) => router.push(`/admin/reparaties/${r.id}`)}
+              empty={
+                <EmptyState
+                  icon={Package}
+                  title="Nog geen reparaties"
+                  variant="compact"
+                />
+              }
+              initialSort={{ key: 'date', direction: 'desc' }}
+              pageSize={15}
+            />
           )}
         </div>
       </div>
     </div>
   );
+}
+
+function ContactRow({
+  icon: Icon,
+  value,
+  href,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  value: string;
+  href?: string;
+}) {
+  const content = (
+    <span className="flex items-center gap-2 text-[var(--a-text-2)] hover:text-[var(--a-accent)] transition-colors">
+      <Icon className="h-3.5 w-3.5 text-[var(--a-text-3)] flex-shrink-0" />
+      <span className="truncate">{value}</span>
+    </span>
+  );
+  return href ? <a href={href}>{content}</a> : content;
 }
