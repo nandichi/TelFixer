@@ -51,7 +51,7 @@ export interface ConditionBadgeProps {
 const conditionStyles = {
   als_nieuw: 'bg-gradient-to-r from-[#0D9488] to-[#14B8A6] text-white',
   zeer_goed: 'bg-[#14B8A6] text-white',
-  goed: 'bg-[#D97706] text-white',
+  goed: 'bg-[#B45309] text-white',
   sterk_gebruikt: 'bg-[#EA580C] text-white',
 };
 

@@ -64,7 +64,7 @@ export function BarChart({
               <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[var(--a-text)] text-white text-[11px] px-1.5 py-0.5 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none admin-num">
                 {formatValue ? formatValue(d.value) : d.value}
                 {d.date && (
-                  <div className="text-[10px] text-white/70 font-normal">
+                  <div className="text-[10px] text-on-dark-muted font-normal">
                     {d.date}
                   </div>
                 )}

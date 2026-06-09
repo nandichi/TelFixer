@@ -1,11 +1,17 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
+import { ArrowRight, PackageOpen } from 'lucide-react';
 import { Container } from '@/components/layout/container';
-import { Button } from '@/components/ui/button';
 import { Hero } from '@/components/home/hero';
 import { CategoryGrid } from '@/components/home/category-grid';
 import { FeaturedGrid } from '@/components/home/featured-grid';
-import { HowItWorks, SellDeviceCta, TrustSection } from '@/components/home/sections';
+import {
+  RepairSection,
+  HowItWorks,
+  SellDeviceCta,
+  TrustSection,
+  FinalCta,
+} from '@/components/home/sections';
 import { Reveal } from '@/components/ui/reveal';
 import { CategoryGridSkeleton, ProductGridSkeleton } from '@/components/ui/skeleton';
 import { InstagramFeed } from '@/components/ui/instagram-feed';
@@ -25,9 +31,7 @@ async function FeaturedProductsData() {
     return (
       <div className="text-center py-20 bg-white rounded-3xl border border-sand">
         <div className="w-16 h-16 rounded-2xl bg-champagne flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-          </svg>
+          <PackageOpen className="w-8 h-8 text-muted" strokeWidth={1.5} />
         </div>
         <p className="text-muted">Binnenkort beschikbaar</p>
       </div>
@@ -72,18 +76,18 @@ export default function HomePage() {
     <>
       <Hero />
 
-      {/* Categories Section */}
-      <section className="py-16 sm:py-24 lg:py-32 bg-white relative">
+      {/* Categorieen */}
+      <section className="py-16 sm:py-24 lg:py-32 bg-cream">
         <Container>
           <Reveal className="text-center mb-10 sm:mb-16">
-            <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+            <span className="inline-block text-eyebrow mb-4">
               Categorieen
             </span>
-            <h2 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-soft-black">
               Shop per categorie
             </h2>
             <p className="mt-4 text-lg text-muted max-w-2xl mx-auto">
-              Ontdek onze collectie vakkundig gerepareerde telefoons
+              Van telefoons tot accessoires, alles vakkundig nagekeken
             </p>
           </Reveal>
 
@@ -93,29 +97,27 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* Featured Products Section */}
-      <section className="py-16 sm:py-24 lg:py-32 bg-cream">
+      {/* Populaire producten */}
+      <section className="py-16 sm:py-24 lg:py-32 bg-white">
         <Container>
           <Reveal className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
             <div>
-              <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+              <span className="inline-block text-eyebrow mb-4">
                 Populair
               </span>
-              <h2 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">
-                Populaire producten
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-soft-black">
+                Onze populairste toestellen
               </h2>
               <p className="mt-4 text-lg text-muted">
-                Onze best verkopende gerepareerde telefoons
+                De best verkochte refurbished toestellen van dit moment
               </p>
             </div>
             <Link
               href="/producten"
-              className="group flex items-center gap-2 text-primary font-medium hover:gap-4 transition-all duration-300"
+              className="group hidden sm:flex items-center gap-2 text-primary font-medium hover:gap-4 transition-all duration-300 shrink-0"
             >
               Bekijk alles
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
+              <ArrowRight className="w-5 h-5" />
             </Link>
           </Reveal>
 
@@ -124,17 +126,18 @@ export default function HomePage() {
           </Suspense>
 
           <div className="mt-12 text-center sm:hidden">
-            <Link href="/producten">
-              <Button variant="outline" size="lg">
-                Bekijk alle producten
-                <svg className="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Button>
+            <Link
+              href="/producten"
+              className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl border-2 border-primary text-primary font-medium transition-all duration-300 hover:bg-primary hover:text-white"
+            >
+              Bekijk alle producten
+              <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </div>
         </Container>
       </section>
+
+      <RepairSection />
 
       <HowItWorks />
 
@@ -149,6 +152,8 @@ export default function HomePage() {
       <Suspense fallback={null}>
         <InstagramData />
       </Suspense>
+
+      <FinalCta />
     </>
   );
 }

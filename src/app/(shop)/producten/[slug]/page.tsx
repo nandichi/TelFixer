@@ -122,7 +122,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           {/* Product Info */}
           <div className="space-y-8">
             {/* Brand */}
-            <p className="text-sm font-semibold text-copper uppercase tracking-widest">
+            <p className="text-eyebrow">
               {product.brand}
             </p>
 
@@ -221,7 +221,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-6 sm:pt-8 border-t border-sand">
               {trustPoints.map((item) => (
                 <div key={item.text} className="flex items-center gap-2 sm:gap-3">
-                  <span className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-primary/5 text-primary flex-shrink-0">
+                  <span className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-primary/5 text-primary shrink-0">
                     {item.icon}
                   </span>
                   <span className="text-xs sm:text-sm text-slate">{item.text}</span>
@@ -273,7 +273,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <div className="mt-10 sm:mt-16 lg:mt-24">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 sm:mb-10">
               <div>
-                <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-2 sm:mb-4">
+                <span className="inline-block text-eyebrow mb-2 sm:mb-4">
                   Gerelateerd
                 </span>
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-soft-black">

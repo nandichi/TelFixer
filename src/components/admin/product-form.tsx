@@ -131,31 +131,65 @@ export function ProductForm({ product, mode }: ProductFormProps) {
     if (!files || files.length === 0) return;
 
     setUploadingImages(true);
-    const supabase = createClient();
     const newUrls: string[] = [];
     const failed: string[] = [];
 
     try {
       for (const file of Array.from(files)) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const filePath = `products/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('products')
-          .upload(filePath, file);
-
-        if (uploadError) {
-          console.error('Upload error:', uploadError);
-          failed.push(`${file.name}: ${uploadError.message}`);
+        // Basisvalidatie aan de clientzijde
+        if (!file.type.startsWith('image/')) {
+          failed.push(`${file.name}: geen afbeelding`);
+          continue;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+          failed.push(`${file.name}: groter dan 10MB`);
           continue;
         }
 
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from('products').getPublicUrl(filePath);
+        // 1) Ondertekende upload-parameters ophalen (alleen voor admins)
+        const sigRes = await fetch('/api/admin/cloudinary-signature', {
+          method: 'POST',
+        });
 
-        newUrls.push(publicUrl);
+        if (!sigRes.ok) {
+          const { error } = await sigRes
+            .json()
+            .catch(() => ({ error: `status ${sigRes.status}` }));
+          failed.push(`${file.name}: ${error}`);
+          continue;
+        }
+
+        const { signature, timestamp, folder, apiKey, cloudName } =
+          await sigRes.json();
+
+        // 2) Bestand rechtstreeks van de browser naar Cloudinary uploaden,
+        // zo omzeilen we de 4,5MB request-limiet van Vercel-functies.
+        const cloudForm = new FormData();
+        cloudForm.append('file', file);
+        cloudForm.append('api_key', apiKey);
+        cloudForm.append('timestamp', String(timestamp));
+        cloudForm.append('signature', signature);
+        cloudForm.append('folder', folder);
+
+        const uploadRes = await fetch(
+          `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+          { method: 'POST', body: cloudForm }
+        );
+
+        if (!uploadRes.ok) {
+          const data = await uploadRes.json().catch(() => null);
+          const message =
+            data?.error?.message ?? `upload mislukt (${uploadRes.status})`;
+          failed.push(`${file.name}: ${message}`);
+          continue;
+        }
+
+        const data = await uploadRes.json();
+        if (data.secure_url) {
+          newUrls.push(data.secure_url as string);
+        } else {
+          failed.push(`${file.name}: geen URL ontvangen`);
+        }
       }
 
       if (newUrls.length > 0) {

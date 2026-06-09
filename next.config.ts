@@ -1,6 +1,14 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Expliciete workspace-root: er staat een tweede package-lock.json in de
+  // home-map waardoor Next.js anders de verkeerde root kiest en de file
+  // watcher wijzigingen mist.
+  turbopack: {
+    root: path.join(__dirname),
+  },
+
   images: {
     remotePatterns: [
       {

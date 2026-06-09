@@ -66,7 +66,7 @@ export default function CartPage() {
   return (
     <div className="py-12 lg:py-20 bg-cream min-h-screen">
       <Container>
-        <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+        <span className="inline-block text-eyebrow mb-4">
           Winkelwagen
         </span>
         <h1 className="text-4xl lg:text-5xl font-display font-bold text-soft-black mb-12">
@@ -79,13 +79,13 @@ export default function CartPage() {
             {items.map((item) => (
               <div
                 key={item.product.id}
-                className="flex gap-6 p-6 bg-white rounded-3xl border border-sand transition-all duration-300 hover:shadow-md"
+                className="flex gap-4 sm:gap-6 p-4 sm:p-6 bg-white rounded-3xl border border-sand transition-all duration-300 hover:shadow-md"
                 style={{ boxShadow: 'var(--shadow-sm)' }}
               >
                 {/* Image */}
                 <Link
                   href={`/producten/${item.product.slug}`}
-                  className="relative w-28 h-28 bg-champagne rounded-2xl overflow-hidden shrink-0"
+                  className="relative w-24 h-24 sm:w-28 sm:h-28 bg-champagne rounded-2xl overflow-hidden shrink-0"
                 >
                   {item.product.image_urls?.[0] ? (
                     <Image

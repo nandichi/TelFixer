@@ -123,7 +123,7 @@ export function ProductFilters({
     );
   };
 
-  const FilterContent = () => (
+  const filterContent = (
     <div className="space-y-8">
       {/* Category Filter */}
       <div>
@@ -131,7 +131,7 @@ export function ProductFilters({
           onClick={() => toggleSection('category')}
           className="flex items-center justify-between w-full text-left font-semibold text-soft-black mb-4"
         >
-          <span className="text-sm uppercase tracking-widest text-copper">Categorie</span>
+          <span className="text-sm uppercase tracking-widest text-copper-text font-semibold">Categorie</span>
           <svg 
             className={cn("w-4 h-4 text-muted transition-transform", expandedSections.category && "rotate-180")} 
             fill="none" 
@@ -195,7 +195,7 @@ export function ProductFilters({
           onClick={() => toggleSection('brand')}
           className="flex items-center justify-between w-full text-left font-semibold text-soft-black mb-4"
         >
-          <span className="text-sm uppercase tracking-widest text-copper">Merk</span>
+          <span className="text-sm uppercase tracking-widest text-copper-text font-semibold">Merk</span>
           <svg 
             className={cn("w-4 h-4 text-muted transition-transform", expandedSections.brand && "rotate-180")} 
             fill="none" 
@@ -259,7 +259,7 @@ export function ProductFilters({
           onClick={() => toggleSection('price')}
           className="flex items-center justify-between w-full text-left font-semibold text-soft-black mb-4"
         >
-          <span className="text-sm uppercase tracking-widest text-copper">Prijs</span>
+          <span className="text-sm uppercase tracking-widest text-copper-text font-semibold">Prijs</span>
           <svg 
             className={cn("w-4 h-4 text-muted transition-transform", expandedSections.price && "rotate-180")} 
             fill="none" 
@@ -295,7 +295,7 @@ export function ProductFilters({
           onClick={() => toggleSection('condition')}
           className="flex items-center justify-between w-full text-left font-semibold text-soft-black mb-4"
         >
-          <span className="text-sm uppercase tracking-widest text-copper">Conditie</span>
+          <span className="text-sm uppercase tracking-widest text-copper-text font-semibold">Conditie</span>
           <svg 
             className={cn("w-4 h-4 text-muted transition-transform", expandedSections.condition && "rotate-180")} 
             fill="none" 
@@ -390,7 +390,7 @@ export function ProductFilters({
               </button>
             </div>
             <div className="p-6">
-              <FilterContent />
+              {filterContent}
             </div>
           </div>
         </>
@@ -399,7 +399,7 @@ export function ProductFilters({
       {/* Desktop Filters */}
       <div className="hidden lg:block bg-white rounded-3xl border border-sand p-8" style={{ boxShadow: 'var(--shadow-sm)' }}>
         <h3 className="text-lg font-display font-semibold text-soft-black mb-6">Filters</h3>
-        <FilterContent />
+        {filterContent}
       </div>
     </>
   );

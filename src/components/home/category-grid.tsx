@@ -1,24 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Smartphone,
-  Laptop,
-  Tablet,
-  Cable,
-  ChevronRight,
-  type LucideIcon,
-} from "lucide-react";
+import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 import type { Category } from "@/types";
 import { RevealGroup, RevealItem } from "@/components/ui/reveal";
 
 type CategoryWithCount = Category & { product_count: number };
 
-const categoryStyles: Record<string, { icon: LucideIcon; gradient: string }> = {
-  telefoons: { icon: Smartphone, gradient: "from-primary to-primary-light" },
-  laptops: { icon: Laptop, gradient: "from-copper to-gold" },
-  tablets: { icon: Tablet, gradient: "from-[#0D9488] to-[#14B8A6]" },
-  accessoires: { icon: Cable, gradient: "from-[#7C3AED] to-[#A78BFA]" },
+const categoryImages: Record<string, string> = {
+  telefoons: "/images/home/categorie-telefoons.jpg",
+  laptops: "/images/home/categorie-laptops.jpg",
+  tablets: "/images/home/categorie-tablets.jpg",
+  accessoires: "/images/home/categorie-accessoires.jpg",
 };
 
 interface CategoryGridProps {
@@ -28,43 +22,44 @@ interface CategoryGridProps {
 export function CategoryGrid({ categories }: CategoryGridProps) {
   return (
     <RevealGroup
-      stagger={0.08}
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"
+      stagger={0.09}
+      className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6"
     >
       {categories.map((category) => {
-        const style = categoryStyles[category.slug] || categoryStyles.telefoons;
-        const Icon = style.icon;
+        const image =
+          categoryImages[category.slug] ?? categoryImages.telefoons;
+
         return (
           <RevealItem key={category.slug} className="h-full">
             <Link
               href={`/producten?categorie=${category.slug}`}
-              className="group relative block h-full"
+              className="group relative block aspect-[4/5] sm:aspect-[3/4] rounded-2xl sm:rounded-[1.75rem] overflow-hidden"
             >
-              <div className="relative h-full flex flex-col bg-cream rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-sand transition-all duration-300 hover:border-primary/20 hover:shadow-lg hover:-translate-y-1 overflow-hidden">
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${style.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
-                />
+              <Image
+                src={image}
+                alt={category.name}
+                fill
+                sizes="(max-width: 1024px) 50vw, 25vw"
+                className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+              />
+              <div
+                className="absolute inset-0 bg-gradient-to-t from-soft-black/85 via-soft-black/25 to-transparent transition-opacity duration-500 group-hover:from-soft-black/90"
+                aria-hidden="true"
+              />
 
-                <div
-                  className={`relative w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br ${style.gradient} flex items-center justify-center mb-4 sm:mb-6 text-white transition-transform duration-300 group-hover:scale-110 flex-shrink-0`}
-                >
-                  <Icon className="w-6 h-6 sm:w-8 sm:h-8" strokeWidth={1.5} />
+              <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6 flex items-end justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-on-dark-subtle mb-1">
+                    {category.product_count}{" "}
+                    {category.product_count === 1 ? "product" : "producten"}
+                  </p>
+                  <h3 className="text-lg sm:text-2xl font-display font-semibold text-white">
+                    {category.name}
+                  </h3>
                 </div>
-
-                <h3 className="text-lg sm:text-xl font-semibold text-soft-black mb-2 font-display">
-                  {category.name}
-                </h3>
-                <p className="text-xs sm:text-sm text-muted line-clamp-2 mb-3 sm:mb-4 min-h-[2rem] sm:min-h-[2.5rem] flex-grow">
-                  {category.description}
-                </p>
-                <div className="flex items-center justify-between mt-auto">
-                  <span className="text-xs text-muted">
-                    {category.product_count} producten
-                  </span>
-                  <span className="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300 flex-shrink-0">
-                    <ChevronRight className="w-4 h-4" />
-                  </span>
-                </div>
+                <span className="flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white/15 backdrop-blur-sm text-white shrink-0 transition-all duration-300 group-hover:bg-white group-hover:text-soft-black">
+                  <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </span>
               </div>
             </Link>
           </RevealItem>

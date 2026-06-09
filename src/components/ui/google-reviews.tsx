@@ -156,7 +156,7 @@ export function GoogleReviews({
       <Container>
         <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-10 lg:gap-16 items-start mb-10 sm:mb-14">
           <div>
-            <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+            <span className="inline-block text-eyebrow mb-4">
               Reviews
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-soft-black leading-tight">
@@ -171,7 +171,7 @@ export function GoogleReviews({
 
           <div className="flex flex-col items-start gap-5 lg:items-end lg:text-right">
             <div className="inline-flex items-center gap-4 px-5 py-4 rounded-2xl border border-sand bg-cream/60">
-              <GoogleGlyph className="w-9 h-9 flex-shrink-0" />
+              <GoogleGlyph className="w-9 h-9 shrink-0" />
               <div className="flex flex-col gap-1">
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-display font-bold text-soft-black leading-none">
@@ -219,7 +219,7 @@ export function GoogleReviews({
                   href={writeReviewUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-soft-black text-sm font-medium hover:bg-charcoal transition-all hover:shadow-lg"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-soft-black text-white text-sm font-medium hover:bg-charcoal transition-all hover:shadow-lg"
                 >
                   <svg
                     className="w-4 h-4 text-white"

@@ -25,16 +25,16 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="py-12 lg:py-16">
+    <div className="py-14 sm:py-16 lg:py-24 bg-cream">
       <Container>
-        <div className="max-w-3xl mx-auto text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#094543]/10 mb-6">
-            <FileText className="h-8 w-8 text-[#094543]" />
+        <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-6">
+            <FileText className="h-8 w-8 text-primary" strokeWidth={1.5} />
           </div>
-          <h1 className="text-4xl font-bold text-[#2C3E48] mb-4">
+          <h1 className="text-4xl sm:text-5xl font-display font-bold text-soft-black mb-5 tracking-tight">
             Algemene voorwaarden
           </h1>
-          <p className="text-gray-600">
+          <p className="text-slate text-base sm:text-lg leading-relaxed">
             Deze voorwaarden zijn van toepassing op alle diensten en
             overeenkomsten van TelFixer.
           </p>
@@ -42,12 +42,12 @@ export default function TermsPage() {
 
         <div className="max-w-4xl mx-auto space-y-8">
           {/* 1. Algemeen */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <FileText className="h-6 w-6 text-[#094543]" />
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4 flex items-center gap-3">
+              <FileText className="h-6 w-6 text-primary" />
               1. Algemeen
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
                 1.1 Deze algemene voorwaarden zijn van toepassing op alle
                 diensten en overeenkomsten van TelFixer.
@@ -60,12 +60,12 @@ export default function TermsPage() {
           </section>
 
           {/* 2. Diensten */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <ShoppingBag className="h-6 w-6 text-[#094543]" />
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4 flex items-center gap-3">
+              <ShoppingBag className="h-6 w-6 text-primary" />
               2. Diensten
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
                 2.1 TelFixer biedt reparaties, inkoop en verkoop van
                 elektronische apparaten, waaronder smartphones en tablets.
@@ -78,11 +78,11 @@ export default function TermsPage() {
           </section>
 
           {/* 3. Offertes en prijzen */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4">
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4">
               3. Offertes en prijzen
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>3.1 Alle prijsopgaven zijn vrijblijvend en indicatief.</li>
               <li>
                 3.2 De uiteindelijke prijs kan afwijken indien tijdens de
@@ -93,12 +93,12 @@ export default function TermsPage() {
           </section>
 
           {/* 4. Reparaties */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <Wrench className="h-6 w-6 text-[#094543]" />
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4 flex items-center gap-3">
+              <Wrench className="h-6 w-6 text-primary" />
               4. Reparaties
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
                 4.1 De klant gaat akkoord met het openen van het apparaat voor
                 diagnose en reparatie.
@@ -116,12 +116,12 @@ export default function TermsPage() {
           </section>
 
           {/* 5. Garantie op reparaties */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <Shield className="h-6 w-6 text-[#094543]" />
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4 flex items-center gap-3">
+              <Shield className="h-6 w-6 text-primary" />
               5. Garantie op reparaties
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>5.1 Op uitgevoerde reparaties geldt 3 maanden garantie.</li>
               <li>
                 5.2 Garantie dekt defecten die direct verband houden met de
@@ -129,7 +129,7 @@ export default function TermsPage() {
               </li>
               <li>
                 5.3 Garantie vervalt bij:
-                <ul className="list-disc pl-6 mt-2 space-y-1 text-gray-700">
+                <ul className="list-disc pl-6 mt-2 space-y-1 text-slate">
                   <li>Val-, stoot- of waterschade</li>
                   <li>Onjuist gebruik</li>
                   <li>Reparaties door derden</li>
@@ -142,12 +142,12 @@ export default function TermsPage() {
           </section>
 
           {/* 6. Verkoop van toestellen */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <ShoppingBag className="h-6 w-6 text-[#094543]" />
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4 flex items-center gap-3">
+              <ShoppingBag className="h-6 w-6 text-primary" />
               6. Verkoop van toestellen
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
                 6.1 Op door TelFixer verkochte toestellen geldt 6 maanden
                 garantie, tenzij anders vermeld.
@@ -158,7 +158,7 @@ export default function TermsPage() {
               </li>
               <li>
                 6.3 Garantie op toestellen dekt niet:
-                <ul className="list-disc pl-6 mt-2 space-y-1 text-gray-700">
+                <ul className="list-disc pl-6 mt-2 space-y-1 text-slate">
                   <li>Val-, stoot- of waterschade</li>
                   <li>Slijtage van batterij (normaal gebruik)</li>
                   <li>Schade door verkeerd gebruik of software-installaties</li>
@@ -172,12 +172,12 @@ export default function TermsPage() {
           </section>
 
           {/* 7. Onderdelen */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <Package className="h-6 w-6 text-[#094543]" />
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4 flex items-center gap-3">
+              <Package className="h-6 w-6 text-primary" />
               7. Onderdelen
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
                 7.1 TelFixer maakt gebruik van originele, refurbished of
                 compatibele onderdelen.
@@ -190,12 +190,12 @@ export default function TermsPage() {
           </section>
 
           {/* 8. Ophaal- en brengservice */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <Truck className="h-6 w-6 text-[#094543]" />
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4 flex items-center gap-3">
+              <Truck className="h-6 w-6 text-primary" />
               8. Ophaal- en brengservice
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
                 8.1 TelFixer biedt een ophaal- en brengservice binnen Ede en
                 een straal van 15 km.
@@ -221,15 +221,15 @@ export default function TermsPage() {
           </section>
 
           {/* 9. Aansprakelijkheid */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <AlertCircle className="h-6 w-6 text-[#094543]" />
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4 flex items-center gap-3">
+              <AlertCircle className="h-6 w-6 text-primary" />
               9. Aansprakelijkheid
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
                 9.1 TelFixer is niet aansprakelijk voor:
-                <ul className="list-disc pl-6 mt-2 space-y-1 text-gray-700">
+                <ul className="list-disc pl-6 mt-2 space-y-1 text-slate">
                   <li>Verlies van data</li>
                   <li>Indirecte schade of gevolgschade</li>
                 </ul>
@@ -242,12 +242,12 @@ export default function TermsPage() {
           </section>
 
           {/* 10. Betaling */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <CreditCard className="h-6 w-6 text-[#094543]" />
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4 flex items-center gap-3">
+              <CreditCard className="h-6 w-6 text-primary" />
               10. Betaling
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
                 10.1 Betaling dient te geschieden bij oplevering van de
                 reparatie of levering van het toestel, tenzij anders
@@ -262,12 +262,12 @@ export default function TermsPage() {
           </section>
 
           {/* 11. Inkoop van toestellen */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <RefreshCw className="h-6 w-6 text-[#094543]" />
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4 flex items-center gap-3">
+              <RefreshCw className="h-6 w-6 text-primary" />
               11. Inkoop van toestellen
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
                 11.1 De klant dient eigenaar te zijn van het aangeboden
                 apparaat.
@@ -281,12 +281,12 @@ export default function TermsPage() {
           </section>
 
           {/* 12. Annulering */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <Ban className="h-6 w-6 text-[#094543]" />
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4 flex items-center gap-3">
+              <Ban className="h-6 w-6 text-primary" />
               12. Annulering
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
                 12.1 Annulering van een reparatie is mogelijk zolang de
                 reparatie nog niet is gestart.
@@ -299,12 +299,12 @@ export default function TermsPage() {
           </section>
 
           {/* 13. Privacy */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <Lock className="h-6 w-6 text-[#094543]" />
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4 flex items-center gap-3">
+              <Lock className="h-6 w-6 text-primary" />
               13. Privacy
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
                 13.1 TelFixer gaat zorgvuldig om met persoonsgegevens en
                 gebruikt deze uitsluitend voor dienstverlening.
@@ -317,7 +317,7 @@ export default function TermsPage() {
                 Zie onze volledige{' '}
                 <Link
                   href="/privacy"
-                  className="text-[#094543] font-medium hover:underline"
+                  className="text-primary font-medium hover:underline"
                 >
                   privacyverklaring
                 </Link>{' '}
@@ -327,12 +327,12 @@ export default function TermsPage() {
           </section>
 
           {/* 14. Overmacht */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <Cloud className="h-6 w-6 text-[#094543]" />
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4 flex items-center gap-3">
+              <Cloud className="h-6 w-6 text-primary" />
               14. Overmacht
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
                 14.1 TelFixer is niet aansprakelijk voor vertragingen of schade
                 als gevolg van overmacht.
@@ -341,36 +341,44 @@ export default function TermsPage() {
           </section>
 
           {/* 15. Toepasselijk recht */}
-          <section className="bg-white rounded-xl border border-gray-200 p-6 lg:p-8">
-            <h2 className="text-2xl font-bold text-[#2C3E48] mb-4 flex items-center gap-3">
-              <Scale className="h-6 w-6 text-[#094543]" />
+          <section className="bg-white rounded-3xl border border-sand p-5 sm:p-8">
+            <h2 className="text-2xl font-display font-bold text-soft-black mb-4 flex items-center gap-3">
+              <Scale className="h-6 w-6 text-primary" />
               15. Toepasselijk recht
             </h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
                 15.1 Op alle overeenkomsten is Nederlands recht van toepassing.
               </li>
             </ul>
           </section>
 
-          <div className="bg-gradient-to-br from-[#094543] to-[#0D9488] text-white rounded-xl p-8 text-center">
-            <h2 className="text-xl font-bold mb-2">Vragen over de voorwaarden?</h2>
-            <p className="text-white/90 mb-4">
-              Neem gerust contact met ons op. We helpen je graag verder.
-            </p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-[#094543] font-medium hover:bg-gray-100 transition-colors"
-              >
-                Contact opnemen
-              </Link>
-              <Link
-                href="/privacy"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white font-medium hover:bg-white/20 transition-colors"
-              >
-                Privacyverklaring
-              </Link>
+          <div className="relative overflow-hidden bg-soft-black text-white rounded-3xl p-8 sm:p-12 text-center">
+            <div className="absolute inset-0" aria-hidden="true">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary-dark via-[#04201f] to-[#0c0c0c]" />
+              <div className="absolute -top-24 right-1/4 w-[320px] h-[320px] rounded-full bg-primary/20 blur-3xl" />
+            </div>
+            <div className="relative">
+              <h2 className="text-2xl font-display font-bold mb-3">
+                Vragen over de voorwaarden?
+              </h2>
+              <p className="text-on-dark-muted mb-8">
+                Neem gerust contact met ons op. We helpen je graag verder.
+              </p>
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 justify-center">
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-soft-black font-semibold hover:bg-cream transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.98]"
+                >
+                  Contact opnemen
+                </Link>
+                <Link
+                  href="/privacy"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl border border-white/25 text-white font-semibold hover:bg-white/10 transition-all duration-300 active:scale-[0.98]"
+                >
+                  Privacyverklaring
+                </Link>
+              </div>
             </div>
           </div>
         </div>

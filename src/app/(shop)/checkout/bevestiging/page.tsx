@@ -89,10 +89,10 @@ function BevestigingInner() {
 
   const iconBg =
     status === 'failed'
-      ? 'bg-red-100 text-red-600'
+      ? 'bg-[#DC2626]/10 text-[#DC2626]'
       : status === 'paid'
-      ? 'bg-[#0D9488]/10 text-[#0D9488]'
-      : 'bg-amber-100 text-amber-700';
+      ? 'bg-primary/10 text-primary'
+      : 'bg-copper/10 text-copper';
 
   const title =
     status === 'paid'
@@ -307,7 +307,7 @@ export default function OrderConfirmationPage() {
     <Suspense
       fallback={
         <div className="min-h-[40vh] flex items-center justify-center">
-          <div className="w-10 h-10 rounded-full border-4 border-[#094543] border-t-transparent animate-spin" />
+          <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin" />
         </div>
       }
     >

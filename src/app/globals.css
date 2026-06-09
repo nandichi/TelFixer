@@ -19,12 +19,22 @@
   --color-soft-black: #1A1A1A;
   --color-charcoal: #2C2C2C;
   --color-slate: #4A4A4A;
-  --color-muted: #8A8A8A;
+  /* WCAG AA op cream/champagne (min. 4.5:1 voor normale tekst) */
+  --color-muted: #6B6B6B;
   
   /* Accent Colors */
   --color-copper: #B87333;
+  /* Leesbare koper op lichte achtergronden (min. 4.5:1 op cream) */
+  --color-copper-text: #865028;
   --color-copper-light: #D4915A;
   --color-gold: #C9A96E;
+  /* Leesbare goud op lichte achtergronden */
+  --color-gold-text: #8A6B2E;
+  /* Accent op donkere achtergronden (min. 3:1 voor grote koppen) */
+  --color-accent-on-dark: #E8B88A;
+  /* Secundaire tekst op donkere achtergronden (min. 4.5:1 op primary-dark) */
+  --color-on-dark-muted: rgba(255, 255, 255, 0.88);
+  --color-on-dark-subtle: rgba(255, 255, 255, 0.78);
   
   /* Semantic Colors */
   --color-success: #0D9488;
@@ -94,8 +104,13 @@
   --color-slate: var(--color-slate);
   --color-muted: var(--color-muted);
   --color-copper: var(--color-copper);
+  --color-copper-text: var(--color-copper-text);
   --color-copper-light: var(--color-copper-light);
   --color-gold: var(--color-gold);
+  --color-gold-text: var(--color-gold-text);
+  --color-accent-on-dark: var(--color-accent-on-dark);
+  --color-on-dark-muted: var(--color-on-dark-muted);
+  --color-on-dark-subtle: var(--color-on-dark-subtle);
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
   --font-mono: var(--font-mono);
@@ -111,6 +126,11 @@
 
 html {
   scroll-behavior: smooth;
+  /* Non-static positie zodat framer-motion useScroll offsets correct meet */
+  position: relative;
+  /* Entrance-animaties schuiven elementen horizontaal in beeld; clip voorkomt
+     dat dit een zijwaartse scroll oplevert (geen scrollcontainer, sticky blijft werken) */
+  overflow-x: clip;
 }
 
 body {
@@ -131,10 +151,10 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.2;
-  /* Lange (samengestelde) woorden netjes laten afbreken i.p.v. de viewport
-     laten overschrijden op smalle schermen. hyphens werkt met lang="nl". */
+  /* anywhere verlaagt ook de min-content breedte zodat lange woorden in
+     flex/grid koppen kunnen krimpen; geen hyphens: auto want dat breekt
+     korte woorden te gretig af (bv. "vra-gen"). */
   overflow-wrap: anywhere;
-  hyphens: auto;
 }
 
 h1 {
@@ -211,14 +231,25 @@ h4 {
    LINKS - Subtle & Refined
    ============================================ */
 
-a {
-  color: var(--color-primary);
-  text-decoration: none;
-  transition: color var(--transition-fast);
-}
+/* In @layer base zodat Tailwind text-utilities (bv. text-white) voorrang krijgen */
+@layer base {
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
 
-a:hover {
-  color: var(--color-primary-light);
+  a:hover {
+    color: var(--color-primary-light);
+  }
+
+  /* Behoud expliciete tekstkleur op links (donkere knoppen, footers) */
+  a.text-white,
+  a.text-white:hover,
+  a.text-on-dark-muted,
+  a.text-on-dark-muted:hover {
+    color: inherit;
+  }
 }
 
 /* ============================================
@@ -357,6 +388,15 @@ button {
   }
 }
 
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 /* Animation Utility Classes */
 .animate-fade-in {
   animation: fadeIn 500ms ease-out forwards;
@@ -396,6 +436,16 @@ button {
 
 .animate-pulse-slow {
   animation: pulse-slow 4s ease-in-out infinite;
+}
+
+.animate-marquee {
+  animation: marquee 36s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
 }
 
 .animate-shimmer {
@@ -467,10 +517,37 @@ button {
 }
 
 .text-gradient-copper {
-  background: linear-gradient(135deg, var(--color-copper) 0%, var(--color-gold) 100%);
+  /* Vaste fallback voor leesbaarheid; gradient waar ondersteund */
+  color: var(--color-accent-on-dark);
+  background: linear-gradient(135deg, var(--color-copper-light) 0%, var(--color-accent-on-dark) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Sectielabels boven koppen (WCAG AA op lichte achtergrond) */
+.text-eyebrow {
+  color: var(--color-copper-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Secundaire tekst op donkere secties */
+.text-on-dark-muted {
+  color: var(--color-on-dark-muted);
+}
+
+.text-on-dark-subtle {
+  color: var(--color-on-dark-subtle);
+}
+
+/* Hero-koppen: bewuste regelafbreking, geen woord-splitsing */
+.heading-balance {
+  overflow-wrap: normal;
+  word-break: normal;
+  text-wrap: balance;
 }
 
 /* Hover Effects */
@@ -766,4 +843,80 @@ button {
 .accent-line-center::after {
   left: 50%;
   transform: translateX(-50%);
+}
+
+/* ============================================
+   REPENDER WIDGET - TelFixer theming
+   ============================================ */
+
+#repender-inline,
+#repender-repair-order-status {
+  font-family: var(--font-sans);
+  color: var(--color-soft-black);
+}
+
+#repender-inline [class*="inlineHeaderTitle"],
+#repender-repair-order-status [class*="inlineHeaderTitle"] {
+  font-family: var(--font-display) !important;
+  font-size: clamp(1.375rem, 4vw, 1.625rem) !important;
+  font-weight: 600 !important;
+  color: var(--color-soft-black) !important;
+  letter-spacing: -0.02em;
+}
+
+#repender-inline [class*="input"],
+#repender-repair-order-status [class*="input"] {
+  border: 1px solid var(--color-sand) !important;
+  border-radius: var(--radius-md) !important;
+  background: white !important;
+  color: var(--color-soft-black) !important;
+  font-size: 1rem !important;
+  padding: 0.75rem 1rem !important;
+}
+
+#repender-inline [class*="input"]::placeholder,
+#repender-repair-order-status [class*="input"]::placeholder {
+  color: var(--color-muted) !important;
+  opacity: 1;
+}
+
+#repender-inline [class*="option"],
+#repender-repair-order-status [class*="option"] {
+  border: 1px solid var(--color-sand) !important;
+  border-radius: var(--radius-lg) !important;
+  background: var(--color-cream) !important;
+  color: var(--color-soft-black) !important;
+  transition: border-color var(--transition-base), background var(--transition-base), box-shadow var(--transition-base) !important;
+}
+
+#repender-inline [class*="option"]:hover,
+#repender-repair-order-status [class*="option"]:hover {
+  border-color: var(--color-primary) !important;
+  background: white !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+#repender-inline [class*="deviceImage"] svg,
+#repender-inline [class*="option"] svg,
+#repender-repair-order-status [class*="deviceImage"] svg,
+#repender-repair-order-status [class*="option"] svg {
+  color: var(--color-primary) !important;
+  stroke: var(--color-primary) !important;
+}
+
+#repender-inline [class*="deviceName"],
+#repender-repair-order-status [class*="deviceName"] {
+  color: var(--color-soft-black) !important;
+  font-weight: 500 !important;
+  font-size: 0.875rem !important;
+}
+
+#repender-inline [class*="options"],
+#repender-repair-order-status [class*="options"] {
+  gap: 0.75rem !important;
+}
+
+#repender-inline [class*="container"],
+#repender-repair-order-status [class*="container"] {
+  padding: 0 !important;
 }

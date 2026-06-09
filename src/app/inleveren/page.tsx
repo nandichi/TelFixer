@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -136,29 +137,6 @@ const checkmarkVariants = {
     scale: 1,
     opacity: 1,
     transition: { type: "spring" as const, stiffness: 500, damping: 30 },
-  },
-};
-
-const floatVariants = {
-  animate: {
-    y: [-8, 8, -8],
-    transition: {
-      duration: 4,
-      repeat: Infinity,
-      ease: "easeInOut" as const,
-    },
-  },
-};
-
-const pulseVariants = {
-  animate: {
-    scale: [1, 1.05, 1],
-    opacity: [0.5, 0.8, 0.5],
-    transition: {
-      duration: 3,
-      repeat: Infinity,
-      ease: "easeInOut" as const,
-    },
   },
 };
 
@@ -367,118 +345,119 @@ export default function SubmitDevicePage() {
 
   return (
     <div className="min-h-screen bg-cream">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-cream py-16 lg:py-24">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <motion.div
-            variants={pulseVariants}
-            animate="animate"
-            className="absolute top-0 right-0 w-[600px] h-[600px] bg-copper/5 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3"
-          />
-          <motion.div
-            variants={pulseVariants}
-            animate="animate"
-            style={{ animationDelay: "1.5s" }}
-            className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3"
-          />
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-soft-black">
+        <div className="absolute inset-0" aria-hidden="true">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0c0c0c] via-[#04201f] to-primary-dark" />
+          <div className="absolute -top-40 -left-40 w-[560px] h-[560px] rounded-full bg-copper/15 blur-3xl" />
+          <div className="absolute -bottom-48 -right-32 w-[460px] h-[460px] rounded-full bg-primary/20 blur-3xl" />
+          <div className="absolute inset-0 opacity-[0.15] [background-image:radial-gradient(rgba(255,255,255,0.22)_1px,transparent_1px)] [background-size:32px_32px] [mask-image:radial-gradient(ellipse_at_top_left,black_10%,transparent_65%)]" />
         </div>
 
         <Container>
-          <motion.div 
-            initial="initial"
-            animate="animate"
-            variants={pageVariants}
-            className="relative z-10 text-center max-w-4xl mx-auto"
-          >
-            {/* Badge */}
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-copper/5 border border-copper/10 mb-8"
-            >
-              <Package className="w-4 h-4 text-copper" />
-              <span className="text-sm font-medium text-copper">Apparaat Inleveren Service</span>
-            </motion.div>
-
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold text-soft-black mb-6 leading-[1.1]"
-            >
-              Lever je apparaat
-              <br />
-              <span className="text-gradient-primary">eenvoudig in</span>
-            </motion.h1>
-
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-lg lg:text-xl text-slate max-w-2xl mx-auto mb-10"
-            >
-              Lever je oude apparaat in en ontvang een eerlijk bod. 
-              Wij zorgen voor duurzame verwerking en je ontvangt snel uitbetaling.
-            </motion.p>
-
-            {/* Trust Indicators */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="flex flex-wrap justify-center gap-4 sm:gap-6"
-            >
-              {[
-                { icon: Shield, text: "Eerlijk bod" },
-                { icon: Clock, text: "Snelle verwerking" },
-                { icon: Leaf, text: "Duurzaam" },
-              ].map((item, index) => (
-                <motion.div
-                  key={item.text}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.6 + index * 0.1 }}
-                  className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white border border-sand shadow-sm"
-                >
-                  <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-copper/5">
-                    <item.icon className="w-4 h-4 text-copper" />
-                  </span>
-                  <span className="text-sm font-medium text-soft-black">{item.text}</span>
-                </motion.div>
-              ))}
-            </motion.div>
-          </motion.div>
-
-          {/* Floating Device Illustrations */}
-          <div className="hidden lg:block absolute top-1/2 left-8 -translate-y-1/2">
+          <div className="relative grid lg:grid-cols-2 gap-10 lg:gap-14 items-center py-14 sm:py-20 lg:py-24">
+            {/* Tekst */}
             <motion.div
-              variants={floatVariants}
+              initial="initial"
               animate="animate"
-              className="w-20 h-20 rounded-2xl bg-white border border-sand shadow-lg flex items-center justify-center"
+              variants={pageVariants}
             >
-              <Smartphone className="w-10 h-10 text-copper" />
+              <motion.span
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.07] border border-white/15 backdrop-blur-sm mb-6"
+              >
+                <Package className="w-4 h-4 text-copper-light" strokeWidth={1.75} />
+                <span className="text-sm font-medium text-on-dark-muted">
+                  Apparaat inleveren
+                </span>
+              </motion.span>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-white leading-[1.08] tracking-tight mb-6 heading-balance"
+              >
+                Oud toestel?
+                <br />
+                Wij geven het een{" "}
+                <span className="whitespace-nowrap text-accent-on-dark">tweede leven</span>.
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+                className="text-lg lg:text-xl text-on-dark-muted max-w-md leading-relaxed mb-8"
+              >
+                Lever je oude apparaat in en ontvang een eerlijk bod. Wij
+                zorgen voor duurzame verwerking en snelle uitbetaling.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45 }}
+                className="flex flex-wrap gap-3"
+              >
+                {[
+                  { icon: Shield, text: "Eerlijk bod" },
+                  { icon: Clock, text: "Snelle uitbetaling" },
+                  { icon: Leaf, text: "Duurzaam" },
+                ].map((item) => (
+                  <div
+                    key={item.text}
+                    className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/[0.07] border border-white/15 backdrop-blur-sm"
+                  >
+                    <item.icon className="w-4 h-4 text-copper-light shrink-0" strokeWidth={1.75} />
+                    <span className="text-sm font-medium text-on-dark-muted">
+                      {item.text}
+                    </span>
+                  </div>
+                ))}
+              </motion.div>
             </motion.div>
-          </div>
-          <div className="hidden lg:block absolute top-1/3 right-12">
+
+            {/* Beeld */}
             <motion.div
-              variants={floatVariants}
-              animate="animate"
-              style={{ animationDelay: "1s" }}
-              className="w-16 h-16 rounded-2xl bg-white border border-sand shadow-lg flex items-center justify-center"
+              initial={{ opacity: 0, y: 32, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.9, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="relative hidden sm:block"
             >
-              <Laptop className="w-8 h-8 text-primary" />
-            </motion.div>
-          </div>
-          <div className="hidden lg:block absolute bottom-1/4 right-24">
-            <motion.div
-              variants={floatVariants}
-              animate="animate"
-              style={{ animationDelay: "2s" }}
-              className="w-14 h-14 rounded-xl bg-white border border-sand shadow-lg flex items-center justify-center"
-            >
-              <Tablet className="w-7 h-7 text-[#0D9488]" />
+              <div className="relative aspect-[4/3] rounded-3xl lg:rounded-[2.5rem] overflow-hidden ring-1 ring-white/15 shadow-2xl">
+                <Image
+                  src="/images/home/inleveren.jpg"
+                  alt="Samsung Galaxy toestel klaar om ingeleverd te worden"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover"
+                />
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-soft-black/50 via-transparent to-transparent"
+                  aria-hidden="true"
+                />
+
+                {/* Glas-chip */}
+                <div className="absolute bottom-4 left-4 sm:bottom-5 sm:left-5">
+                  <div className="inline-flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/12 backdrop-blur-md border border-white/20 shadow-lg">
+                    <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-white text-copper shrink-0">
+                      <Leaf className="w-5 h-5" strokeWidth={2} />
+                    </span>
+                    <div className="leading-tight">
+                      <p className="text-sm font-semibold text-white">
+                        Gratis waardebepaling
+                      </p>
+                      <p className="text-xs text-on-dark-muted">
+                        Binnen 2 werkdagen een bod
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </div>
         </Container>
@@ -547,7 +526,7 @@ export default function SubmitDevicePage() {
                       <span
                         className={cn(
                           "mt-2 text-xs font-medium transition-colors",
-                          isCurrent ? "text-copper" : isCompleted ? "text-soft-black" : "text-muted"
+                          isCurrent ? "text-copper-text" : isCompleted ? "text-soft-black" : "text-slate"
                         )}
                       >
                         {label}
@@ -901,14 +880,14 @@ export default function SubmitDevicePage() {
                               Ik ga akkoord met de{" "}
                               <a
                                 href="/voorwaarden"
-                                className="text-copper underline underline-offset-2 hover:text-copper/80"
+                                className="text-primary underline underline-offset-2 hover:text-primary-light"
                               >
                                 algemene voorwaarden
                               </a>{" "}
                               en het{" "}
                               <a 
                                 href="/privacy" 
-                                className="text-copper underline underline-offset-2 hover:text-copper/80"
+                                className="text-primary underline underline-offset-2 hover:text-primary-light"
                               >
                                 privacybeleid
                               </a>

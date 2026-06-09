@@ -172,7 +172,7 @@ export default function AccountPage() {
       <Container>
         {/* Header */}
         <div className="mb-10">
-          <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+          <span className="inline-block text-eyebrow mb-4">
             Mijn Account
           </span>
           <h1 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">
@@ -359,7 +359,7 @@ export default function AccountPage() {
         {/* Profile Summary */}
         <div className="mt-6 sm:mt-10 bg-white rounded-2xl sm:rounded-3xl border border-sand p-4 sm:p-8">
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white text-xl sm:text-2xl font-display font-bold flex-shrink-0">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white text-xl sm:text-2xl font-display font-bold shrink-0">
               {profile?.first_name?.[0] || profile?.email?.[0]?.toUpperCase() || 'U'}
             </div>
             <div className="flex-1 text-center sm:text-left">

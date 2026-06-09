@@ -138,10 +138,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const supabase = createClient();
 
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo:
+          typeof window !== "undefined"
+            ? `${window.location.origin}/auth/confirm`
+            : undefined,
         data: {
           first_name: firstName,
           last_name: lastName,
@@ -149,15 +153,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
 
-    if (!error && data.user) {
-      // Create user profile
-      await supabase.from("users").insert({
-        id: data.user.id,
-        email,
-        first_name: firstName,
-        last_name: lastName,
-      });
-    }
+    // Het profiel in public.users wordt server-side aangemaakt door de
+    // database-trigger on_auth_user_created (handle_new_user, SECURITY
+    // DEFINER). Een client-side insert zou dubbel zijn en botst met RLS
+    // (geen INSERT-policy) en de primary key.
 
     return { error: error as Error | null };
   };

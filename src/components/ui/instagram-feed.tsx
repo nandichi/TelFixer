@@ -80,7 +80,7 @@ export function InstagramFeed({
     <section ref={sectionRef} className="py-24 lg:py-32 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+          <span className="inline-block text-eyebrow mb-4">
             Social Media
           </span>
           <h2 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">

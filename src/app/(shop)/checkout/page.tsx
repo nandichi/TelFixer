@@ -221,7 +221,7 @@ export default function CheckoutPage() {
             </svg>
             Terug naar winkelwagen
           </Link>
-          <span className="block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+          <span className="block text-eyebrow mb-4">
             Checkout
           </span>
           <h1 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">

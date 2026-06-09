@@ -56,12 +56,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-200px)] flex items-center py-20 bg-cream">
+    <div className="min-h-[calc(100vh-200px)] flex items-center py-14 sm:py-20 bg-cream">
       <Container>
         <div className="max-w-md mx-auto">
           {/* Header */}
           <div className="text-center mb-10">
-            <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+            <span className="inline-block text-eyebrow mb-4">
               Welkom terug
             </span>
             <h1 className="text-4xl font-display font-bold text-soft-black">Inloggen</h1>
@@ -71,7 +71,7 @@ export default function LoginPage() {
           </div>
 
           {/* Form */}
-          <div className="bg-white rounded-3xl border border-sand p-8" style={{ boxShadow: 'var(--shadow-sm)' }}>
+          <div className="bg-white rounded-3xl border border-sand p-6 sm:p-8" style={{ boxShadow: 'var(--shadow-sm)' }}>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted">

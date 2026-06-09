@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { Mail, Phone, MapPin, ShieldCheck, Truck, RotateCcw, BadgeCheck } from 'lucide-react';
 import { Container } from './container';
 
 const company = {
@@ -21,6 +22,13 @@ const paymentMethods = [
   { src: '/payments/mastercard.svg', label: 'Mastercard', width: 48, height: 32, wide: false },
   { src: '/payments/klarna.svg', label: 'Klarna', width: 24, height: 24, wide: false },
 ] as const;
+
+const footerUsps = [
+  { icon: ShieldCheck, text: '6 maanden garantie' },
+  { icon: Truck, text: 'Gratis verzending vanaf 50 euro' },
+  { icon: RotateCcw, text: '14 dagen bedenktijd' },
+  { icon: BadgeCheck, text: 'Getest en gereinigd' },
+];
 
 const footerLinks = {
   shop: [
@@ -52,9 +60,27 @@ export function Footer() {
     <footer className="bg-champagne relative overflow-hidden">
       <div className="h-1 bg-gradient-to-r from-primary via-copper to-gold" />
 
+      {/* USP-balk */}
+      <div className="border-b border-sand">
+        <Container>
+          <ul className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-3 py-5 sm:py-6">
+            {footerUsps.map((usp) => (
+              <li key={usp.text} className="flex items-center gap-2.5 sm:gap-3">
+                <span className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white text-primary shrink-0 border border-sand">
+                  <usp.icon className="w-4 h-4 sm:w-4.5 sm:h-4.5" strokeWidth={1.75} />
+                </span>
+                <span className="text-xs sm:text-sm font-medium text-soft-black leading-snug">
+                  {usp.text}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Container>
+      </div>
+
       <Container>
-        <div className="relative py-10 sm:py-16 lg:py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-8">
+        <div className="relative py-10 sm:py-14 lg:py-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
             <div className="lg:col-span-5">
               <Link href="/" className="inline-flex group" aria-label="TelFixer home">
                 <span className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white border border-sand shadow-sm overflow-hidden transition-transform duration-300 group-hover:scale-105">
@@ -76,50 +102,47 @@ export function Footer() {
               <div className="mt-6 sm:mt-8 space-y-3 sm:space-y-4">
                 <a
                   href="mailto:info@telfixer.nl"
-                  className="flex items-center gap-4 text-soft-black hover:text-primary transition-colors duration-200 group"
+                  className="flex items-center gap-3 sm:gap-4 text-sm sm:text-base text-soft-black hover:text-primary transition-colors duration-200 group"
                 >
-                  <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                    <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
+                  <span className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors shrink-0">
+                    <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-primary" strokeWidth={1.75} />
                   </span>
-                  <span>info@telfixer.nl</span>
+                  <span className="break-all">info@telfixer.nl</span>
                 </a>
                 <a
                   href="tel:+31644642162"
-                  className="flex items-center gap-4 text-soft-black hover:text-primary transition-colors duration-200 group"
+                  className="flex items-center gap-3 sm:gap-4 text-sm sm:text-base text-soft-black hover:text-primary transition-colors duration-200 group"
                 >
-                  <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                    <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
+                  <span className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors shrink-0">
+                    <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-primary" strokeWidth={1.75} />
                   </span>
                   <span>+31 6 44642162</span>
                 </a>
-                <div className="flex items-start gap-4 text-soft-black">
-                  <span className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 shrink-0">
-                    <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                <div className="flex items-start gap-3 sm:gap-4 text-sm sm:text-base text-soft-black">
+                  <span className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary/10 shrink-0">
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-primary" strokeWidth={1.75} />
                   </span>
-                  <span>Houtrakbos 34<br />6718HD, Ede</span>
+                  <span className="leading-relaxed">
+                    Houtrakbos 34
+                    <br />
+                    6718HD, Ede
+                  </span>
                 </div>
               </div>
             </div>
 
             <div className="lg:col-span-7">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 sm:gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-10 sm:gap-8">
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-6">
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-4 sm:mb-6">
                     Shop
                   </h3>
-                  <ul className="space-y-3">
+                  <ul className="space-y-2.5 sm:space-y-3">
                     {footerLinks.shop.map((link) => (
                       <li key={link.name}>
                         <Link
                           href={link.href}
-                          className="text-slate hover:text-primary transition-colors duration-200"
+                          className="inline-block text-sm sm:text-base text-slate hover:text-primary hover:translate-x-0.5 transition-all duration-200"
                         >
                           {link.name}
                         </Link>
@@ -129,15 +152,15 @@ export function Footer() {
                 </div>
 
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-6">
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-4 sm:mb-6">
                     Services
                   </h3>
-                  <ul className="space-y-3">
+                  <ul className="space-y-2.5 sm:space-y-3">
                     {footerLinks.services.map((link) => (
                       <li key={link.name}>
                         <Link
                           href={link.href}
-                          className="text-slate hover:text-primary transition-colors duration-200"
+                          className="inline-block text-sm sm:text-base text-slate hover:text-primary hover:translate-x-0.5 transition-all duration-200"
                         >
                           {link.name}
                         </Link>
@@ -147,15 +170,15 @@ export function Footer() {
                 </div>
 
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-6">
+                  <h3 className="text-xs font-semibold uppercase tracking-widest text-primary mb-4 sm:mb-6">
                     Bedrijf
                   </h3>
-                  <ul className="space-y-3">
+                  <ul className="space-y-2.5 sm:space-y-3">
                     {footerLinks.company.map((link) => (
                       <li key={link.name}>
                         <Link
                           href={link.href}
-                          className="text-slate hover:text-primary transition-colors duration-200"
+                          className="inline-block text-sm sm:text-base text-slate hover:text-primary hover:translate-x-0.5 transition-all duration-200"
                         >
                           {link.name}
                         </Link>
@@ -168,19 +191,19 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="relative py-4 sm:py-6 border-t border-sand">
+        <div className="relative py-5 sm:py-6 border-t border-sand">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="flex flex-col gap-2 text-center md:text-left">
-              <p className="text-xs sm:text-sm text-muted">
+            <div className="flex flex-col gap-2 text-center lg:text-left">
+              <p className="text-xs sm:text-sm text-slate">
                 © {currentYear} TelFixer. Alle rechten voorbehouden.
               </p>
-              <p className="text-xs text-muted leading-relaxed">
+              <p className="text-xs text-slate leading-relaxed">
                 <span className="text-soft-black">KVK: </span>
                 <a
                   href={company.kvkSearchUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-medium text-gold underline decoration-gold/80 underline-offset-2 hover:text-primary hover:decoration-primary"
+                  className="font-medium text-primary underline decoration-primary/40 underline-offset-2 hover:text-primary-light hover:decoration-primary"
                 >
                   {company.kvk}
                 </a>
@@ -188,16 +211,16 @@ export function Footer() {
                   |
                 </span>
                 <span className="text-soft-black">BTW: </span>
-                <span className="tabular-nums">{company.btw}</span>
+                <span className="tabular-nums text-slate">{company.btw}</span>
               </p>
             </div>
 
-            <div className="flex flex-col items-center gap-3 sm:items-end">
-              <span className="text-xs font-medium uppercase tracking-wide text-muted">
+            <div className="flex flex-col items-center gap-3 lg:items-end">
+              <span className="text-xs font-medium uppercase tracking-wide text-slate">
                 Veilig betalen met
               </span>
               <ul
-                className="flex flex-wrap items-center justify-center gap-2 sm:justify-end sm:gap-3"
+                className="flex flex-wrap items-center justify-center gap-2 lg:justify-end sm:gap-3"
                 aria-label="Geaccepteerde betaalmethodes"
               >
                 {paymentMethods.map((method) => (

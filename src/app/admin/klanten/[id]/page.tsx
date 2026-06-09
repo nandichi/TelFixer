@@ -395,7 +395,7 @@ export default function CustomerDetailPage() {
                 <span
                   className={`admin-num ml-1 ${
                     activeTab === t.id
-                      ? 'text-white/70'
+                      ? 'text-on-dark-muted'
                       : 'text-[var(--a-text-4)]'
                   }`}
                 >

@@ -2,10 +2,12 @@
 
 import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
-import { ChevronDown, ChevronUp, Search, MessageCircle } from 'lucide-react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { ChevronDown, Search, MessageCircle } from 'lucide-react';
 import { Container } from '@/components/layout/container';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Reveal } from '@/components/ui/reveal';
+import { cn } from '@/lib/utils';
 
 interface WarrantyTerms {
   phones: string;
@@ -39,6 +41,8 @@ export function FaqClient({
   batteryMin,
   laptopCycles,
 }: FaqClientProps) {
+  const shouldReduceMotion = useReducedMotion();
+
   const faqCategories: FaqCategory[] = [
     {
       name: 'Refurbished producten',
@@ -58,21 +62,21 @@ export function FaqClient({
         {
           q: 'Wat is het verschil tussen de conditie grades?',
           a: (
-            <ul className="list-disc pl-5 space-y-2 text-gray-600">
+            <ul className="list-disc pl-5 space-y-2">
               <li>
-                <span className="font-medium text-[#2C3E48]">Als nieuw:</span>{' '}
+                <span className="font-medium text-soft-black">Als nieuw:</span>{' '}
                 nauwelijks of geen zichtbare gebruikssporen.
               </li>
               <li>
-                <span className="font-medium text-[#2C3E48]">Zeer goed:</span>{' '}
+                <span className="font-medium text-soft-black">Zeer goed:</span>{' '}
                 minimale gebruikssporen, nauwelijks zichtbaar.
               </li>
               <li>
-                <span className="font-medium text-[#2C3E48]">Goed:</span> lichte
+                <span className="font-medium text-soft-black">Goed:</span> lichte
                 gebruikssporen zichtbaar.
               </li>
               <li>
-                <span className="font-medium text-[#2C3E48]">Sterk gebruikt:</span>{' '}
+                <span className="font-medium text-soft-black">Sterk gebruikt:</span>{' '}
                 duidelijke gebruikssporen, maar volledig functioneel.
               </li>
             </ul>
@@ -83,7 +87,7 @@ export function FaqClient({
         {
           q: 'Hoeveel garantie krijg ik?',
           a: (
-            <ul className="list-disc pl-5 space-y-2 text-gray-600">
+            <ul className="list-disc pl-5 space-y-2">
               <li>Refurbished telefoons: {warrantyTerms.phones} garantie.</li>
               <li>Refurbished laptops: {warrantyTerms.laptops} garantie.</li>
               <li>Refurbished tablets: {warrantyTerms.tablets} garantie.</li>
@@ -119,7 +123,7 @@ export function FaqClient({
         {
           q: 'Welke betaalmethodes accepteren jullie?',
           a: (
-            <ul className="list-disc pl-5 space-y-1 text-gray-600">
+            <ul className="list-disc pl-5 space-y-1">
               <li>iDEAL</li>
               <li>Creditcard (Visa, Mastercard, American Express)</li>
               <li>Klarna (achteraf betalen of gespreid)</li>
@@ -283,90 +287,140 @@ export function FaqClient({
     .filter((category) => category.questions.length > 0);
 
   return (
-    <div className="py-12 lg:py-16">
-      <Container>
-        <div className="max-w-2xl mx-auto text-center mb-12">
-          <h1 className="text-4xl font-bold text-[#2C3E48] mb-4">
-            Veelgestelde Vragen
-          </h1>
-          <p className="text-gray-600 mb-8">
-            Vind antwoorden op de meest gestelde vragen over TelFixer
-          </p>
-
-          <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <Input
-              placeholder="Zoek in veelgestelde vragen..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+    <div className="bg-cream">
+      {/* Hero */}
+      <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24">
+        <div className="absolute inset-0" aria-hidden="true">
+          <div className="absolute -top-32 -right-32 w-[480px] h-[480px] rounded-full bg-primary/5 blur-3xl" />
+          <div className="absolute -bottom-40 -left-32 w-[420px] h-[420px] rounded-full bg-copper/5 blur-3xl" />
         </div>
+        <Container>
+          <Reveal className="relative max-w-2xl mx-auto text-center">
+            <span className="inline-block text-eyebrow mb-4">
+              FAQ
+            </span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-soft-black leading-[1.06] tracking-tight">
+              Veelgestelde{' '}
+              <em className="not-italic text-gradient-primary">vragen</em>
+            </h1>
+            <p className="mt-6 text-lg lg:text-xl text-slate leading-relaxed mb-10">
+              Vind antwoorden op de meest gestelde vragen over TelFixer
+            </p>
 
-        <div className="max-w-3xl mx-auto space-y-8">
-          {filteredCategories.map((category) => (
-            <div key={category.name}>
-              <h2 className="text-xl font-semibold text-[#2C3E48] mb-4">
-                {category.name}
-              </h2>
-              <div className="space-y-3">
-                {category.questions.map((item, index) => {
-                  const questionId = `${category.name}-${index}`;
-                  const isOpen = openQuestions.has(questionId);
+            {/* Zoekveld */}
+            <div className="relative max-w-md mx-auto">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted pointer-events-none" strokeWidth={1.75} />
+              <input
+                type="text"
+                placeholder="Zoek in veelgestelde vragen..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-13 pl-12 pr-4 rounded-2xl bg-white border border-sand text-soft-black placeholder:text-muted outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
+              />
+            </div>
+          </Reveal>
+        </Container>
+      </section>
 
-                  return (
-                    <div
-                      key={index}
-                      className="bg-white rounded-xl border border-gray-200 overflow-hidden"
-                    >
-                      <button
-                        onClick={() => toggleQuestion(questionId)}
-                        className="w-full flex items-center justify-between p-4 text-left"
-                      >
-                        <span className="font-medium text-[#2C3E48] pr-4">
-                          {item.q}
-                        </span>
-                        {isOpen ? (
-                          <ChevronUp className="h-5 w-5 text-gray-400 shrink-0" />
-                        ) : (
-                          <ChevronDown className="h-5 w-5 text-gray-400 shrink-0" />
+      {/* Vragen */}
+      <section className="pb-16 sm:pb-20 lg:pb-24">
+        <Container>
+          <div className="max-w-3xl mx-auto space-y-10 sm:space-y-12">
+            {filteredCategories.map((category) => (
+              <Reveal key={category.name}>
+                <h2 className="text-xl sm:text-2xl font-display font-bold text-soft-black mb-4 sm:mb-5">
+                  {category.name}
+                </h2>
+                <div className="space-y-3">
+                  {category.questions.map((item, index) => {
+                    const questionId = `${category.name}-${index}`;
+                    const isOpen = openQuestions.has(questionId);
+
+                    return (
+                      <div
+                        key={index}
+                        className={cn(
+                          'bg-white rounded-2xl border overflow-hidden transition-colors duration-200',
+                          isOpen ? 'border-primary/30' : 'border-sand'
                         )}
-                      </button>
-                      {isOpen && (
-                        <div className="px-4 pb-4 text-gray-600">
-                          {item.a}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                      >
+                        <button
+                          onClick={() => toggleQuestion(questionId)}
+                          className="w-full flex items-center justify-between gap-4 p-4 sm:p-5 text-left"
+                          aria-expanded={isOpen}
+                        >
+                          <span className="font-medium text-soft-black">
+                            {item.q}
+                          </span>
+                          <span
+                            className={cn(
+                              'flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition-all duration-300',
+                              isOpen
+                                ? 'bg-primary text-white rotate-180'
+                                : 'bg-cream text-muted'
+                            )}
+                          >
+                            <ChevronDown className="h-4.5 w-4.5" strokeWidth={2} />
+                          </span>
+                        </button>
+                        <AnimatePresence initial={false}>
+                          {isOpen && (
+                            <motion.div
+                              initial={shouldReduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                              animate={shouldReduceMotion ? { opacity: 1 } : { height: 'auto', opacity: 1 }}
+                              exit={shouldReduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                              className="overflow-hidden"
+                            >
+                              <div className="px-4 sm:px-5 pb-5 text-slate leading-relaxed">
+                                {item.a}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Reveal>
+            ))}
+
+            {filteredCategories.length === 0 && (
+              <div className="text-center py-16 bg-white rounded-3xl border border-sand">
+                <p className="text-muted">
+                  Geen vragen gevonden voor &ldquo;{searchQuery}&rdquo;
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Contact CTA */}
+          <Reveal className="max-w-3xl mx-auto mt-12 sm:mt-16">
+            <div className="relative overflow-hidden rounded-3xl bg-soft-black p-8 sm:p-12 text-center">
+              <div className="absolute inset-0" aria-hidden="true">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-dark via-[#04201f] to-[#0c0c0c]" />
+                <div className="absolute -top-24 right-1/4 w-[320px] h-[320px] rounded-full bg-primary/20 blur-3xl" />
+              </div>
+              <div className="relative">
+                <span className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 border border-white/15 mb-5">
+                  <MessageCircle className="h-7 w-7 text-copper-light" strokeWidth={1.5} />
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-display font-bold text-white mb-2">
+                  Vraag niet gevonden?
+                </h2>
+                <p className="text-on-dark-muted mb-8">
+                  Neem gerust contact met ons op. We helpen je graag verder.
+                </p>
+                <Link href="/contact">
+                  <Button size="lg" variant="secondary">
+                    Contact opnemen
+                  </Button>
+                </Link>
               </div>
             </div>
-          ))}
-
-          {filteredCategories.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500">
-                Geen vragen gevonden voor &ldquo;{searchQuery}&rdquo;
-              </p>
-            </div>
-          )}
-        </div>
-
-        <div className="max-w-2xl mx-auto mt-16 text-center bg-gray-50 rounded-2xl p-8">
-          <MessageCircle className="h-12 w-12 text-[#094543] mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-[#2C3E48] mb-2">
-            Vraag niet gevonden?
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Neem gerust contact met ons op. We helpen je graag verder.
-          </p>
-          <Link href="/contact">
-            <Button>Contact opnemen</Button>
-          </Link>
-        </div>
-      </Container>
+          </Reveal>
+        </Container>
+      </section>
     </div>
   );
 }

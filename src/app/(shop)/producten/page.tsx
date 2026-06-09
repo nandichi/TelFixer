@@ -76,7 +76,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
       <Container>
         {/* Header */}
         <div className="mb-12">
-          <span className="inline-block text-sm font-semibold text-copper uppercase tracking-widest mb-4">
+          <span className="inline-block text-eyebrow mb-4">
             Collectie
           </span>
           <h1 className="text-4xl lg:text-5xl font-display font-bold text-soft-black">
