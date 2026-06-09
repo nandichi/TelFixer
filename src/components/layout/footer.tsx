@@ -56,14 +56,16 @@ export function Footer() {
         <div className="relative py-10 sm:py-16 lg:py-20">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-8">
             <div className="lg:col-span-5">
-              <Link href="/" className="inline-block group">
-                <Image
-                  src="/telfixer-logo.png"
-                  alt="TelFixer"
-                  width={160}
-                  height={64}
-                  className="h-10 sm:h-12 w-auto transition-transform duration-300 group-hover:scale-105"
-                />
+              <Link href="/" className="inline-flex group" aria-label="TelFixer home">
+                <span className="flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white border border-sand shadow-sm overflow-hidden transition-transform duration-300 group-hover:scale-105">
+                  <Image
+                    src="/telfixer-logo.png"
+                    alt="TelFixer"
+                    width={160}
+                    height={160}
+                    className="w-12 h-12 sm:w-16 sm:h-16 object-contain"
+                  />
+                </span>
               </Link>
               <p className="mt-4 sm:mt-6 text-slate text-sm sm:text-base leading-relaxed max-w-md">
                 TelFixer is jouw betrouwbare partner voor hoogwaardige refurbished

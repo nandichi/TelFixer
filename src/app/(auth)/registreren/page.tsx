@@ -101,12 +101,14 @@ export default function RegisterPage() {
                   <Input
                     placeholder="Voornaam"
                     className="pl-12"
+                    autoComplete="given-name"
                     {...register('firstName')}
                     error={errors.firstName?.message}
                   />
                 </div>
                 <Input
                   placeholder="Achternaam"
+                  autoComplete="family-name"
                   {...register('lastName')}
                   error={errors.lastName?.message}
                 />
@@ -122,6 +124,7 @@ export default function RegisterPage() {
                   type="email"
                   placeholder="E-mailadres"
                   className="pl-12"
+                  autoComplete="email"
                   {...register('email')}
                   error={errors.email?.message}
                 />
@@ -137,6 +140,7 @@ export default function RegisterPage() {
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Wachtwoord (min. 8 tekens)"
                   className="pl-12 pr-12"
+                  autoComplete="new-password"
                   {...register('password')}
                   error={errors.password?.message}
                 />
@@ -168,6 +172,7 @@ export default function RegisterPage() {
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Bevestig wachtwoord"
                   className="pl-12"
+                  autoComplete="new-password"
                   {...register('confirmPassword')}
                   error={errors.confirmPassword?.message}
                 />

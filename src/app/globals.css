@@ -131,6 +131,10 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.2;
+  /* Lange (samengestelde) woorden netjes laten afbreken i.p.v. de viewport
+     laten overschrijden op smalle schermen. hyphens werkt met lang="nl". */
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 h1 {

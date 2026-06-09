@@ -42,6 +42,31 @@ export function ProductGridSkeleton({ count = 6 }: { count?: number }) {
   );
 }
 
+export function CategoryCardSkeleton() {
+  return (
+    <div className="h-full flex flex-col bg-cream rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-sand">
+      <Skeleton className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl mb-4 sm:mb-6" />
+      <Skeleton className="h-6 w-2/3 mb-3" />
+      <Skeleton className="h-4 w-full mb-2" />
+      <Skeleton className="h-4 w-3/4 mb-6" />
+      <div className="flex items-center justify-between mt-auto">
+        <Skeleton className="h-4 w-20" />
+        <Skeleton className="h-8 w-8 rounded-full" />
+      </div>
+    </div>
+  );
+}
+
+export function CategoryGridSkeleton({ count = 4 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+      {Array.from({ length: count }).map((_, i) => (
+        <CategoryCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
+
 export function ProductDetailSkeleton() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

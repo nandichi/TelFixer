@@ -126,12 +126,14 @@ export function ProductForm({ product, mode }: ProductFormProps) {
 
   // Handle image upload
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+    const input = e.target;
+    const files = input.files;
     if (!files || files.length === 0) return;
 
     setUploadingImages(true);
     const supabase = createClient();
     const newUrls: string[] = [];
+    const failed: string[] = [];
 
     try {
       for (const file of Array.from(files)) {
@@ -145,6 +147,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
 
         if (uploadError) {
           console.error('Upload error:', uploadError);
+          failed.push(`${file.name}: ${uploadError.message}`);
           continue;
         }
 
@@ -155,11 +158,25 @@ export function ProductForm({ product, mode }: ProductFormProps) {
         newUrls.push(publicUrl);
       }
 
-      setImageUrls((prev) => [...prev, ...newUrls]);
+      if (newUrls.length > 0) {
+        setImageUrls((prev) => [...prev, ...newUrls]);
+      }
+
+      // Maak een eventuele stille fout zichtbaar voor de beheerder
+      if (failed.length > 0) {
+        showError('Niet alle afbeeldingen zijn geüpload', failed.join(' | '));
+      } else if (newUrls.length > 0) {
+        success(
+          `${newUrls.length} afbeelding${newUrls.length > 1 ? 'en' : ''} geüpload`
+        );
+      }
     } catch (err) {
-      showError('Fout bij uploaden van afbeeldingen');
+      const message = err instanceof Error ? err.message : 'Onbekende fout';
+      showError('Fout bij uploaden van afbeeldingen', message);
     } finally {
       setUploadingImages(false);
+      // Reset zodat dezelfde afbeelding na een fout opnieuw gekozen kan worden
+      input.value = '';
     }
   };
 

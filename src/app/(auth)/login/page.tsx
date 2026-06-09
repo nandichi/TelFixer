@@ -83,6 +83,7 @@ export default function LoginPage() {
                   type="email"
                   placeholder="E-mailadres"
                   className="pl-12"
+                  autoComplete="email"
                   {...register('email')}
                   error={errors.email?.message}
                 />
@@ -98,6 +99,7 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Wachtwoord"
                   className="pl-12 pr-12"
+                  autoComplete="current-password"
                   {...register('password')}
                   error={errors.password?.message}
                 />
