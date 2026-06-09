@@ -4,6 +4,7 @@ import { createServiceClient } from '@/lib/supabase/service';
 import { createClient as createServerSupabase } from '@/lib/supabase/server';
 import { getMollieClient, getAppUrl, isMollieConfigured } from '@/lib/mollie';
 import { generateOrderNumber } from '@/lib/utils';
+import { PaymentLineType, Locale } from '@mollie/api-client';
 
 const bodySchema = z.object({
   customer: z.object({
@@ -74,6 +75,54 @@ export async function POST(request: Request) {
       );
     }
 
+    // Klarna (en andere "betaal later"-methodes) kunnen door Mollie alleen worden
+    // aangeboden en goedgekeurd als we order-regels + een factuuradres meesturen.
+    // De som van alle regelbedragen moet exact gelijk zijn aan het betaalbedrag,
+    // daarom staan de verzendkosten als aparte regel.
+    const roundMoney = (n: number) => Math.round(n * 100) / 100;
+    const toAmount = (n: number) => ({ currency: 'EUR', value: n.toFixed(2) });
+
+    const orderLines = [
+      ...items.map((item) => {
+        const unit = roundMoney(item.price);
+        return {
+          type: PaymentLineType.physical,
+          description: item.name,
+          quantity: item.quantity,
+          unitPrice: toAmount(unit),
+          totalAmount: toAmount(roundMoney(unit * item.quantity)),
+        };
+      }),
+      ...(totals.shipping > 0
+        ? [
+            {
+              type: PaymentLineType.shipping_fee,
+              description: 'Verzendkosten',
+              quantity: 1,
+              unitPrice: toAmount(totals.shipping),
+              totalAmount: toAmount(totals.shipping),
+            },
+          ]
+        : []),
+    ];
+
+    const chargeAmount = roundMoney(
+      orderLines.reduce((sum, line) => sum + Number(line.totalAmount.value), 0)
+    );
+
+    // Factuuradres is verplicht voor Klarna. De checkout verzamelt één adres,
+    // dus factuur- en verzendadres zijn gelijk.
+    const mollieAddress = {
+      givenName: customer.firstName,
+      familyName: customer.lastName,
+      streetAndNumber:
+        `${shippingAddress.street} ${shippingAddress.houseNumber}`.trim(),
+      postalCode: shippingAddress.postalCode,
+      city: shippingAddress.city,
+      country: (shippingAddress.country || 'NL').toUpperCase(),
+      email: customer.email,
+    };
+
     const supabase = createServiceClient();
 
     // Try to associate order with authenticated user
@@ -106,7 +155,7 @@ export async function POST(request: Request) {
       .insert({
         order_number: orderNumber,
         user_id: userId,
-        total_price: totals.total,
+        total_price: chargeAmount,
         shipping_cost: totals.shipping,
         tax: 0,
         status: 'in_behandeling',
@@ -156,11 +205,15 @@ export async function POST(request: Request) {
     const payment = await mollie.payments.create({
       amount: {
         currency: 'EUR',
-        value: totals.total.toFixed(2),
+        value: chargeAmount.toFixed(2),
       },
       description: `TelFixer bestelling ${orderRow.order_number}`,
       redirectUrl: `${appUrl}/checkout/bevestiging?order=${orderRow.order_number}`,
       webhookUrl: `${appUrl}/api/mollie/webhook`,
+      locale: Locale.nl_NL,
+      lines: orderLines,
+      billingAddress: mollieAddress,
+      shippingAddress: mollieAddress,
       metadata: {
         order_id: orderRow.id,
         order_number: orderRow.order_number,
