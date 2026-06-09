@@ -61,57 +61,6 @@ curl "${SITE_ORIGIN}/api/v1/public/tracking?ref=TF-ABC123"
 `,
   },
   {
-    name: 'create-repair-request',
-    type: 'skill',
-    description: 'Meld een nieuwe reparatie aan bij TelFixer.',
-    markdown: `---
-name: create-repair-request
-description: Meld een nieuwe reparatie aan bij TelFixer.
----
-
-# Create Repair Request
-
-Maak een nieuwe reparatieaanvraag aan. Geeft een referentienummer terug waarmee de klant de status kan volgen.
-
-## Endpoint
-
-\`POST ${SITE_ORIGIN}/api/v1/public/repair-request\`
-
-## Body (application/json)
-
-\`\`\`json
-{
-  "deviceType": "telefoon",
-  "deviceBrand": "Apple",
-  "deviceModel": "iPhone 13",
-  "repairType": "scherm",
-  "problemDescription": "Het scherm is gebarsten na een val.",
-  "customerName": "Jan Jansen",
-  "customerEmail": "jan@example.com",
-  "customerPhone": "0612345678",
-  "customerAddress": "Hoofdstraat 1, 1011AA Amsterdam",
-  "preferredDate": "2026-05-01"
-}
-\`\`\`
-
-## Response
-
-\`\`\`json
-{ "success": true, "referenceNumber": "TF-XXXXXX" }
-\`\`\`
-
-## Validatie
-
-- \`customerPhone\` moet exact 10 cijfers zijn (Nederlands mobielnummer zonder spaties).
-- \`problemDescription\` moet minimaal 10 tekens zijn.
-
-## Gerelateerd
-
-- OpenAPI spec: ${SITE_ORIGIN}/api/v1/public/openapi.json
-- MCP tool: \`create_repair_request\` op ${SITE_ORIGIN}/api/mcp
-`,
-  },
-  {
     name: 'browse-products',
     type: 'skill',
     description:

@@ -10,7 +10,7 @@ const openapi = {
     title: 'TelFixer Public API',
     version: '1.0.0',
     description:
-      'Publieke API van TelFixer voor AI-agents. Maakt het mogelijk om reparaties aan te melden, status te volgen en productinformatie op te vragen.',
+      'Publieke API van TelFixer voor AI-agents. Maakt het mogelijk om de status van reparaties, inleveringen en bestellingen te volgen en productinformatie op te vragen.',
     contact: {
       name: 'TelFixer',
       url: `${SITE_ORIGIN}/contact`,
@@ -65,32 +65,6 @@ const openapi = {
         },
       },
     },
-    '/repair-request': {
-      post: {
-        operationId: 'createRepairRequest',
-        summary: 'Meld een nieuwe reparatie aan',
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/RepairRequestInput' },
-            },
-          },
-        },
-        responses: {
-          '200': {
-            description: 'Reparatieaanvraag aangemaakt',
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/RepairRequestResult' },
-              },
-            },
-          },
-          '400': { description: 'Ongeldige invoer' },
-          '500': { description: 'Serverfout' },
-        },
-      },
-    },
   },
   components: {
     schemas: {
@@ -115,43 +89,6 @@ const openapi = {
           details: { type: 'object', additionalProperties: true },
         },
         required: ['kind', 'reference_number', 'status'],
-      },
-      RepairRequestInput: {
-        type: 'object',
-        required: [
-          'deviceType',
-          'deviceBrand',
-          'deviceModel',
-          'repairType',
-          'problemDescription',
-          'customerName',
-          'customerEmail',
-          'customerPhone',
-        ],
-        properties: {
-          deviceType: { type: 'string', example: 'telefoon' },
-          deviceBrand: { type: 'string', example: 'Apple' },
-          deviceModel: { type: 'string', example: 'iPhone 13' },
-          repairType: { type: 'string', example: 'scherm' },
-          problemDescription: { type: 'string', minLength: 10 },
-          customerName: { type: 'string', minLength: 2 },
-          customerEmail: { type: 'string', format: 'email' },
-          customerPhone: {
-            type: 'string',
-            pattern: '^\\d{10}$',
-            description: 'Nederlands mobielnummer, 10 cijfers',
-          },
-          customerAddress: { type: 'string', nullable: true },
-          preferredDate: { type: 'string', format: 'date', nullable: true },
-        },
-      },
-      RepairRequestResult: {
-        type: 'object',
-        properties: {
-          success: { type: 'boolean' },
-          referenceNumber: { type: 'string' },
-        },
-        required: ['success', 'referenceNumber'],
       },
     },
   },

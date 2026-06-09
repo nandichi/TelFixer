@@ -19,17 +19,6 @@ interface SubmissionEmailData {
   conditionDescription: string;
 }
 
-interface RepairRequestEmailData {
-  customerName: string;
-  customerEmail: string;
-  referenceNumber: string;
-  deviceType: string;
-  deviceBrand: string;
-  deviceModel: string;
-  repairType: string;
-  problemDescription: string;
-}
-
 interface OrderEmailItem {
   name: string;
   quantity: number;
@@ -179,80 +168,6 @@ export async function sendSubmissionConfirmationEmail(
 
     if (error) {
       console.error('Failed to send email:', error);
-      return { success: false, error: error.message };
-    }
-
-    return { success: true };
-  } catch (error) {
-    console.error('Email error:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
-  }
-}
-
-/**
- * Repair request confirmation
- */
-export async function sendRepairRequestEmail(
-  data: RepairRequestEmailData
-): Promise<{ success: boolean; error?: string }> {
-  if (!isEmailConfigured()) {
-    console.warn('Email service not configured. Skipping email.');
-    return { success: false, error: 'Email service not configured' };
-  }
-
-  const bodyHtml = `
-    <p>Beste ${data.customerName},</p>
-    <p>We hebben je reparatieaanvraag ontvangen. Binnen 24 uur nemen we contact met je op om een afspraak te maken.</p>
-
-    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 20px; margin: 24px 0;">
-      <h3 style="color: #094543; margin: 0 0 16px 0; font-size: 16px;">Je referentienummer</h3>
-      <div style="background: white; border: 2px solid #094543; border-radius: 8px; padding: 16px; text-align: center;">
-        <span style="font-size: 28px; font-weight: bold; color: #094543; letter-spacing: 2px;">${data.referenceNumber}</span>
-      </div>
-    </div>
-
-    <h3 style="color: #094543; margin: 24px 0 12px 0;">Details van je aanvraag</h3>
-    <table style="width: 100%; border-collapse: collapse;">
-      <tr style="border-bottom: 1px solid #E2E8F0;">
-        <td style="padding: 12px 0; color: #64748B;">Apparaat</td>
-        <td style="padding: 12px 0; font-weight: 500; text-align: right;">${data.deviceType} · ${data.deviceBrand} ${data.deviceModel}</td>
-      </tr>
-      <tr style="border-bottom: 1px solid #E2E8F0;">
-        <td style="padding: 12px 0; color: #64748B;">Type reparatie</td>
-        <td style="padding: 12px 0; font-weight: 500; text-align: right;">${data.repairType}</td>
-      </tr>
-    </table>
-
-    <div style="background: #FEF3C7; border-radius: 12px; padding: 16px; margin: 24px 0;">
-      <h4 style="color: #92400E; margin: 0 0 8px 0; font-size: 14px;">Omschrijving</h4>
-      <p style="color: #78350F; margin: 0; font-size: 14px;">${data.problemDescription}</p>
-    </div>
-
-    <div style="text-align: center; margin: 32px 0;">
-      <a href="https://telfixer.nl/tracking?ref=${data.referenceNumber}" style="display: inline-block; background: #094543; color: white; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 500;">
-        Volg je reparatie
-      </a>
-    </div>
-  `;
-
-  try {
-    const { error } = await getResendClient().emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'TelFixer <noreply@telfixer.nl>',
-      to: data.customerEmail,
-      subject: `Bevestiging reparatieaanvraag - ${data.referenceNumber}`,
-      html: emailLayout({
-        title: 'Reparatieaanvraag ontvangen',
-        badgeLabel: 'Aanvraag ontvangen!',
-        badgeSubtitle: 'We nemen zo snel mogelijk contact met je op',
-        bodyHtml,
-      }),
-    });
-
-    if (error) {
-      console.error('Failed to send repair email:', error);
       return { success: false, error: error.message };
     }
 

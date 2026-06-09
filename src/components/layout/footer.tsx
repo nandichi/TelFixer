@@ -31,6 +31,7 @@ const footerLinks = {
   ],
   services: [
     { name: 'Reparatie', href: '/reparatie' },
+    { name: 'Reparatie status', href: '/reparatie-status' },
     { name: 'Apparaat Inleveren', href: '/inleveren' },
     { name: 'Status Tracking', href: '/tracking' },
     { name: 'Garantie', href: '/garantie' },

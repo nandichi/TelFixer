@@ -1,48 +1,25 @@
 import type { Metadata } from "next";
-import {
-  Shield,
-  Clock,
-  Sparkles,
-  Wrench,
-} from "lucide-react";
+import { Search, Clock, QrCode } from "lucide-react";
 import { Container } from "@/components/layout/container";
 import { RependerEmbed } from "@/components/repender/repender-embed";
 
 export const metadata: Metadata = {
-  title: "Reparatie",
+  title: "Reparatie status",
   description:
-    "Laat je telefoon, tablet of laptop vakkundig repareren bij TelFixer. Kies je apparaat, selecteer de reparatie, zie direct de prijs en plan eenvoudig een afspraak in.",
+    "Volg de status van je reparatie bij TelFixer. Vul je referentienummer in of gebruik de persoonlijke link of QR-code uit je bevestiging.",
 };
 
-const trustIndicators = [
-  { icon: Shield, text: "3 maanden garantie" },
-  { icon: Clock, text: "Vaak dezelfde dag klaar" },
-  { icon: Sparkles, text: "Gratis ophaal- en brengdienst" },
+const helpers = [
+  { icon: Search, text: "Vul je referentienummer in" },
+  { icon: QrCode, text: "Of gebruik de QR-code uit je bevestiging" },
+  { icon: Clock, text: "Realtime status, dag en nacht" },
 ];
 
-const infoCards = [
-  {
-    icon: Shield,
-    title: "Garantie",
-    description: "3 maanden garantie op elke reparatie",
-  },
-  {
-    icon: Clock,
-    title: "Snel klaar",
-    description: "De meeste reparaties binnen 24 uur",
-  },
-  {
-    icon: Sparkles,
-    title: "Kwaliteit",
-    description: "Originele of hoogwaardige onderdelen",
-  },
-];
-
-export default function ReparatiePage() {
+export default function ReparatieStatusPage() {
   return (
     <div className="min-h-screen bg-cream">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-cream py-16 lg:py-24">
+      <section className="relative overflow-hidden bg-cream py-16 lg:py-20">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3 animate-pulse-slow" />
           <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-copper/5 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3 animate-pulse-slow" />
@@ -51,26 +28,25 @@ export default function ReparatiePage() {
         <Container>
           <div className="relative z-10 text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/5 border border-primary/10 mb-8 animate-fade-in-down">
-              <Wrench className="w-4 h-4 text-copper" />
+              <Search className="w-4 h-4 text-copper" />
               <span className="text-sm font-medium text-primary">
-                Professionele Reparatie Service
+                Volg je reparatie
               </span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-bold text-soft-black mb-6 leading-[1.1] animate-fade-in-up">
-              Laat je apparaat
+              Status van je
               <br />
-              <span className="text-gradient-primary">repareren</span>
+              <span className="text-gradient-primary">reparatie</span>
             </h1>
 
             <p className="text-lg lg:text-xl text-slate max-w-2xl mx-auto mb-10 animate-fade-in-up delay-100">
-              Snel, betrouwbaar en vakkundig. Kies je apparaat, selecteer de
-              reparatie en zie direct de prijs. Plan vervolgens eenvoudig een
-              afspraak in die jou uitkomt.
+              Bekijk eenvoudig waar je reparatie zich bevindt. Geen wachtrij, geen
+              telefoontjes, gewoon direct inzicht in de actuele status.
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 sm:gap-6 animate-fade-in-up delay-200">
-              {trustIndicators.map((item) => (
+              {helpers.map((item) => (
                 <div
                   key={item.text}
                   className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white border border-sand shadow-sm"
@@ -88,38 +64,18 @@ export default function ReparatiePage() {
         </Container>
       </section>
 
-      {/* Booking widget (Repender) */}
+      {/* Status widget (Repender) */}
       <section className="pb-12 lg:pb-20">
         <Container>
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-3xl mx-auto">
             <div
               className="relative bg-white rounded-3xl border border-sand overflow-hidden"
               style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.06)" }}
             >
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-copper to-gold" />
               <div className="p-4 sm:p-6 lg:p-8">
-                <RependerEmbed variant="inline" />
+                <RependerEmbed variant="status" />
               </div>
-            </div>
-
-            {/* Additional Info */}
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {infoCards.map((item) => (
-                <div
-                  key={item.title}
-                  className="flex items-start gap-4 p-5 bg-white rounded-2xl border border-sand"
-                >
-                  <div className="w-11 h-11 rounded-xl bg-primary/5 flex items-center justify-center shrink-0">
-                    <item.icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-soft-black mb-1">
-                      {item.title}
-                    </h4>
-                    <p className="text-sm text-muted">{item.description}</p>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </Container>

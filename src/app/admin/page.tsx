@@ -6,7 +6,6 @@ import {
   Package,
   ShoppingCart,
   RefreshCw,
-  Wrench,
   Users,
   Euro,
   ArrowRight,
@@ -31,7 +30,6 @@ interface DashboardStats {
   customers: number;
   newCustomers30d: number;
   pendingOrders: number;
-  pendingRepairs: number;
   pendingSubmissions: number;
   outOfStockProducts: number;
 }
@@ -44,7 +42,7 @@ interface RecentItem {
   amount?: number;
   createdAt: string;
   href: string;
-  type: 'order' | 'submission' | 'repair';
+  type: 'order' | 'submission';
 }
 
 interface DayBucket {
@@ -101,7 +99,6 @@ export default function AdminDashboardPage() {
     customers: 0,
     newCustomers30d: 0,
     pendingOrders: 0,
-    pendingRepairs: 0,
     pendingSubmissions: 0,
     outOfStockProducts: 0,
   });
@@ -127,11 +124,9 @@ export default function AdminDashboardPage() {
           customersRes,
           newCustomersRes,
           pendingOrdersRes,
-          pendingRepairsRes,
           pendingSubsRes,
           outStockRes,
           recentOrdersRes,
-          recentRepairsRes,
           recentSubsRes,
         ] = await Promise.all([
           supabase
@@ -158,10 +153,6 @@ export default function AdminDashboardPage() {
             .select('*', { count: 'exact', head: true })
             .eq('status', 'in_behandeling'),
           supabase
-            .from('repair_requests')
-            .select('*', { count: 'exact', head: true })
-            .in('status', ['ontvangen', 'in_behandeling']),
-          supabase
             .from('device_submissions')
             .select('*', { count: 'exact', head: true })
             .in('status', ['ontvangen', 'evaluatie']),
@@ -174,13 +165,6 @@ export default function AdminDashboardPage() {
             .from('orders')
             .select(
               'id, order_number, customer_email, total_price, status, created_at'
-            )
-            .order('created_at', { ascending: false })
-            .limit(6),
-          supabase
-            .from('repair_requests')
-            .select(
-              'id, reference_number, customer_name, device_brand, device_model, status, created_at'
             )
             .order('created_at', { ascending: false })
             .limit(6),
@@ -240,7 +224,6 @@ export default function AdminDashboardPage() {
           customers: customersRes.count ?? 0,
           newCustomers30d: newCustomersRes.count ?? 0,
           pendingOrders: pendingOrdersRes.count ?? 0,
-          pendingRepairs: pendingRepairsRes.count ?? 0,
           pendingSubmissions: pendingSubsRes.count ?? 0,
           outOfStockProducts: outStockRes.count ?? 0,
         });
@@ -258,17 +241,6 @@ export default function AdminDashboardPage() {
             amount: parseFloat(o.total_price ?? '0'),
             createdAt: o.created_at,
             href: `/admin/bestellingen/${o.id}`,
-          })
-        );
-        (recentRepairsRes.data ?? []).forEach((r) =>
-          merged.push({
-            id: r.id,
-            type: 'repair',
-            title: `${r.device_brand} ${r.device_model}`,
-            subtitle: `${r.reference_number} · ${r.customer_name}`,
-            status: r.status,
-            createdAt: r.created_at,
-            href: `/admin/reparaties/${r.id}`,
           })
         );
         (recentSubsRes.data ?? []).forEach((s) =>
@@ -309,7 +281,6 @@ export default function AdminDashboardPage() {
 
   const totalActions =
     stats.pendingOrders +
-    stats.pendingRepairs +
     stats.pendingSubmissions +
     stats.outOfStockProducts;
 
@@ -326,7 +297,6 @@ export default function AdminDashboardPage() {
 
   const typeIcon = (t: RecentItem['type']) => {
     if (t === 'order') return ShoppingCart;
-    if (t === 'repair') return Wrench;
     return RefreshCw;
   };
 
@@ -374,7 +344,7 @@ export default function AdminDashboardPage() {
           label="Open acties"
           value={String(totalActions)}
           icon={Activity}
-          hint={`${stats.pendingOrders} best. · ${stats.pendingRepairs} rep. · ${stats.pendingSubmissions} inl.`}
+          hint={`${stats.pendingOrders} best. · ${stats.pendingSubmissions} inl.`}
           loading={loading}
         />
       </div>
@@ -435,13 +405,6 @@ export default function AdminDashboardPage() {
               tone="warning"
             />
             <ActionRow
-              icon={Wrench}
-              label="Reparaties open"
-              count={stats.pendingRepairs}
-              href="/admin/reparaties"
-              tone="info"
-            />
-            <ActionRow
               icon={RefreshCw}
               label="Inleveringen te beoordelen"
               count={stats.pendingSubmissions}
@@ -489,7 +452,7 @@ export default function AdminDashboardPage() {
           <EmptyState
             icon={Activity}
             title="Nog geen activiteit"
-            description="Zodra er bestellingen, reparaties of inleveringen binnenkomen, verschijnen ze hier."
+            description="Zodra er bestellingen of inleveringen binnenkomen, verschijnen ze hier."
           />
         ) : (
           <div className="divide-y divide-[var(--a-border)]">

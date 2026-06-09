@@ -8,7 +8,7 @@ export function GET() {
   const body = {
     protocol: { name: 'ucp', version: '0.1' },
     issuer: SITE_ORIGIN,
-    services: ['catalog', 'order_tracking', 'repair_request'],
+    services: ['catalog', 'order_tracking'],
     capabilities: {
       currencies: ['EUR'],
       payment_methods: ['mollie', 'ideal'],
@@ -19,7 +19,6 @@ export function GET() {
       catalog: `${SITE_ORIGIN}/producten`,
       checkout: `${SITE_ORIGIN}/api/checkout/create-payment`,
       tracking: `${SITE_ORIGIN}/api/v1/public/tracking`,
-      repair_request: `${SITE_ORIGIN}/api/v1/public/repair-request`,
       service_desc: `${SITE_ORIGIN}/api/v1/public/openapi.json`,
       service_doc: `${SITE_ORIGIN}/api/v1/public/docs`,
     },

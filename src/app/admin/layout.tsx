@@ -9,7 +9,6 @@ import {
   Package,
   ShoppingCart,
   RefreshCw,
-  Wrench,
   Users,
   Settings,
   Menu,
@@ -32,7 +31,6 @@ import { createClient } from '@/lib/supabase/client';
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Bestellingen', href: '/admin/bestellingen', icon: ShoppingCart },
-  { name: 'Reparaties', href: '/admin/reparaties', icon: Wrench },
   { name: 'Inleveringen', href: '/admin/inleveringen', icon: RefreshCw },
   { name: 'Producten', href: '/admin/producten', icon: Package },
   { name: 'Categorieen', href: '/admin/categorieen', icon: FolderTree },
@@ -50,7 +48,7 @@ const quickAdd = [
 
 interface SearchResult {
   id: string;
-  type: 'order' | 'submission' | 'repair' | 'product' | 'customer';
+  type: 'order' | 'submission' | 'product' | 'customer';
   title: string;
   subtitle?: string;
   href: string;
@@ -194,7 +192,7 @@ export default function AdminLayout({
     const timer = setTimeout(async () => {
       const supabase = createClient();
       try {
-        const [orders, subs, reps, prods, custs] = await Promise.all([
+        const [orders, subs, prods, custs] = await Promise.all([
           supabase
             .from('orders')
             .select('id, order_number, customer_email')
@@ -204,15 +202,6 @@ export default function AdminLayout({
             .limit(4),
           supabase
             .from('device_submissions')
-            .select(
-              'id, reference_number, customer_name, device_brand, device_model'
-            )
-            .or(
-              `reference_number.ilike.%${q}%,customer_name.ilike.%${q}%,device_model.ilike.%${q}%`
-            )
-            .limit(4),
-          supabase
-            .from('repair_requests')
             .select(
               'id, reference_number, customer_name, device_brand, device_model'
             )
@@ -242,15 +231,6 @@ export default function AdminLayout({
             title: o.order_number,
             subtitle: o.customer_email,
             href: `/admin/bestellingen/${o.id}`,
-          })
-        );
-        (reps.data ?? []).forEach((r) =>
-          results.push({
-            id: r.id,
-            type: 'repair',
-            title: `${r.device_brand} ${r.device_model}`,
-            subtitle: `${r.reference_number} · ${r.customer_name}`,
-            href: `/admin/reparaties/${r.id}`,
           })
         );
         (subs.data ?? []).forEach((s) =>
@@ -640,13 +620,11 @@ export default function AdminLayout({
                     <span className="text-[10px] uppercase tracking-wider text-[var(--a-text-4)] font-semibold shrink-0">
                       {r.type === 'order'
                         ? 'Best.'
-                        : r.type === 'repair'
-                          ? 'Rep.'
-                          : r.type === 'submission'
-                            ? 'Inl.'
-                            : r.type === 'product'
-                              ? 'Prod.'
-                              : 'Klant'}
+                        : r.type === 'submission'
+                          ? 'Inl.'
+                          : r.type === 'product'
+                            ? 'Prod.'
+                            : 'Klant'}
                     </span>
                   </Link>
                 ))}

@@ -14,7 +14,7 @@ export function GET() {
       title: 'TelFixer MCP Server',
       version: '1.0.0',
       description:
-        'MCP-server van TelFixer. Biedt agents tools om reparaties aan te melden, status te volgen en productcategorieën op te vragen.',
+        'MCP-server van TelFixer. Biedt agents tools om de status van reparaties, inleveringen en bestellingen te volgen en productcategorieën op te vragen.',
       vendor: {
         name: 'TelFixer',
         url: SITE_ORIGIN,

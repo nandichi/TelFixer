@@ -73,52 +73,6 @@ function buildServer(origin: string) {
     }
   );
 
-  server.registerTool(
-    'create_repair_request',
-    {
-      title: 'Maak reparatieaanvraag',
-      description:
-        'Meld een nieuwe reparatie aan bij TelFixer. Geeft een referentienummer terug waarmee de status gevolgd kan worden.',
-      inputSchema: {
-        deviceType: z.string().min(1).describe('Soort apparaat, bijv. telefoon, laptop, tablet'),
-        deviceBrand: z.string().min(1).describe('Merk, bijv. Apple, Samsung'),
-        deviceModel: z.string().min(1).describe('Model, bijv. iPhone 13'),
-        repairType: z.string().min(1).describe('Type reparatie, bijv. scherm, batterij'),
-        problemDescription: z
-          .string()
-          .min(10)
-          .describe('Beschrijving van het probleem, minimaal 10 tekens'),
-        customerName: z.string().min(2),
-        customerEmail: z.string().email(),
-        customerPhone: z
-          .string()
-          .regex(/^\d{10}$/)
-          .describe('Nederlands mobielnummer, 10 cijfers zonder spaties'),
-        customerAddress: z.string().optional(),
-        preferredDate: z.string().optional().describe('ISO datum, optioneel'),
-      },
-    },
-    async (input) => {
-      const url = new URL('/api/repair-request', origin);
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(input),
-        cache: 'no-store',
-      });
-      const data = await res.json();
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify(data, null, 2),
-          },
-        ],
-        isError: !res.ok,
-      };
-    }
-  );
-
   return server;
 }
 

@@ -34,7 +34,6 @@ interface CustomerWithStats {
   orders_count: number;
   total_spent: number;
   submissions_count: number;
-  repairs_count: number;
 }
 
 interface OrderSummary {
@@ -57,18 +56,7 @@ interface SubmissionSummary {
   created_at: string;
 }
 
-interface RepairSummary {
-  id: string;
-  reference_number: string;
-  device_brand: string;
-  device_model: string;
-  repair_type: string;
-  status: string;
-  estimated_price: number | null;
-  created_at: string;
-}
-
-type Tab = 'orders' | 'submissions' | 'repairs';
+type Tab = 'orders' | 'submissions';
 
 export default function CustomerDetailPage() {
   const params = useParams();
@@ -77,7 +65,6 @@ export default function CustomerDetailPage() {
   const [customer, setCustomer] = useState<CustomerWithStats | null>(null);
   const [orders, setOrders] = useState<OrderSummary[]>([]);
   const [submissions, setSubmissions] = useState<SubmissionSummary[]>([]);
-  const [repairs, setRepairs] = useState<RepairSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('orders');
 
@@ -109,12 +96,6 @@ export default function CustomerDetailPage() {
       .or(ordersOr)
       .order('created_at', { ascending: false });
 
-    const { data: repairsData } = await supabase
-      .from('repair_requests')
-      .select('*')
-      .or(ordersOr)
-      .order('created_at', { ascending: false });
-
     const ordersSummary: OrderSummary[] =
       ordersData?.map((order) => ({
         id: order.id,
@@ -137,20 +118,6 @@ export default function CustomerDetailPage() {
         created_at: s.created_at,
       })) || [];
 
-    const repairsSummary: RepairSummary[] =
-      repairsData?.map((r) => ({
-        id: r.id,
-        reference_number: r.reference_number,
-        device_brand: r.device_brand,
-        device_model: r.device_model,
-        repair_type: r.repair_type,
-        status: r.status,
-        estimated_price: r.estimated_price
-          ? parseFloat(r.estimated_price)
-          : null,
-        created_at: r.created_at,
-      })) || [];
-
     const totalSpent = ordersSummary
       .filter((o) => o.payment_status === 'paid')
       .reduce((sum, o) => sum + o.total_price, 0);
@@ -165,11 +132,9 @@ export default function CustomerDetailPage() {
       orders_count: ordersSummary.length,
       total_spent: totalSpent,
       submissions_count: submissionsSummary.length,
-      repairs_count: repairsSummary.length,
     });
     setOrders(ordersSummary);
     setSubmissions(submissionsSummary);
-    setRepairs(repairsSummary);
     setLoading(false);
   }, [params.id, router]);
 
@@ -325,80 +290,9 @@ export default function CustomerDetailPage() {
     },
   ];
 
-  const repairColumns: Column<RepairSummary>[] = [
-    {
-      key: 'ref',
-      header: 'Referentie',
-      cell: (r) => (
-        <span className="font-medium text-[var(--a-text)] admin-num">
-          {r.reference_number}
-        </span>
-      ),
-      sortable: true,
-      sortValue: (r) => r.reference_number,
-    },
-    {
-      key: 'device',
-      header: 'Apparaat',
-      cell: (r) => (
-        <span className="text-[var(--a-text)]">
-          {r.device_brand} {r.device_model}
-        </span>
-      ),
-    },
-    {
-      key: 'type',
-      header: 'Type',
-      cell: (r) => (
-        <span className="text-[var(--a-text-2)]">{r.repair_type}</span>
-      ),
-    },
-    {
-      key: 'price',
-      header: 'Prijs',
-      align: 'right',
-      cell: (r) =>
-        r.estimated_price ? (
-          <span className="admin-num font-medium text-[var(--a-text)]">
-            {formatPrice(r.estimated_price)}
-          </span>
-        ) : (
-          <span className="text-[var(--a-text-4)]">—</span>
-        ),
-      sortable: true,
-      sortValue: (r) => r.estimated_price ?? -1,
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      cell: (r) => <StatusPill status={r.status} size="xs" />,
-    },
-    {
-      key: 'date',
-      header: 'Datum',
-      cell: (r) => (
-        <span className="text-[var(--a-text-3)] admin-num">
-          {formatDate(r.created_at)}
-        </span>
-      ),
-      sortable: true,
-      sortValue: (r) => new Date(r.created_at).getTime(),
-    },
-    {
-      key: 'open',
-      header: '',
-      align: 'right',
-      width: '40px',
-      cell: () => (
-        <ExternalLink className="h-3.5 w-3.5 text-[var(--a-text-3)] inline-block" />
-      ),
-    },
-  ];
-
   const tabConfig: { id: Tab; label: string; count: number }[] = [
     { id: 'orders', label: 'Bestellingen', count: orders.length },
     { id: 'submissions', label: 'Inleveringen', count: submissions.length },
-    { id: 'repairs', label: 'Reparaties', count: repairs.length },
   ];
 
   return (
@@ -478,11 +372,6 @@ export default function CustomerDetailPage() {
               icon={RefreshCw}
             />
             <KpiCard
-              label="Reparaties"
-              value={String(customer.repairs_count)}
-              icon={Package}
-            />
-            <KpiCard
               label="Besteed"
               value={formatPrice(customer.total_spent)}
               icon={Euro}
@@ -544,24 +433,6 @@ export default function CustomerDetailPage() {
                 <EmptyState
                   icon={RefreshCw}
                   title="Nog geen inleveringen"
-                  variant="compact"
-                />
-              }
-              initialSort={{ key: 'date', direction: 'desc' }}
-              pageSize={15}
-            />
-          )}
-
-          {activeTab === 'repairs' && (
-            <DataTable
-              columns={repairColumns}
-              rows={repairs}
-              rowKey={(r) => r.id}
-              onRowClick={(r) => router.push(`/admin/reparaties/${r.id}`)}
-              empty={
-                <EmptyState
-                  icon={Package}
-                  title="Nog geen reparaties"
                   variant="compact"
                 />
               }

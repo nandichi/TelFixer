@@ -10,7 +10,7 @@ export function GET() {
     api_base_url: `${SITE_ORIGIN}/api/v1/public`,
     transports: ['https'],
     capabilities: {
-      services: ['product_feed', 'order_tracking', 'repair_request'],
+      services: ['product_feed', 'order_tracking'],
       currencies: ['EUR'],
       languages: ['nl'],
     },
