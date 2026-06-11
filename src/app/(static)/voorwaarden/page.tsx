@@ -122,7 +122,7 @@ export default function TermsPage() {
               5. Garantie op reparaties
             </h2>
             <ul className="list-disc pl-6 space-y-2 text-slate">
-              <li>5.1 Op uitgevoerde reparaties geldt 3 maanden garantie.</li>
+              <li>5.1 Op uitgevoerde reparaties geldt 12 maanden garantie.</li>
               <li>
                 5.2 Garantie dekt defecten die direct verband houden met de
                 uitgevoerde reparatie.
@@ -149,7 +149,7 @@ export default function TermsPage() {
             </h2>
             <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
-                6.1 Op door TelFixer verkochte toestellen geldt 6 maanden
+                6.1 Op door TelFixer verkochte toestellen geldt 12 maanden
                 garantie, tenzij anders vermeld.
               </li>
               <li>

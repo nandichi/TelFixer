@@ -19,8 +19,8 @@ export const metadata: Metadata = {
 };
 
 const trustIndicators = [
-  { icon: ShieldCheck, text: "3 maanden garantie" },
-  { icon: Clock, text: "Vaak dezelfde dag klaar" },
+  { icon: ShieldCheck, text: "12 maanden garantie" },
+  { icon: Clock, text: "Reparatie vaak binnen 48 uur klaar" },
   { icon: Truck, text: "Gratis ophaal- en brengdienst" },
 ];
 
@@ -28,12 +28,12 @@ const infoCards = [
   {
     icon: ShieldCheck,
     title: "Garantie",
-    description: "3 maanden garantie op elke reparatie",
+    description: "12 maanden garantie op elke reparatie",
   },
   {
     icon: Clock,
     title: "Snel klaar",
-    description: "De meeste reparaties binnen 24 uur",
+    description: "De meeste reparaties binnen 48 uur geregeld",
   },
   {
     icon: Sparkles,
@@ -82,7 +82,9 @@ export default function ReparatiePage() {
 
               <p className="text-lg lg:text-xl text-on-dark-muted max-w-md leading-relaxed mb-8">
                 Van een gebarsten scherm tot een zwakke batterij. Kies je
-                apparaat, zie direct de prijs en plan online een afspraak.
+                apparaat, zie direct de prijs en plan online een afspraak. Veel
+                reparaties zijn nog dezelfde dag klaar zodra wij je toestel in
+                behandeling nemen, de meeste binnen 48 uur.
               </p>
 
               <div className="flex flex-wrap gap-3">
@@ -208,6 +210,24 @@ export default function ReparatiePage() {
                 </RevealItem>
               ))}
             </RevealGroup>
+
+            {/* 48-uur belofte */}
+            <Reveal className="mt-10 sm:mt-12">
+              <div className="relative overflow-hidden rounded-3xl bg-soft-black p-6 sm:p-8 text-center">
+                <div className="absolute inset-0" aria-hidden="true">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary-dark via-[#04201f] to-[#0c0c0c]" />
+                  <div className="absolute -top-20 right-1/4 w-[280px] h-[280px] rounded-full bg-primary/20 blur-3xl" />
+                </div>
+                <div className="relative flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+                  <span className="flex items-center justify-center w-12 h-12 rounded-2xl bg-white/10 border border-white/15 shrink-0">
+                    <Clock className="w-6 h-6 text-accent-on-dark" strokeWidth={1.75} />
+                  </span>
+                  <p className="text-xl sm:text-2xl font-display font-bold text-white">
+                    De meeste reparaties binnen 48 uur geregeld!
+                  </p>
+                </div>
+              </div>
+            </Reveal>
           </div>
         </Container>
       </section>

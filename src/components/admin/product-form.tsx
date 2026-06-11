@@ -60,7 +60,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
     product?.stock_quantity?.toString() || '1'
   );
   const [warrantyMonths, setWarrantyMonths] = useState(
-    product?.warranty_months?.toString() || '6'
+    product?.warranty_months?.toString() || '12'
   );
   const [featured, setFeatured] = useState(product?.featured || false);
   const [inStock, setInStock] = useState(
@@ -135,6 +135,8 @@ export function ProductForm({ product, mode }: ProductFormProps) {
     const failed: string[] = [];
 
     try {
+      const supabase = createClient();
+
       for (const file of Array.from(files)) {
         // Basisvalidatie aan de clientzijde
         if (!file.type.startsWith('image/')) {
@@ -146,47 +148,37 @@ export function ProductForm({ product, mode }: ProductFormProps) {
           continue;
         }
 
-        // 1) Ondertekende upload-parameters ophalen (alleen voor admins)
-        const sigRes = await fetch('/api/admin/cloudinary-signature', {
-          method: 'POST',
-        });
+        // Unieke, veilige bestandsnaam binnen de publieke products-bucket.
+        const extension =
+          file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') ||
+          'jpg';
+        const fileName = `${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2, 10)}.${extension}`;
 
-        if (!sigRes.ok) {
-          const { error } = await sigRes
-            .json()
-            .catch(() => ({ error: `status ${sigRes.status}` }));
-          failed.push(`${file.name}: ${error}`);
+        // Bestand rechtstreeks van de browser naar Supabase Storage uploaden.
+        // De RLS-policy laat alleen ingelogde admins uploaden.
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('products')
+          .upload(fileName, file, {
+            upsert: false,
+            contentType: file.type,
+            cacheControl: '31536000',
+          });
+
+        if (uploadError || !uploadData) {
+          failed.push(
+            `${file.name}: ${uploadError?.message ?? 'upload mislukt'}`
+          );
           continue;
         }
 
-        const { signature, timestamp, folder, apiKey, cloudName } =
-          await sigRes.json();
+        const { data: urlData } = supabase.storage
+          .from('products')
+          .getPublicUrl(uploadData.path);
 
-        // 2) Bestand rechtstreeks van de browser naar Cloudinary uploaden,
-        // zo omzeilen we de 4,5MB request-limiet van Vercel-functies.
-        const cloudForm = new FormData();
-        cloudForm.append('file', file);
-        cloudForm.append('api_key', apiKey);
-        cloudForm.append('timestamp', String(timestamp));
-        cloudForm.append('signature', signature);
-        cloudForm.append('folder', folder);
-
-        const uploadRes = await fetch(
-          `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-          { method: 'POST', body: cloudForm }
-        );
-
-        if (!uploadRes.ok) {
-          const data = await uploadRes.json().catch(() => null);
-          const message =
-            data?.error?.message ?? `upload mislukt (${uploadRes.status})`;
-          failed.push(`${file.name}: ${message}`);
-          continue;
-        }
-
-        const data = await uploadRes.json();
-        if (data.secure_url) {
-          newUrls.push(data.secure_url as string);
+        if (urlData?.publicUrl) {
+          newUrls.push(urlData.publicUrl);
         } else {
           failed.push(`${file.name}: geen URL ontvangen`);
         }

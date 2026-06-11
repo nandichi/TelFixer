@@ -50,6 +50,7 @@ const returnConditions = [
   'Product is in originele staat en onbeschadigd',
   'Alle accessoires en verpakking zijn aanwezig',
   'Product is uitgelogd van alle accounts (iCloud, Google, etc.)',
+  'De verzendkosten voor het retourneren zijn voor rekening van de klant',
 ];
 
 const returnSteps = [
@@ -60,8 +61,8 @@ const returnSteps = [
   },
   {
     icon: Tag,
-    title: 'Ontvang retourlabel',
-    description: 'Je ontvangt een gratis retourlabel per e-mail',
+    title: 'Ontvang retourgegevens',
+    description: 'Je ontvangt de retourgegevens per e-mail. De verzendkosten van de retour zijn voor eigen rekening',
   },
   {
     icon: PackageCheck,
@@ -214,7 +215,8 @@ export default async function WarrantyPage() {
                 <p className="text-slate mb-5 leading-relaxed">
                   Je hebt 14 dagen bedenktijd na ontvangst van je bestelling.
                   Binnen deze periode kun je het product zonder opgaaf van reden
-                  retourneren.
+                  retourneren. De verzendkosten voor het terugsturen zijn voor
+                  rekening van de klant.
                 </p>
 
                 <h4 className="font-semibold text-soft-black mb-3">Voorwaarden:</h4>

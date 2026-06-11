@@ -46,7 +46,7 @@ const values = [
     icon: Award,
     title: 'Garantie',
     description:
-      'Al onze producten komen met minimaal 6 maanden garantie. Je koopt met vertrouwen.',
+      'Al onze producten komen met minimaal 12 maanden garantie. Je koopt met vertrouwen.',
   },
 ];
 

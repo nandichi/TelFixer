@@ -24,7 +24,7 @@ const paymentMethods = [
 ] as const;
 
 const footerUsps = [
-  { icon: ShieldCheck, text: '6 maanden garantie' },
+  { icon: ShieldCheck, text: '12 maanden garantie' },
   { icon: Truck, text: 'Gratis verzending vanaf 50 euro' },
   { icon: RotateCcw, text: '14 dagen bedenktijd' },
   { icon: BadgeCheck, text: 'Getest en gereinigd' },
@@ -96,7 +96,7 @@ export function Footer() {
               <p className="mt-4 sm:mt-6 text-slate text-sm sm:text-base leading-relaxed max-w-md">
                 TelFixer is jouw betrouwbare partner voor hoogwaardige refurbished
                 elektronica. Wij bieden kwalitatief gecontroleerde telefoons, laptops
-                en tablets tegen aantrekkelijke prijzen, allemaal met garantie.
+                en tablets aan tegen aantrekkelijke prijzen, allemaal met garantie.
               </p>
 
               <div className="mt-6 sm:mt-8 space-y-3 sm:space-y-4">

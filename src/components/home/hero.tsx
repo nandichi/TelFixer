@@ -24,7 +24,7 @@ import { Container } from "@/components/layout/container";
 const EASE = [0.22, 1, 0.36, 1] as const;
 
 const uspItems = [
-  { icon: ShieldCheck, text: "6 maanden garantie" },
+  { icon: ShieldCheck, text: "12 maanden garantie" },
   { icon: Truck, text: "Gratis verzending vanaf 50 euro" },
   { icon: RotateCcw, text: "14 dagen bedenktijd" },
   { icon: BadgeCheck, text: "Gerepareerd, getest en gereinigd" },
@@ -119,7 +119,7 @@ export function Hero() {
               className="text-lg lg:text-xl text-on-dark-muted max-w-md leading-relaxed"
             >
               Vakkundig gerepareerde iPhones en Samsungs, volledig getest en
-              gereinigd. Geleverd met 6 maanden garantie, tot 40% voordeliger
+              gereinigd. Geleverd met 12 maanden garantie, tot 40% voordeliger
               dan nieuw.
             </motion.p>
 
@@ -194,7 +194,7 @@ export function Hero() {
                     </span>
                     <div className="leading-tight">
                       <p className="text-xs sm:text-sm font-semibold text-white whitespace-nowrap">
-                        6 maanden garantie
+                        12 maanden garantie
                       </p>
                       <p className="text-[10px] sm:text-xs text-on-dark-muted whitespace-nowrap">
                         Op al onze toestellen

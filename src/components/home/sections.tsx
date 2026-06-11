@@ -26,8 +26,8 @@ const EASE = [0.22, 1, 0.36, 1] as const;
    ============================================ */
 
 const repairPoints: { icon: LucideIcon; text: string }[] = [
-  { icon: ShieldCheck, text: "3 maanden garantie op elke reparatie" },
-  { icon: Clock, text: "De meeste reparaties binnen 24 uur klaar" },
+  { icon: ShieldCheck, text: "12 maanden garantie op elke reparatie" },
+  { icon: Clock, text: "De meeste reparaties binnen 48 uur klaar" },
   { icon: Sparkles, text: "Originele of hoogwaardige onderdelen" },
   { icon: Truck, text: "Gratis ophaal- en brengdienst" },
 ];
@@ -292,7 +292,7 @@ export function SellDeviceCta() {
 const trustItems: { icon: LucideIcon; title: string; description: string }[] = [
   {
     icon: ShieldCheck,
-    title: "6 maanden garantie",
+    title: "12 maanden garantie",
     description: "Op al onze refurbished toestellen, voor jouw gemoedsrust.",
   },
   {

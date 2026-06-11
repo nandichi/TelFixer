@@ -351,8 +351,9 @@ export function ProductFilters({
 
   return (
     <>
-      {/* Mobile Filter Button */}
-      <div className="lg:hidden mb-6">
+      {/* Mobile Filter Button - eigen ondergrond zodat het sticky dock de
+          producten erachter afdekt tijdens scrollen */}
+      <div className="lg:hidden bg-white/95 backdrop-blur-md rounded-2xl p-2 shadow-sm border border-sand">
         <Button
           onClick={() => setIsMobileOpen(true)}
           variant="outline"

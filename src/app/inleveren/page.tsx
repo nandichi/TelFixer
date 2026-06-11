@@ -29,6 +29,7 @@ import {
   Info,
 } from "lucide-react";
 import { Container } from "@/components/layout/container";
+import { BaxxBuybackSection } from "@/components/baxx/baxx-buyback-section";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -151,6 +152,10 @@ export default function SubmitDevicePage() {
   const [photos, setPhotos] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [followupText, setFollowupText] = useState(DEFAULT_FOLLOWUP_TEXT);
+  const [baxx, setBaxx] = useState<{ enabled: boolean; widget_code: string }>({
+    enabled: false,
+    widget_code: "",
+  });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -165,11 +170,22 @@ export default function SubmitDevicePage() {
         const supabase = createClient();
         const { data } = await supabase
           .from("site_settings")
-          .select("value")
-          .eq("key", "content")
-          .maybeSingle();
-        if (active && data?.value?.submission_followup) {
-          setFollowupText(data.value.submission_followup);
+          .select("key, value")
+          .in("key", ["content", "baxx"]);
+        if (!active || !data) return;
+        for (const row of data) {
+          if (row.key === "content" && row.value?.submission_followup) {
+            setFollowupText(row.value.submission_followup);
+          }
+          if (row.key === "baxx" && row.value) {
+            setBaxx({
+              enabled: Boolean(row.value.enabled),
+              widget_code:
+                typeof row.value.widget_code === "string"
+                  ? row.value.widget_code
+                  : "",
+            });
+          }
         }
       } catch {
         // silently fall back to default
@@ -179,6 +195,8 @@ export default function SubmitDevicePage() {
       active = false;
     };
   }, []);
+
+  const baxxActive = baxx.enabled && baxx.widget_code.trim().length > 0;
 
   const {
     register,
@@ -463,7 +481,11 @@ export default function SubmitDevicePage() {
         </Container>
       </section>
 
-      {/* Wizard Section */}
+      {/* Baxx Buyback widget zodra Baxx is ingeschakeld en de widget-code is
+          ingevuld via Admin -> Instellingen -> Baxx, anders de eigen wizard */}
+      {baxxActive ? (
+        <BaxxBuybackSection widgetCode={baxx.widget_code} />
+      ) : (
       <section className="py-12 lg:py-20">
         <Container>
           <div className="max-w-3xl mx-auto">
@@ -1056,6 +1078,7 @@ export default function SubmitDevicePage() {
           </div>
         </Container>
       </section>
+      )}
     </div>
   );
 }

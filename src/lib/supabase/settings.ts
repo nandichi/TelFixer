@@ -47,6 +47,13 @@ export interface AboutStatsSettings {
   ivan_photo_url: string;
 }
 
+export interface BaxxSettings {
+  // Wanneer ingeschakeld (en widget_code is ingevuld) toont /inleveren de
+  // Baxx-widget in plaats van het eigen inleverformulier.
+  enabled: boolean;
+  widget_code: string;
+}
+
 export interface InstagramSettings {
   profile_url: string;
   posts: string[];
@@ -196,13 +203,13 @@ export async function getTaxSettings(): Promise<TaxSettings> {
 }
 
 export const DEFAULT_WARRANTY: WarrantySettings = {
-  phones_months: 6,
-  laptops_months: 6,
-  tablets_months: 6,
-  repairs_months: 3,
-  accessories_new_months: 24,
-  accessories_used_months: 6,
-  new_devices_months: 24,
+  phones_months: 12,
+  laptops_months: 12,
+  tablets_months: 12,
+  repairs_months: 12,
+  accessories_new_months: 12,
+  accessories_used_months: 12,
+  new_devices_months: 12,
   battery_min_percentage: 85,
   laptop_max_cycles: 250,
 };
@@ -210,6 +217,22 @@ export const DEFAULT_WARRANTY: WarrantySettings = {
 export async function getWarrantySettings(): Promise<WarrantySettings> {
   const settings = await getSetting<WarrantySettings>("warranty");
   return { ...DEFAULT_WARRANTY, ...(settings || {}) };
+}
+
+export const DEFAULT_BAXX: BaxxSettings = {
+  enabled: false,
+  widget_code: "",
+};
+
+export async function getBaxxSettings(): Promise<BaxxSettings> {
+  const settings = await getSetting<BaxxSettings>("baxx");
+  return { ...DEFAULT_BAXX, ...(settings || {}) };
+}
+
+export async function updateBaxxSettings(
+  settings: BaxxSettings
+): Promise<{ error: Error | null }> {
+  return updateSetting("baxx", settings);
 }
 
 export const DEFAULT_ABOUT_STATS: AboutStatsSettings = {

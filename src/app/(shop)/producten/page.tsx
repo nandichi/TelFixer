@@ -88,9 +88,10 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         </div>
 
         <div className="lg:grid lg:grid-cols-4 lg:gap-12">
-          {/* Filters Sidebar */}
-          <aside className="lg:col-span-1 mb-8 lg:mb-0">
-            <div className="sticky top-28">
+          {/* Filters Sidebar - blijft op mobile als dock bovenaan staan tijdens
+              scrollen (sticky op de aside, die de volledige kolomhoogte beslaat) */}
+          <aside className="lg:col-span-1 mb-6 lg:mb-0 sticky top-16 sm:top-20 z-30 lg:static lg:top-auto lg:z-auto">
+            <div className="lg:sticky lg:top-28">
               <Suspense fallback={
                 <div className="bg-white rounded-3xl border border-sand p-6 animate-shimmer">
                   <div className="h-6 w-24 bg-champagne rounded mb-6" />

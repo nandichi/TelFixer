@@ -17,6 +17,7 @@ import {
   Plus,
   X,
   Star,
+  Repeat,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 import { createClient } from '@/lib/supabase/client';
@@ -102,6 +103,11 @@ interface GoogleReviewsSettings {
   reviews: GoogleReview[];
 }
 
+interface BaxxSettings {
+  enabled: boolean;
+  widget_code: string;
+}
+
 type TabId =
   | 'company'
   | 'shipping'
@@ -111,6 +117,7 @@ type TabId =
   | 'about'
   | 'instagram'
   | 'reviews'
+  | 'baxx'
   | 'content';
 
 const tabs: {
@@ -154,6 +161,12 @@ const tabs: {
     label: 'Google Reviews',
     description: 'Reviews op de homepage',
     icon: Star,
+  },
+  {
+    id: 'baxx',
+    label: 'Inkoop (Baxx)',
+    description: 'Inleverflow wisselen naar Baxx',
+    icon: Repeat,
   },
   {
     id: 'shipping',
@@ -205,13 +218,13 @@ export default function AdminSettingsPage() {
   const [tax, setTax] = useState<TaxSettings>({ rate: 21 });
 
   const [warranty, setWarranty] = useState<WarrantySettings>({
-    phones_months: 6,
-    laptops_months: 6,
-    tablets_months: 6,
-    repairs_months: 3,
-    accessories_new_months: 24,
-    accessories_used_months: 6,
-    new_devices_months: 24,
+    phones_months: 12,
+    laptops_months: 12,
+    tablets_months: 12,
+    repairs_months: 12,
+    accessories_new_months: 12,
+    accessories_used_months: 12,
+    new_devices_months: 12,
     battery_min_percentage: 85,
     laptop_max_cycles: 250,
   });
@@ -251,6 +264,11 @@ export default function AdminSettingsPage() {
     reviews: [],
   });
 
+  const [baxx, setBaxx] = useState<BaxxSettings>({
+    enabled: false,
+    widget_code: '',
+  });
+
   const fetchSettings = useCallback(async () => {
     const supabase = createClient();
     const { data } = await supabase.from('site_settings').select('*');
@@ -287,6 +305,8 @@ export default function AdminSettingsPage() {
               ? item.value.reviews
               : p.reviews,
           }));
+        if (item.key === 'baxx' && item.value)
+          setBaxx((p) => ({ ...p, ...item.value }));
       });
     }
     setLoading(false);
@@ -1063,6 +1083,71 @@ export default function AdminSettingsPage() {
                     })
                   }
                   loading={savingKey === 'google_reviews'}
+                />
+              </div>
+            </Section>
+          )}
+
+          {activeTab === 'baxx' && (
+            <Section
+              title="Inkoop via Baxx"
+              description="Wissel de inleverpagina (/inleveren) om naar de Baxx-widget"
+              action={<Repeat className="h-4 w-4 text-[var(--a-text-3)]" />}
+            >
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between p-3 rounded-md border border-[var(--a-border)] bg-[var(--a-surface-2)]">
+                  <div>
+                    <p className="text-[13px] font-medium text-[var(--a-text)]">
+                      Baxx-widget gebruiken
+                    </p>
+                    <p className="text-[11.5px] text-[var(--a-text-3)] mt-0.5">
+                      Aan: /inleveren toont de Baxx-widget. Uit: het eigen
+                      inleverformulier blijft actief.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setBaxx({ ...baxx, enabled: !baxx.enabled })
+                    }
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                      baxx.enabled
+                        ? 'bg-[var(--a-accent)]'
+                        : 'bg-[var(--a-border-strong)]'
+                    }`}
+                    aria-pressed={baxx.enabled}
+                    aria-label="Baxx aan/uit"
+                  >
+                    <span
+                      className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                        baxx.enabled ? 'translate-x-5' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <AdminTextarea
+                  label="Baxx widget-code"
+                  hint="Haal de code op via baxx.app (login -> Shop -> Widget Code Page) en plak hier de volledige embed-/shortcode."
+                  rows={6}
+                  placeholder="<div ...>...</div> of <script ...></script>"
+                  value={baxx.widget_code}
+                  onChange={(e) =>
+                    setBaxx({ ...baxx, widget_code: e.target.value })
+                  }
+                />
+
+                {baxx.enabled && baxx.widget_code.trim() === '' && (
+                  <p className="text-[11.5px] text-amber-600">
+                    Let op: Baxx staat aan, maar er is nog geen widget-code
+                    ingevuld. Zolang de code leeg is, blijft het eigen
+                    inleverformulier zichtbaar.
+                  </p>
+                )}
+
+                <SaveBar
+                  onSave={() => saveSettings('baxx', baxx)}
+                  loading={savingKey === 'baxx'}
                 />
               </div>
             </Section>

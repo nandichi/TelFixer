@@ -178,23 +178,25 @@ export function FaqClient({
           a: (
             <p>
               Ja, je hebt 14 dagen bedenktijd. Het product moet in originele staat
-              zijn en onbeschadigd. Neem contact op voor een retourlabel.
+              zijn en onbeschadigd. De verzendkosten voor het retourneren zijn voor
+              rekening van de klant. Neem contact op voor de retourgegevens.
             </p>
           ),
           searchText:
-            'retourneren 14 dagen bedenktijd originele staat retourlabel',
+            'retourneren 14 dagen bedenktijd originele staat retourkosten verzendkosten klant',
         },
         {
           q: 'Hoe werkt het retourproces?',
           a: (
             <p>
-              Neem contact op met onze klantenservice. Je ontvangt een gratis
-              retourlabel. Na ontvangst en controle wordt het aankoopbedrag binnen
+              Neem contact op met onze klantenservice. Je ontvangt de retourgegevens
+              per e-mail. De verzendkosten voor het terugsturen zijn voor rekening
+              van de klant. Na ontvangst en controle wordt het aankoopbedrag binnen
               5 werkdagen teruggestort.
             </p>
           ),
           searchText:
-            'retourproces klantenservice gratis retourlabel 5 werkdagen teruggestort',
+            'retourproces klantenservice retourgegevens verzendkosten klant 5 werkdagen teruggestort',
         },
         {
           q: 'Wat als mijn product defect is?',
