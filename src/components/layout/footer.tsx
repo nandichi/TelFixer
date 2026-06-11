@@ -192,6 +192,17 @@ export function Footer() {
                 <span className="text-soft-black">BTW: </span>
                 <span className="tabular-nums text-slate">{company.btw}</span>
               </p>
+              <p className="text-xs text-slate">
+                Website gebouwd door{' '}
+                <a
+                  href="https://naoufalandichi.nl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary underline decoration-primary/40 underline-offset-2 hover:text-primary-light hover:decoration-primary"
+                >
+                  Naoufal Andichi
+                </a>
+              </p>
             </div>
 
             <div className="flex flex-col items-center gap-3 lg:items-end">

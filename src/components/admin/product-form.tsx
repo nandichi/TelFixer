@@ -233,24 +233,56 @@ export function ProductForm({ product, mode }: ProductFormProps) {
     return url;
   };
 
-  // Voeg een afbeelding toe via een link (web, hosting of Google Drive).
-  const addImageUrl = () => {
-    const normalized = normalizeImageUrl(imageUrlInput);
-    if (!normalized) return;
+  // Voeg een of meerdere afbeeldingen toe via links (web, hosting of Google
+  // Drive). Meerdere links mogen op aparte regels of gescheiden door een komma
+  // of spatie geplakt worden.
+  const addImageUrls = () => {
+    const tokens = imageUrlInput
+      .split(/[\n,\s]+/)
+      .map((t) => t.trim())
+      .filter(Boolean);
 
-    if (!/^https?:\/\//i.test(normalized)) {
-      showError('Ongeldige link', 'Plak een volledige URL die begint met https://');
-      return;
-    }
-    if (imageUrls.includes(normalized)) {
-      showError('Deze afbeelding staat er al bij');
+    if (tokens.length === 0) return;
+
+    let added = 0;
+    let invalid = 0;
+    let duplicate = 0;
+
+    setImageUrls((prev) => {
+      const next = [...prev];
+      for (const token of tokens) {
+        const normalized = normalizeImageUrl(token);
+        if (!normalized || !/^https?:\/\//i.test(normalized)) {
+          invalid++;
+          continue;
+        }
+        if (next.includes(normalized)) {
+          duplicate++;
+          continue;
+        }
+        next.push(normalized);
+        added++;
+      }
+      return next;
+    });
+
+    if (added > 0) {
       setImageUrlInput('');
-      return;
+      const extra: string[] = [];
+      if (duplicate > 0) extra.push(`${duplicate} dubbel`);
+      if (invalid > 0) extra.push(`${invalid} ongeldig`);
+      success(
+        added === 1 ? '1 afbeelding toegevoegd' : `${added} afbeeldingen toegevoegd`,
+        extra.length > 0 ? `Overgeslagen: ${extra.join(', ')}` : undefined
+      );
+    } else if (invalid > 0) {
+      showError(
+        'Geen geldige links',
+        'Plak volledige URLs die beginnen met https://'
+      );
+    } else if (duplicate > 0) {
+      showError('Deze afbeelding(en) staan er al bij');
     }
-
-    setImageUrls((prev) => [...prev, normalized]);
-    setImageUrlInput('');
-    success('Afbeelding via link toegevoegd');
   };
 
   // Handle specifications
@@ -465,38 +497,41 @@ export function ProductForm({ product, mode }: ProductFormProps) {
               </label>
             </div>
 
-            {/* Afbeelding via link toevoegen */}
+            {/* Afbeeldingen via links toevoegen (meerdere mogelijk) */}
             <div className="pt-4 border-t border-sand">
               <p className="text-sm text-soft-black font-medium mb-1">
-                Of voeg toe via een link
+                Of voeg toe via links
               </p>
               <p className="text-xs text-muted mb-3">
-                Plak een directe afbeeldingslink (web of hosting) of een Google
-                Drive deel-link. Zorg dat een Drive-bestand op &quot;Iedereen met
-                de link&quot; staat.
+                Plak een of meerdere directe afbeeldingslinks (web of hosting) of
+                Google Drive deel-links, elk op een aparte regel. Zorg dat een
+                Drive-bestand op &quot;Iedereen met de link&quot; staat.
               </p>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Input
+              <div className="flex flex-col gap-2">
+                <Textarea
                   value={imageUrlInput}
                   onChange={(e) => setImageUrlInput(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                       e.preventDefault();
-                      addImageUrl();
+                      addImageUrls();
                     }
                   }}
-                  placeholder="https://..."
-                  className="flex-1"
+                  rows={3}
+                  placeholder={'https://...\nhttps://drive.google.com/...\nhttps://...'}
+                  className="flex-1 font-mono text-xs"
                 />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addImageUrl}
-                  disabled={!imageUrlInput.trim()}
-                >
-                  <Link2 className="h-4 w-4 mr-1" />
-                  Toevoegen
-                </Button>
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={addImageUrls}
+                    disabled={!imageUrlInput.trim()}
+                  >
+                    <Link2 className="h-4 w-4 mr-1" />
+                    Links toevoegen
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
