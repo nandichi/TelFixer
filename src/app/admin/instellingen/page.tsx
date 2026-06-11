@@ -19,6 +19,7 @@ import {
   Star,
   Repeat,
   Megaphone,
+  Package,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 import { createClient } from '@/lib/supabase/client';
@@ -92,6 +93,11 @@ interface AnnouncementSettings {
   link_label: string;
 }
 
+interface ProductDisplaySettings {
+  hide_sold_devices: boolean;
+  show_device_stock: boolean;
+}
+
 interface GoogleReview {
   id: string;
   author_name: string;
@@ -127,6 +133,7 @@ type TabId =
   | 'reviews'
   | 'baxx'
   | 'announcement'
+  | 'products'
   | 'content';
 
 const tabs: {
@@ -146,6 +153,12 @@ const tabs: {
     label: 'Teksten',
     description: 'Site-teksten beheren',
     icon: Type,
+  },
+  {
+    id: 'products',
+    label: 'Producten',
+    description: 'Voorraad en verkochte toestellen',
+    icon: Package,
   },
   {
     id: 'announcement',
@@ -236,10 +249,10 @@ export default function AdminSettingsPage() {
     phones_months: 12,
     laptops_months: 12,
     tablets_months: 12,
-    repairs_months: 12,
-    accessories_new_months: 12,
-    accessories_used_months: 12,
-    new_devices_months: 12,
+    repairs_months: 3,
+    accessories_new_months: 24,
+    accessories_used_months: 6,
+    new_devices_months: 24,
     battery_min_percentage: 85,
     laptop_max_cycles: 250,
   });
@@ -291,6 +304,11 @@ export default function AdminSettingsPage() {
     link_label: '',
   });
 
+  const [productDisplay, setProductDisplay] = useState<ProductDisplaySettings>({
+    hide_sold_devices: true,
+    show_device_stock: false,
+  });
+
   const fetchSettings = useCallback(async () => {
     const supabase = createClient();
     const { data } = await supabase.from('site_settings').select('*');
@@ -331,6 +349,8 @@ export default function AdminSettingsPage() {
           setBaxx((p) => ({ ...p, ...item.value }));
         if (item.key === 'announcement' && item.value)
           setAnnouncement((p) => ({ ...p, ...item.value }));
+        if (item.key === 'product_display' && item.value)
+          setProductDisplay((p) => ({ ...p, ...item.value }));
       });
     }
     setLoading(false);
@@ -641,6 +661,93 @@ export default function AdminSettingsPage() {
                 <SaveBar
                   onSave={() => saveSettings('announcement', announcement)}
                   loading={savingKey === 'announcement'}
+                />
+              </div>
+            </Section>
+          )}
+
+          {activeTab === 'products' && (
+            <Section
+              title="Productweergave"
+              description="Bepaal wat er zichtbaar is op /producten"
+              action={<Package className="h-4 w-4 text-[var(--a-text-3)]" />}
+            >
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between p-3 rounded-md border border-[var(--a-border)] bg-[var(--a-surface-2)]">
+                  <div>
+                    <p className="text-[13px] font-medium text-[var(--a-text)]">
+                      Verkochte toestellen verbergen
+                    </p>
+                    <p className="text-[11.5px] text-[var(--a-text-3)] mt-0.5">
+                      Aan: uitverkochte telefoons, laptops en tablets worden
+                      niet getoond. Accessoires blijven altijd zichtbaar.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setProductDisplay({
+                        ...productDisplay,
+                        hide_sold_devices: !productDisplay.hide_sold_devices,
+                      })
+                    }
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 ${
+                      productDisplay.hide_sold_devices
+                        ? 'bg-[var(--a-accent)]'
+                        : 'bg-[var(--a-border-strong)]'
+                    }`}
+                    aria-pressed={productDisplay.hide_sold_devices}
+                    aria-label="Verkochte toestellen verbergen aan/uit"
+                  >
+                    <span
+                      className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                        productDisplay.hide_sold_devices
+                          ? 'translate-x-5'
+                          : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-md border border-[var(--a-border)] bg-[var(--a-surface-2)]">
+                  <div>
+                    <p className="text-[13px] font-medium text-[var(--a-text)]">
+                      Voorraadaantal tonen bij toestellen
+                    </p>
+                    <p className="text-[11.5px] text-[var(--a-text-3)] mt-0.5">
+                      Uit (standaard): voorraadaantallen alleen bij accessoires.
+                      Aan: ook bij telefoons, laptops en tablets.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setProductDisplay({
+                        ...productDisplay,
+                        show_device_stock: !productDisplay.show_device_stock,
+                      })
+                    }
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 ${
+                      productDisplay.show_device_stock
+                        ? 'bg-[var(--a-accent)]'
+                        : 'bg-[var(--a-border-strong)]'
+                    }`}
+                    aria-pressed={productDisplay.show_device_stock}
+                    aria-label="Voorraadaantal tonen aan/uit"
+                  >
+                    <span
+                      className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                        productDisplay.show_device_stock
+                          ? 'translate-x-5'
+                          : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <SaveBar
+                  onSave={() => saveSettings('product_display', productDisplay)}
+                  loading={savingKey === 'product_display'}
                 />
               </div>
             </Section>

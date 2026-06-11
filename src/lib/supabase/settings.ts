@@ -73,6 +73,15 @@ export interface AnnouncementSettings {
   link_label: string;
 }
 
+export interface ProductDisplaySettings {
+  // Verberg uitverkochte toestellen (telefoons/laptops/tablets) op de
+  // productenpagina. Accessoires blijven altijd zichtbaar.
+  hide_sold_devices: boolean;
+  // Toon voorraadaantallen ook bij toestellen. Standaard worden voorraad-
+  // aantallen alleen bij accessoires getoond.
+  show_device_stock: boolean;
+}
+
 export interface GoogleReview {
   id: string;
   author_name: string;
@@ -214,10 +223,10 @@ export const DEFAULT_WARRANTY: WarrantySettings = {
   phones_months: 12,
   laptops_months: 12,
   tablets_months: 12,
-  repairs_months: 12,
-  accessories_new_months: 12,
-  accessories_used_months: 12,
-  new_devices_months: 12,
+  repairs_months: 3,
+  accessories_new_months: 24,
+  accessories_used_months: 6,
+  new_devices_months: 24,
   battery_min_percentage: 85,
   laptop_max_cycles: 250,
 };
@@ -305,6 +314,22 @@ export async function updateAnnouncementSettings(
   settings: AnnouncementSettings
 ): Promise<{ error: Error | null }> {
   return updateSetting("announcement", settings);
+}
+
+export const DEFAULT_PRODUCT_DISPLAY: ProductDisplaySettings = {
+  hide_sold_devices: true,
+  show_device_stock: false,
+};
+
+export async function getProductDisplaySettings(): Promise<ProductDisplaySettings> {
+  const settings = await getSetting<ProductDisplaySettings>("product_display");
+  return { ...DEFAULT_PRODUCT_DISPLAY, ...(settings || {}) };
+}
+
+export async function updateProductDisplaySettings(
+  settings: ProductDisplaySettings
+): Promise<{ error: Error | null }> {
+  return updateSetting("product_display", settings);
 }
 
 export const DEFAULT_GOOGLE_REVIEWS: GoogleReviewsSettings = {

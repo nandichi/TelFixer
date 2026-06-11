@@ -16,6 +16,7 @@ import {
   Scale,
 } from 'lucide-react';
 import { Container } from '@/components/layout/container';
+import { getWarrantySettings } from '@/lib/supabase/settings';
 
 export const metadata: Metadata = {
   title: 'Algemene voorwaarden',
@@ -23,7 +24,12 @@ export const metadata: Metadata = {
     'Algemene voorwaarden van TelFixer voor reparaties, verkoop en inkoop van elektronische apparaten.',
 };
 
-export default function TermsPage() {
+function formatMonths(months: number): string {
+  return months === 1 ? '1 maand' : `${months} maanden`;
+}
+
+export default async function TermsPage() {
+  const warranty = await getWarrantySettings();
   return (
     <div className="py-14 sm:py-16 lg:py-24 bg-cream">
       <Container>
@@ -122,7 +128,10 @@ export default function TermsPage() {
               5. Garantie op reparaties
             </h2>
             <ul className="list-disc pl-6 space-y-2 text-slate">
-              <li>5.1 Op uitgevoerde reparaties geldt 12 maanden garantie.</li>
+              <li>
+                5.1 Op uitgevoerde reparaties geldt{' '}
+                {formatMonths(warranty.repairs_months)} garantie.
+              </li>
               <li>
                 5.2 Garantie dekt defecten die direct verband houden met de
                 uitgevoerde reparatie.
@@ -149,8 +158,11 @@ export default function TermsPage() {
             </h2>
             <ul className="list-disc pl-6 space-y-2 text-slate">
               <li>
-                6.1 Op door TelFixer verkochte toestellen geldt 12 maanden
-                garantie, tenzij anders vermeld.
+                6.1 Op door TelFixer verkochte refurbished toestellen geldt{' '}
+                {formatMonths(warranty.phones_months)} garantie, op nieuwe
+                toestellen {formatMonths(warranty.new_devices_months)} en op
+                accessoires {formatMonths(warranty.accessories_new_months)},
+                tenzij anders vermeld.
               </li>
               <li>
                 6.2 Deze garantie dekt technische defecten die niet door de

@@ -1,4 +1,5 @@
 import { createClient, isSupabaseConfigured } from "./server";
+import { getProductDisplaySettings } from "./settings";
 import { Product, ProductFilters, PaginatedResponse, Category } from "@/types";
 
 export async function getProducts(
@@ -53,6 +54,23 @@ export async function getProducts(
   // Search filter
   if (search) {
     query = query.or(`name.ilike.%${search}%,brand.ilike.%${search}%`);
+  }
+
+  // Verberg uitverkochte toestellen indien ingesteld. Accessoires blijven
+  // altijd zichtbaar, ook als ze uitverkocht zijn.
+  const { hide_sold_devices } = await getProductDisplaySettings();
+  if (hide_sold_devices) {
+    const { data: accessoiresCat } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("slug", "accessoires")
+      .maybeSingle();
+
+    if (accessoiresCat?.id) {
+      query = query.or(
+        `stock_quantity.gt.0,category_id.eq.${accessoiresCat.id}`
+      );
+    }
   }
 
   // Sorting

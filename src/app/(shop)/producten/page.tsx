@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 import { Metadata } from 'next';
+import { ShieldCheck } from 'lucide-react';
 import { Container } from '@/components/layout/container';
 import { ProductCard } from '@/components/products/product-card';
 import { ProductFilters } from '@/components/products/product-filters';
@@ -7,7 +8,15 @@ import { ProductSort } from '@/components/products/product-sort';
 import { Pagination } from '@/components/products/pagination';
 import { ProductGridSkeleton } from '@/components/ui/skeleton';
 import { getProducts, getCategories, getBrands } from '@/lib/supabase/products';
+import {
+  getProductDisplaySettings,
+  getWarrantySettings,
+} from '@/lib/supabase/settings';
 import { ConditionGrade } from '@/types';
+
+function formatMonths(months: number): string {
+  return months === 1 ? '1 maand' : `${months} maanden`;
+}
 
 export const metadata: Metadata = {
   title: 'Producten',
@@ -48,21 +57,28 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   const conditions = conditie ? conditie.split(',') as ConditionGrade[] : undefined;
 
   // Fetch data from database
-  const [productsResult, categories, brands] = await Promise.all([
-    getProducts({
-      category: categorie,
-      brand: merk,
-      minPrice: min ? parseFloat(min) : undefined,
-      maxPrice: max ? parseFloat(max) : undefined,
-      condition: conditions,
-      search: zoek,
-      sort: sorteer as 'price_asc' | 'price_desc' | 'newest' | 'name',
-      page: currentPage,
-      limit: itemsPerPage,
-    }),
-    getCategories(),
-    getBrands(categorie),
-  ]);
+  const [productsResult, categories, brands, displaySettings, warranty] =
+    await Promise.all([
+      getProducts({
+        category: categorie,
+        brand: merk,
+        minPrice: min ? parseFloat(min) : undefined,
+        maxPrice: max ? parseFloat(max) : undefined,
+        condition: conditions,
+        search: zoek,
+        sort: sorteer as 'price_asc' | 'price_desc' | 'newest' | 'name',
+        page: currentPage,
+        limit: itemsPerPage,
+      }),
+      getCategories(),
+      getBrands(categorie),
+      getProductDisplaySettings(),
+      getWarrantySettings(),
+    ]);
+
+  // Voorraadaantallen tonen: standaard alleen bij accessoires. Wanneer de
+  // beheerder dit aanzet, tonen we het voorraadaantal ook bij toestellen.
+  const forceShowStock = displaySettings.show_device_stock ? true : undefined;
 
   const { data: products, total: totalItems, totalPages } = productsResult;
 
@@ -125,7 +141,11 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {products.map((product) => (
-                      <ProductCard key={product.id} product={product} />
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        showStock={forceShowStock}
+                      />
                     ))}
                   </div>
 
@@ -135,6 +155,21 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                     totalPages={totalPages}
                     totalItems={totalItems}
                   />
+
+                  {/* Garantie-strookje */}
+                  <div
+                    className="mt-8 flex items-center justify-center gap-2.5 rounded-2xl border border-sand bg-white px-5 py-3.5 text-sm"
+                    style={{ boxShadow: 'var(--shadow-sm)' }}
+                  >
+                    <ShieldCheck
+                      className="h-4.5 w-4.5 text-primary shrink-0"
+                      strokeWidth={1.75}
+                    />
+                    <span className="font-medium text-soft-black">
+                      {formatMonths(warranty.phones_months)} garantie op
+                      toestellen
+                    </span>
+                  </div>
                 </>
               ) : (
                 <div className="text-center py-20 bg-white rounded-3xl border border-sand">

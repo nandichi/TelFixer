@@ -11,6 +11,7 @@ import {
   Loader2,
   Package,
   ArrowLeft,
+  Link2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -87,6 +88,7 @@ export function ProductForm({ product, mode }: ProductFormProps) {
     product?.image_urls || []
   );
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [imageUrlInput, setImageUrlInput] = useState('');
 
   // Categories
   const [categories, setCategories] = useState<Category[]>([]);
@@ -208,6 +210,47 @@ export function ProductForm({ product, mode }: ProductFormProps) {
 
   const removeImage = (index: number) => {
     setImageUrls((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Zet deel-links (Google Drive, Dropbox) om naar een direct toonbare URL.
+  const normalizeImageUrl = (raw: string): string => {
+    const url = raw.trim();
+    if (!url) return '';
+
+    if (url.includes('drive.google.com')) {
+      const fileMatch = url.match(/\/file\/d\/([^/?]+)/);
+      const idMatch = url.match(/[?&]id=([^&]+)/);
+      const driveId = fileMatch?.[1] || idMatch?.[1];
+      if (driveId) {
+        return `https://drive.google.com/thumbnail?id=${driveId}&sz=w1600`;
+      }
+    }
+
+    if (url.includes('dropbox.com')) {
+      return url.replace(/[?&]dl=0/, '').replace(/\?$/, '') + (url.includes('?') ? '&raw=1' : '?raw=1');
+    }
+
+    return url;
+  };
+
+  // Voeg een afbeelding toe via een link (web, hosting of Google Drive).
+  const addImageUrl = () => {
+    const normalized = normalizeImageUrl(imageUrlInput);
+    if (!normalized) return;
+
+    if (!/^https?:\/\//i.test(normalized)) {
+      showError('Ongeldige link', 'Plak een volledige URL die begint met https://');
+      return;
+    }
+    if (imageUrls.includes(normalized)) {
+      showError('Deze afbeelding staat er al bij');
+      setImageUrlInput('');
+      return;
+    }
+
+    setImageUrls((prev) => [...prev, normalized]);
+    setImageUrlInput('');
+    success('Afbeelding via link toegevoegd');
   };
 
   // Handle specifications
@@ -420,6 +463,41 @@ export function ProductForm({ product, mode }: ProductFormProps) {
                   disabled={uploadingImages}
                 />
               </label>
+            </div>
+
+            {/* Afbeelding via link toevoegen */}
+            <div className="pt-4 border-t border-sand">
+              <p className="text-sm text-soft-black font-medium mb-1">
+                Of voeg toe via een link
+              </p>
+              <p className="text-xs text-muted mb-3">
+                Plak een directe afbeeldingslink (web of hosting) of een Google
+                Drive deel-link. Zorg dat een Drive-bestand op &quot;Iedereen met
+                de link&quot; staat.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Input
+                  value={imageUrlInput}
+                  onChange={(e) => setImageUrlInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addImageUrl();
+                    }
+                  }}
+                  placeholder="https://..."
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addImageUrl}
+                  disabled={!imageUrlInput.trim()}
+                >
+                  <Link2 className="h-4 w-4 mr-1" />
+                  Toevoegen
+                </Button>
+              </div>
             </div>
           </div>
 

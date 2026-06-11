@@ -9,12 +9,17 @@ import { useCart } from '@/context/cart-context';
 
 interface ProductCardProps {
   product: Product;
+  // Forceer het tonen van het voorraadaantal. Niet meegegeven = alleen tonen
+  // bij accessoires (toestellen tonen standaard geen voorraadaantal).
+  showStock?: boolean;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, showStock }: ProductCardProps) {
   const { addItem } = useCart();
   const savings = calculateSavings(product.original_price, product.price);
   const hasImage = product.image_urls && product.image_urls.length > 0;
+  const isAccessory = product.category?.slug === 'accessoires';
+  const showStockCount = showStock ?? isAccessory;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -60,14 +65,16 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
           </div>
 
-          {/* Stock indicator */}
-          {product.stock_quantity <= 3 && product.stock_quantity > 0 && (
-            <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4">
-              <span className="px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-medium bg-white/90 backdrop-blur-sm text-soft-black rounded-full shadow-sm">
-                Nog {product.stock_quantity} beschikbaar
-              </span>
-            </div>
-          )}
+          {/* Stock indicator - alleen voor accessoires (of indien geforceerd) */}
+          {showStockCount &&
+            product.stock_quantity <= 3 &&
+            product.stock_quantity > 0 && (
+              <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4">
+                <span className="px-2 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-medium bg-white/90 backdrop-blur-sm text-soft-black rounded-full shadow-sm">
+                  Nog {product.stock_quantity} beschikbaar
+                </span>
+              </div>
+            )}
           
           {product.stock_quantity === 0 && (
             <div className="absolute inset-0 bg-soft-black/60 backdrop-blur-sm flex items-center justify-center">
@@ -126,9 +133,9 @@ export function ProductCard({ product }: ProductCardProps) {
               )}
             </div>
             
-            {/* Social/Marketplace Links */}
+            {/* Social/Marketplace Links - ronde merk-iconen */}
             {(product.marketplace_url || product.facebook_url) && (
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 {product.marketplace_url && (
                   <button
                     type="button"
@@ -139,13 +146,17 @@ export function ProductCard({ product }: ProductCardProps) {
                         window.open(product.marketplace_url, '_blank', 'noopener,noreferrer');
                       }
                     }}
-                    className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#F45334]/10 text-[#F45334] hover:bg-[#F45334]/20 transition-colors"
+                    className="relative w-8 h-8 rounded-full overflow-hidden ring-1 ring-sand shadow-sm transition-transform duration-200 hover:scale-110 shrink-0"
                     aria-label="Bekijk op Marktplaats"
                     title="Bekijk op Marktplaats"
                   >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                    </svg>
+                    <Image
+                      src="/icons/marktplaats.png"
+                      alt="Marktplaats"
+                      fill
+                      sizes="32px"
+                      className="object-cover"
+                    />
                   </button>
                 )}
                 {product.facebook_url && (
@@ -158,13 +169,17 @@ export function ProductCard({ product }: ProductCardProps) {
                         window.open(product.facebook_url, '_blank', 'noopener,noreferrer');
                       }
                     }}
-                    className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#1877F2]/10 text-[#1877F2] hover:bg-[#1877F2]/20 transition-colors"
+                    className="relative w-8 h-8 rounded-full overflow-hidden ring-1 ring-sand shadow-sm transition-transform duration-200 hover:scale-110 shrink-0"
                     aria-label="Bekijk op Facebook"
                     title="Bekijk op Facebook"
                   >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
+                    <Image
+                      src="/icons/facebook.png"
+                      alt="Facebook"
+                      fill
+                      sizes="32px"
+                      className="object-cover"
+                    />
                   </button>
                 )}
               </div>

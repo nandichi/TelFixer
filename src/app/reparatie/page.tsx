@@ -11,6 +11,7 @@ import {
 import { Container } from "@/components/layout/container";
 import { RependerEmbed } from "@/components/repender/repender-embed";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/reveal";
+import { getWarrantySettings } from "@/lib/supabase/settings";
 
 export const metadata: Metadata = {
   title: "Reparatie",
@@ -18,37 +19,43 @@ export const metadata: Metadata = {
     "Laat je telefoon, tablet of laptop vakkundig repareren bij TelFixer. Kies je apparaat, selecteer de reparatie, zie direct de prijs en plan eenvoudig een afspraak in.",
 };
 
-const trustIndicators = [
-  { icon: ShieldCheck, text: "12 maanden garantie" },
-  { icon: Clock, text: "Reparatie vaak binnen 48 uur klaar" },
-  { icon: Truck, text: "Gratis ophaal- en brengdienst" },
-];
-
-const infoCards = [
-  {
-    icon: ShieldCheck,
-    title: "Garantie",
-    description: "12 maanden garantie op elke reparatie",
-  },
-  {
-    icon: Clock,
-    title: "Snel klaar",
-    description: "De meeste reparaties binnen 48 uur geregeld",
-  },
-  {
-    icon: Sparkles,
-    title: "Kwaliteit",
-    description: "Originele of hoogwaardige onderdelen",
-  },
-];
-
 const steps = [
   { number: "01", title: "Kies je apparaat", description: "Selecteer merk en model" },
   { number: "02", title: "Zie direct de prijs", description: "Transparant, geen verrassingen" },
   { number: "03", title: "Plan je afspraak", description: "Op een moment dat jou uitkomt" },
 ];
 
-export default function ReparatiePage() {
+export default async function ReparatiePage() {
+  const warranty = await getWarrantySettings();
+  const repairTerm =
+    warranty.repairs_months === 1
+      ? "1 maand"
+      : `${warranty.repairs_months} maanden`;
+
+  const trustIndicators = [
+    { icon: ShieldCheck, text: `${repairTerm} garantie` },
+    { icon: Clock, text: "Reparatie vaak binnen 48 uur klaar" },
+    { icon: Truck, text: "Gratis ophaal- en brengdienst (15 km)" },
+  ];
+
+  const infoCards = [
+    {
+      icon: ShieldCheck,
+      title: "Garantie",
+      description: `${repairTerm} garantie op elke reparatie`,
+    },
+    {
+      icon: Clock,
+      title: "Snel klaar",
+      description: "De meeste reparaties binnen 48 uur geregeld",
+    },
+    {
+      icon: Sparkles,
+      title: "Kwaliteit",
+      description: "Originele of hoogwaardige onderdelen",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-cream">
       {/* Hero */}

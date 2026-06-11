@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Mail, Phone, MapPin, ShieldCheck, Truck, RotateCcw, BadgeCheck } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
 import { Container } from './container';
+import { FooterUsps } from './footer-usps';
 
 const company = {
   kvk: '99703645',
@@ -22,13 +23,6 @@ const paymentMethods = [
   { src: '/payments/mastercard.svg', label: 'Mastercard', width: 48, height: 32, wide: false },
   { src: '/payments/klarna.svg', label: 'Klarna', width: 24, height: 24, wide: false },
 ] as const;
-
-const footerUsps = [
-  { icon: ShieldCheck, text: '12 maanden garantie' },
-  { icon: Truck, text: 'Gratis verzending vanaf 50 euro' },
-  { icon: RotateCcw, text: '14 dagen bedenktijd' },
-  { icon: BadgeCheck, text: 'Getest en gereinigd' },
-];
 
 const footerLinks = {
   shop: [
@@ -60,23 +54,8 @@ export function Footer() {
     <footer className="bg-champagne relative overflow-hidden">
       <div className="h-1 bg-gradient-to-r from-primary via-copper to-gold" />
 
-      {/* USP-balk */}
-      <div className="border-b border-sand">
-        <Container>
-          <ul className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-3 py-5 sm:py-6">
-            {footerUsps.map((usp) => (
-              <li key={usp.text} className="flex items-center gap-2.5 sm:gap-3">
-                <span className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white text-primary shrink-0 border border-sand">
-                  <usp.icon className="w-4 h-4 sm:w-4.5 sm:h-4.5" strokeWidth={1.75} />
-                </span>
-                <span className="text-xs sm:text-sm font-medium text-soft-black leading-snug">
-                  {usp.text}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </div>
+      {/* USP-balk (route-bewust: verborgen op /reparatie) */}
+      <FooterUsps />
 
       <Container>
         <div className="relative py-10 sm:py-14 lg:py-20">

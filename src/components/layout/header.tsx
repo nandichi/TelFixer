@@ -135,18 +135,20 @@ export function Header() {
     >
       <Container>
         <nav className="flex items-center justify-between h-16 sm:h-20 lg:h-20">
-          {/* Logo */}
+          {/* Logo met wit randje */}
           <Link href="/" className="flex items-center group shrink-0" aria-label="TelFixer home">
-            <Image
-              src="/telfixer-logo.png"
-              alt="TelFixer"
-              width={180}
-              height={72}
-              className="h-10 sm:h-12 lg:h-14 w-auto transition-transform duration-300 group-hover:scale-105"
-              priority
-              fetchPriority="high"
-              style={{ width: "auto", height: "auto", maxHeight: "56px" }}
-            />
+            <span className="inline-flex items-center rounded-xl bg-white border border-sand shadow-sm px-2.5 py-1.5 transition-transform duration-300 group-hover:scale-105">
+              <Image
+                src="/telfixer-logo.png"
+                alt="TelFixer"
+                width={180}
+                height={72}
+                className="h-8 sm:h-9 lg:h-10 w-auto"
+                priority
+                fetchPriority="high"
+                style={{ width: "auto", height: "auto", maxHeight: "40px" }}
+              />
+            </span>
           </Link>
 
           {/* Desktop navigatie */}
