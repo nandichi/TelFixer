@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     let orderQuery = supabase
       .from('orders')
       .select(
-        'id, order_number, payment_status, status, total_price, shipping_cost, customer_email, customer_name, shipping_address, order_items(product_name, quantity, price_at_purchase)'
+        'id, order_number, payment_status, status, total_price, shipping_cost, discount_code, discount_amount, customer_email, customer_name, shipping_address, order_items(product_name, quantity, price_at_purchase)'
       );
 
     if (orderIdFromMeta) {
@@ -90,6 +90,25 @@ export async function POST(request: Request) {
       })
       .eq('id', order.id);
 
+    // Count discount-code usage once, on the first successful payment
+    if (paymentStatus === 'paid' && !wasAlreadyPaid && order.discount_code) {
+      try {
+        const { data: dc } = await supabase
+          .from('discount_codes')
+          .select('id, used_count')
+          .ilike('code', order.discount_code)
+          .maybeSingle();
+        if (dc) {
+          await supabase
+            .from('discount_codes')
+            .update({ used_count: (dc.used_count ?? 0) + 1 })
+            .eq('id', dc.id);
+        }
+      } catch (err) {
+        console.error('Discount usage increment failed:', err);
+      }
+    }
+
     // Send confirmation email on first successful payment
     if (paymentStatus === 'paid' && !wasAlreadyPaid && order.customer_email) {
       try {
@@ -132,6 +151,8 @@ export async function POST(request: Request) {
           0
         );
 
+        const discountAmount = parseFloat(String(order.discount_amount || 0));
+
         await sendOrderConfirmationEmail({
           customerName: order.customer_name || '',
           customerEmail: order.customer_email,
@@ -139,6 +160,8 @@ export async function POST(request: Request) {
           items,
           subtotal,
           shipping: shippingCost,
+          discount: discountAmount > 0 ? discountAmount : undefined,
+          discountCode: order.discount_code || undefined,
           total: totalPrice,
           shippingAddress: addressLines.join('\n'),
         });

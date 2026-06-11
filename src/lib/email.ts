@@ -8,6 +8,7 @@ import {
 } from '@/emails/order-confirmation-email';
 import { ContactNotificationEmail } from '@/emails/contact-notification-email';
 import { ContactConfirmationEmail } from '@/emails/contact-confirmation-email';
+import { AdminMessageEmail } from '@/emails/admin-message-email';
 
 let resendClient: Resend | null = null;
 
@@ -110,6 +111,8 @@ interface OrderConfirmationEmailData {
   items: OrderEmailItem[];
   subtotal: number;
   shipping: number;
+  discount?: number;
+  discountCode?: string;
   total: number;
   shippingAddress: string;
 }
@@ -129,6 +132,8 @@ export async function sendOrderConfirmationEmail(
       items: data.items,
       subtotal: data.subtotal,
       shipping: data.shipping,
+      discount: data.discount,
+      discountCode: data.discountCode,
       total: data.total,
       shippingAddress: data.shippingAddress,
     }),
@@ -179,6 +184,37 @@ export async function sendContactConfirmationEmail(
       name: data.name,
       subjectLabel: data.subjectLabel,
       message: data.message,
+    }),
+  });
+}
+
+interface AdminCustomerEmailData {
+  to: string;
+  customerName?: string;
+  subject: string;
+  heading: string;
+  bodyText: string;
+  ctaUrl?: string;
+  ctaLabel?: string;
+  replyTo?: string;
+}
+
+/**
+ * Free-form branded email composed by an admin and sent to a customer.
+ */
+export async function sendAdminCustomerEmail(
+  data: AdminCustomerEmailData
+): Promise<SendResult> {
+  return sendEmail({
+    to: data.to,
+    subject: data.subject,
+    replyTo: data.replyTo,
+    react: AdminMessageEmail({
+      customerName: data.customerName,
+      heading: data.heading,
+      bodyText: data.bodyText,
+      ctaUrl: data.ctaUrl,
+      ctaLabel: data.ctaLabel,
     }),
   });
 }

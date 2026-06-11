@@ -36,9 +36,58 @@ type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
 export default function CheckoutPage() {
   const { items, subtotal, shipping, total, itemCount, isHydrated } = useCart();
-  const { error: showError } = useToast();
+  const { success, error: showError } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState<'address' | 'review'>('address');
+
+  const [discountCode, setDiscountCode] = useState('');
+  const [appliedDiscount, setAppliedDiscount] = useState<{
+    code: string;
+    amount: number;
+    description?: string;
+  } | null>(null);
+  const [discountLoading, setDiscountLoading] = useState(false);
+  const [discountError, setDiscountError] = useState<string | null>(null);
+
+  const discountAmount = appliedDiscount?.amount ?? 0;
+  const payableTotal = Math.max(0, total - discountAmount);
+
+  const applyDiscount = async () => {
+    const code = discountCode.trim();
+    if (!code) return;
+    setDiscountLoading(true);
+    setDiscountError(null);
+    try {
+      const res = await fetch('/api/checkout/validate-discount', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      const json = await res.json();
+      if (!json.valid) {
+        setAppliedDiscount(null);
+        setDiscountError(json.error || 'Deze kortingscode is ongeldig');
+        return;
+      }
+      setAppliedDiscount({
+        code: json.code,
+        amount: json.discountAmount,
+        description: json.description,
+      });
+      setDiscountError(null);
+      success('Kortingscode toegepast');
+    } catch {
+      setDiscountError('Kon de kortingscode niet controleren');
+    } finally {
+      setDiscountLoading(false);
+    }
+  };
+
+  const removeDiscount = () => {
+    setAppliedDiscount(null);
+    setDiscountCode('');
+    setDiscountError(null);
+  };
 
   const {
     register,
@@ -157,6 +206,7 @@ export default function CheckoutPage() {
             shipping,
             total,
           },
+          discountCode: appliedDiscount?.code ?? null,
         }),
       });
 
@@ -655,14 +705,77 @@ export default function CheckoutPage() {
                       )}
                     </span>
                   </div>
+                  {appliedDiscount && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted inline-flex items-center gap-1.5">
+                        Korting
+                        <span className="text-xs font-medium text-soft-black bg-cream border border-sand rounded px-1.5 py-0.5">
+                          {appliedDiscount.code}
+                        </span>
+                      </span>
+                      <span className="font-medium text-[#0D9488]">
+                        -{formatPrice(discountAmount)}
+                      </span>
+                    </div>
+                  )}
                 </div>
+
+                <div className="mb-6">
+                  {appliedDiscount ? (
+                    <div className="flex items-center justify-between rounded-xl border border-[#0D9488]/30 bg-[#0D9488]/5 px-3 py-2.5">
+                      <span className="text-sm text-soft-black">
+                        Code <strong>{appliedDiscount.code}</strong> toegepast
+                      </span>
+                      <button
+                        type="button"
+                        onClick={removeDiscount}
+                        className="text-sm font-medium text-muted hover:text-red-500 transition-colors"
+                      >
+                        Verwijderen
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={discountCode}
+                          onChange={(e) => setDiscountCode(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              applyDiscount();
+                            }
+                          }}
+                          placeholder="Kortingscode"
+                          className="flex-1 min-w-0 h-11 rounded-xl border border-sand bg-cream px-3 text-sm text-soft-black placeholder:text-muted outline-none focus:border-primary transition-colors"
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={applyDiscount}
+                          isLoading={discountLoading}
+                          disabled={!discountCode.trim()}
+                        >
+                          Toepassen
+                        </Button>
+                      </div>
+                      {discountError && (
+                        <p className="text-sm text-red-500 mt-2">
+                          {discountError}
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
+
                 <div className="border-t border-sand pt-6">
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-display font-semibold text-soft-black">
                       Totaal
                     </span>
                     <span className="text-2xl font-display font-bold text-primary">
-                      {formatPrice(total)}
+                      {formatPrice(payableTotal)}
                     </span>
                   </div>
                   <p className="text-xs text-muted mt-2">Inclusief BTW</p>

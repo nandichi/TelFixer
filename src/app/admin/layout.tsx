@@ -20,13 +20,19 @@ import {
   AlertCircle,
   Search,
   Plus,
-  Bell,
   ExternalLink,
   Command as CommandIcon,
+  Ticket,
+  HelpCircle,
+  BarChart3,
+  ScrollText,
+  UserCog,
+  Mail,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/auth-context';
 import { createClient } from '@/lib/supabase/client';
+import { NotificationBell } from '@/components/admin/notification-bell';
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -35,9 +41,18 @@ const navigation = [
   { name: 'Producten', href: '/admin/producten', icon: Package },
   { name: 'Categorieen', href: '/admin/categorieen', icon: FolderTree },
   { name: 'Klanten', href: '/admin/klanten', icon: Users },
+  { name: 'Klantmail', href: '/admin/mail', icon: Mail },
+];
+
+const salesNav = [
+  { name: 'Kortingscodes', href: '/admin/kortingscodes', icon: Ticket },
+  { name: 'FAQ', href: '/admin/faq', icon: HelpCircle },
+  { name: 'Rapportages', href: '/admin/rapportages', icon: BarChart3 },
 ];
 
 const secondaryNav = [
+  { name: 'Team', href: '/admin/team', icon: UserCog },
+  { name: 'Audit-log', href: '/admin/audit', icon: ScrollText },
   { name: 'Instellingen', href: '/admin/instellingen', icon: Settings },
 ];
 
@@ -478,6 +493,38 @@ export default function AdminLayout({
           </div>
 
           <div className="px-2 pt-4 pb-1 text-[10.5px] font-semibold uppercase tracking-wider text-[var(--a-text-4)]">
+            Verkoop & content
+          </div>
+          <div className="space-y-0.5">
+            {salesNav.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={() => setSidebarOpen(false)}
+                  className={cn(
+                    'flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-colors',
+                    active
+                      ? 'bg-[var(--a-accent-soft)] text-[var(--a-accent)]'
+                      : 'text-[var(--a-text-2)] hover:bg-[var(--a-surface-2)] hover:text-[var(--a-text)]'
+                  )}
+                >
+                  <item.icon
+                    className={cn(
+                      'h-4 w-4 shrink-0',
+                      active
+                        ? 'text-[var(--a-accent)]'
+                        : 'text-[var(--a-text-3)]'
+                    )}
+                  />
+                  <span className="truncate">{item.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="px-2 pt-4 pb-1 text-[10.5px] font-semibold uppercase tracking-wider text-[var(--a-text-4)]">
             Beheer
           </div>
           <div className="space-y-0.5">
@@ -645,13 +692,7 @@ export default function AdminLayout({
               <ExternalLink className="h-3.5 w-3.5" />
               Site
             </Link>
-            <button
-              type="button"
-              className="h-8 w-8 inline-flex items-center justify-center rounded-md text-[var(--a-text-3)] hover:bg-[var(--a-surface-2)] hover:text-[var(--a-text)] transition-colors"
-              title="Notificaties"
-            >
-              <Bell className="h-3.5 w-3.5" />
-            </button>
+            <NotificationBell />
           </div>
         </header>
 

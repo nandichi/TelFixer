@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Manrope, Playfair_Display, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/layout/header';
+import { AnnouncementBar } from '@/components/layout/announcement-bar';
 import { Footer } from '@/components/layout/footer';
 import { CartDrawer } from '@/components/cart/cart-drawer';
 import { WhatsAppFloat } from '@/components/layout/whatsapp-float';
@@ -112,6 +113,7 @@ export default function RootLayout({
         <AuthProvider>
           <CartProvider>
             <ToastProvider>
+              <AnnouncementBar />
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />

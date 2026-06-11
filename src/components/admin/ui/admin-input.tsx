@@ -1,6 +1,11 @@
 'use client';
 
-import { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
+import {
+  forwardRef,
+  InputHTMLAttributes,
+  SelectHTMLAttributes,
+  TextareaHTMLAttributes,
+} from 'react';
 import { cn } from '@/lib/utils';
 
 interface AdminInputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -61,6 +66,55 @@ export const AdminInput = forwardRef<HTMLInputElement, AdminInputProps>(
             </span>
           )}
         </div>
+        {error ? (
+          <p className="mt-1 text-[11.5px] text-[var(--a-danger)]">{error}</p>
+        ) : hint ? (
+          <p className="mt-1 text-[11.5px] text-[var(--a-text-3)]">{hint}</p>
+        ) : null}
+      </div>
+    );
+  }
+);
+
+interface AdminSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+  label?: string;
+  hint?: string;
+  error?: string;
+}
+
+export const AdminSelect = forwardRef<HTMLSelectElement, AdminSelectProps>(
+  function AdminSelect(
+    { className, label, hint, error, id, children, ...rest },
+    ref
+  ) {
+    const inputId = id || rest.name || label?.toLowerCase().replace(/\s+/g, '-');
+    return (
+      <div className="w-full">
+        {label && (
+          <label
+            htmlFor={inputId}
+            className="block text-[12px] font-medium text-[var(--a-text-2)] mb-1.5"
+          >
+            {label}
+            {rest.required && (
+              <span className="text-[var(--a-danger)] ml-0.5">*</span>
+            )}
+          </label>
+        )}
+        <select
+          ref={ref}
+          id={inputId}
+          className={cn(
+            'w-full h-8 px-2.5 text-[13px] rounded-md bg-[var(--a-surface)] border text-[var(--a-text)] outline-none transition-colors cursor-pointer',
+            error
+              ? 'border-[var(--a-danger)]'
+              : 'border-[var(--a-border)] focus:border-[var(--a-accent)] hover:border-[var(--a-border-strong)]',
+            className
+          )}
+          {...rest}
+        >
+          {children}
+        </select>
         {error ? (
           <p className="mt-1 text-[11.5px] text-[var(--a-danger)]">{error}</p>
         ) : hint ? (

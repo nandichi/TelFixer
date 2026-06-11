@@ -65,6 +65,14 @@ export interface ContentSettings {
   checkout_dispatch: string;
 }
 
+export interface AnnouncementSettings {
+  // Site-brede aankondigingsbalk boven de header (niet zichtbaar in admin).
+  enabled: boolean;
+  message: string;
+  link_url: string;
+  link_label: string;
+}
+
 export interface GoogleReview {
   id: string;
   author_name: string;
@@ -279,6 +287,24 @@ export const DEFAULT_CONTENT: ContentSettings = {
 export async function getContentSettings(): Promise<ContentSettings> {
   const settings = await getSetting<ContentSettings>("content");
   return { ...DEFAULT_CONTENT, ...(settings || {}) };
+}
+
+export const DEFAULT_ANNOUNCEMENT: AnnouncementSettings = {
+  enabled: false,
+  message: "",
+  link_url: "",
+  link_label: "",
+};
+
+export async function getAnnouncementSettings(): Promise<AnnouncementSettings> {
+  const settings = await getSetting<AnnouncementSettings>("announcement");
+  return { ...DEFAULT_ANNOUNCEMENT, ...(settings || {}) };
+}
+
+export async function updateAnnouncementSettings(
+  settings: AnnouncementSettings
+): Promise<{ error: Error | null }> {
+  return updateSetting("announcement", settings);
 }
 
 export const DEFAULT_GOOGLE_REVIEWS: GoogleReviewsSettings = {

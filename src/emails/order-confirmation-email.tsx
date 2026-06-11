@@ -27,6 +27,8 @@ export interface OrderConfirmationEmailProps {
   items: OrderEmailItem[];
   subtotal: number;
   shipping: number;
+  discount?: number;
+  discountCode?: string;
   total: number;
   shippingAddress: string;
 }
@@ -44,6 +46,8 @@ export function OrderConfirmationEmail({
   items,
   subtotal,
   shipping,
+  discount,
+  discountCode,
   total,
   shippingAddress,
 }: OrderConfirmationEmailProps) {
@@ -87,6 +91,14 @@ export function OrderConfirmationEmail({
           {shipping === 0 ? 'Gratis' : formatEur(shipping)}
         </Column>
       </Row>
+      {discount != null && discount > 0 && (
+        <Row>
+          <Column style={totalsLabelStyle}>
+            Korting{discountCode ? ` (${discountCode})` : ''}
+          </Column>
+          <Column style={discountValueStyle}>-{formatEur(discount)}</Column>
+        </Row>
+      )}
       <Row>
         <Column style={grandTotalLabelStyle}>Totaal</Column>
         <Column style={grandTotalValueStyle}>{formatEur(total)}</Column>
@@ -132,6 +144,15 @@ const totalsValueStyle: React.CSSProperties = {
   fontFamily: fontSans,
   fontSize: '14px',
   color: brand.softBlack,
+  padding: '10px 0',
+  textAlign: 'right',
+};
+
+const discountValueStyle: React.CSSProperties = {
+  fontFamily: fontSans,
+  fontSize: '14px',
+  fontWeight: 600,
+  color: brand.success,
   padding: '10px 0',
   textAlign: 'right',
 };

@@ -4,6 +4,7 @@ import { createServiceClient } from '@/lib/supabase/service';
 import { createClient as createServerSupabase } from '@/lib/supabase/server';
 import { getMollieClient, getAppUrl, isMollieConfigured } from '@/lib/mollie';
 import { generateOrderNumber } from '@/lib/utils';
+import { validateDiscountCode } from '@/lib/discount';
 import { PaymentLineType, Locale } from '@mollie/api-client';
 
 const bodySchema = z.object({
@@ -38,6 +39,7 @@ const bodySchema = z.object({
     shipping: z.number().nonnegative(),
     total: z.number().positive(),
   }),
+  discountCode: z.string().trim().max(60).nullable().optional(),
 });
 
 export async function POST(request: Request) {
@@ -59,8 +61,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const { customer, shippingAddress, billingSameAsShipping, items, totals } =
-      parsed.data;
+    const {
+      customer,
+      shippingAddress,
+      billingSameAsShipping,
+      items,
+      totals,
+      discountCode: requestedDiscountCode,
+    } = parsed.data;
 
     // Verify the sum of items matches totals (tamper-proof)
     const serverSubtotal = items.reduce(
@@ -106,9 +114,42 @@ export async function POST(request: Request) {
         : []),
     ];
 
+    // Validate the discount code server-side (never trust a client-side amount).
+    let discountAmount = 0;
+    let appliedDiscountCode: string | null = null;
+    if (requestedDiscountCode && requestedDiscountCode.trim()) {
+      const result = await validateDiscountCode(
+        requestedDiscountCode,
+        serverSubtotal
+      );
+      if (!result.valid || !result.discountAmount) {
+        return NextResponse.json(
+          { error: result.error || 'Kortingscode is niet (meer) geldig' },
+          { status: 400 }
+        );
+      }
+      discountAmount = roundMoney(result.discountAmount);
+      appliedDiscountCode = result.code || requestedDiscountCode.trim();
+
+      orderLines.push({
+        type: PaymentLineType.discount,
+        description: `Korting (${appliedDiscountCode})`,
+        quantity: 1,
+        unitPrice: toAmount(-discountAmount),
+        totalAmount: toAmount(-discountAmount),
+      });
+    }
+
     const chargeAmount = roundMoney(
       orderLines.reduce((sum, line) => sum + Number(line.totalAmount.value), 0)
     );
+
+    if (chargeAmount <= 0) {
+      return NextResponse.json(
+        { error: 'Het te betalen bedrag moet groter zijn dan 0' },
+        { status: 400 }
+      );
+    }
 
     // Factuuradres is verplicht voor Klarna. De checkout verzamelt één adres,
     // dus factuur- en verzendadres zijn gelijk.
@@ -157,6 +198,8 @@ export async function POST(request: Request) {
         user_id: userId,
         total_price: chargeAmount,
         shipping_cost: totals.shipping,
+        discount_code: appliedDiscountCode,
+        discount_amount: discountAmount,
         tax: 0,
         status: 'in_behandeling',
         shipping_address: addressPayload,

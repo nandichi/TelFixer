@@ -18,6 +18,7 @@ import {
   X,
   Star,
   Repeat,
+  Megaphone,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 import { createClient } from '@/lib/supabase/client';
@@ -84,6 +85,13 @@ interface ContentSettings {
   checkout_dispatch: string;
 }
 
+interface AnnouncementSettings {
+  enabled: boolean;
+  message: string;
+  link_url: string;
+  link_label: string;
+}
+
 interface GoogleReview {
   id: string;
   author_name: string;
@@ -118,6 +126,7 @@ type TabId =
   | 'instagram'
   | 'reviews'
   | 'baxx'
+  | 'announcement'
   | 'content';
 
 const tabs: {
@@ -137,6 +146,12 @@ const tabs: {
     label: 'Teksten',
     description: 'Site-teksten beheren',
     icon: Type,
+  },
+  {
+    id: 'announcement',
+    label: 'Aankondiging',
+    description: 'Balk bovenaan de site',
+    icon: Megaphone,
   },
   {
     id: 'warranty',
@@ -269,6 +284,13 @@ export default function AdminSettingsPage() {
     widget_code: '',
   });
 
+  const [announcement, setAnnouncement] = useState<AnnouncementSettings>({
+    enabled: false,
+    message: '',
+    link_url: '',
+    link_label: '',
+  });
+
   const fetchSettings = useCallback(async () => {
     const supabase = createClient();
     const { data } = await supabase.from('site_settings').select('*');
@@ -307,6 +329,8 @@ export default function AdminSettingsPage() {
           }));
         if (item.key === 'baxx' && item.value)
           setBaxx((p) => ({ ...p, ...item.value }));
+        if (item.key === 'announcement' && item.value)
+          setAnnouncement((p) => ({ ...p, ...item.value }));
       });
     }
     setLoading(false);
@@ -514,6 +538,109 @@ export default function AdminSettingsPage() {
                 <SaveBar
                   onSave={() => saveSettings('content', content)}
                   loading={savingKey === 'content'}
+                />
+              </div>
+            </Section>
+          )}
+
+          {activeTab === 'announcement' && (
+            <Section
+              title="Aankondigingsbalk"
+              description="Toon een balk bovenaan de site (bijv. voor acties of meldingen)"
+              action={<Megaphone className="h-4 w-4 text-[var(--a-text-3)]" />}
+            >
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between p-3 rounded-md border border-[var(--a-border)] bg-[var(--a-surface-2)]">
+                  <div>
+                    <p className="text-[13px] font-medium text-[var(--a-text)]">
+                      Balk tonen
+                    </p>
+                    <p className="text-[11.5px] text-[var(--a-text-3)] mt-0.5">
+                      Aan: de balk verschijnt bovenaan elke pagina (behalve in
+                      de admin).
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setAnnouncement({
+                        ...announcement,
+                        enabled: !announcement.enabled,
+                      })
+                    }
+                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                      announcement.enabled
+                        ? 'bg-[var(--a-accent)]'
+                        : 'bg-[var(--a-border-strong)]'
+                    }`}
+                    aria-pressed={announcement.enabled}
+                    aria-label="Aankondiging aan/uit"
+                  >
+                    <span
+                      className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                        announcement.enabled ? 'translate-x-5' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <AdminInput
+                  label="Bericht"
+                  placeholder="bijv. Gratis verzending vanaf 50 euro!"
+                  value={announcement.message}
+                  onChange={(e) =>
+                    setAnnouncement({
+                      ...announcement,
+                      message: e.target.value,
+                    })
+                  }
+                />
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <AdminInput
+                    label="Link-URL (optioneel)"
+                    placeholder="bijv. /producten"
+                    hint="Pad of volledige URL waar de knop heen gaat"
+                    value={announcement.link_url}
+                    onChange={(e) =>
+                      setAnnouncement({
+                        ...announcement,
+                        link_url: e.target.value,
+                      })
+                    }
+                  />
+                  <AdminInput
+                    label="Link-tekst (optioneel)"
+                    placeholder="bijv. Bekijk aanbod"
+                    hint="Alleen getoond als er ook een URL is"
+                    value={announcement.link_label}
+                    onChange={(e) =>
+                      setAnnouncement({
+                        ...announcement,
+                        link_label: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                {announcement.enabled && announcement.message.trim() && (
+                  <div className="rounded-md overflow-hidden border border-[var(--a-border)]">
+                    <div className="px-3 py-1 text-[10.5px] font-semibold uppercase tracking-wider text-[var(--a-text-4)] bg-[var(--a-surface-2)]">
+                      Voorbeeld
+                    </div>
+                    <div className="flex items-center justify-center gap-2 bg-soft-black text-white py-2 px-3 text-[13px] text-center">
+                      <span className="font-medium">{announcement.message}</span>
+                      {announcement.link_url && announcement.link_label && (
+                        <span className="font-semibold text-copper-light underline">
+                          {announcement.link_label}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <SaveBar
+                  onSave={() => saveSettings('announcement', announcement)}
+                  loading={savingKey === 'announcement'}
                 />
               </div>
             </Section>
