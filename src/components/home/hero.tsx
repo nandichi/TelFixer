@@ -180,28 +180,29 @@ export function Hero() {
                   className="absolute inset-0 bg-gradient-to-t from-soft-black/45 via-transparent to-transparent"
                   aria-hidden="true"
                 />
+              </div>
+            </motion.div>
 
-                {/* Glas-chip: garantie */}
-                <motion.div
-                  initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: 0.9, ease: EASE }}
-                  className="absolute bottom-4 left-4 right-4 sm:bottom-5 sm:left-5 sm:right-auto"
-                >
-                  <div className="inline-flex items-center gap-2.5 sm:gap-3 px-3 py-2.5 sm:px-4 sm:py-3 rounded-2xl bg-white/12 backdrop-blur-md border border-white/20 shadow-lg">
-                    <span className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white text-primary shrink-0">
-                      <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
-                    </span>
-                    <div className="leading-tight">
-                      <p className="text-xs sm:text-sm font-semibold text-white whitespace-nowrap">
-                        12 maanden garantie
-                      </p>
-                      <p className="text-[10px] sm:text-xs text-on-dark-muted whitespace-nowrap">
-                        Op al onze toestellen
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
+            {/* Glas-chip: garantie — boven het Samsung-beeld (z-30) */}
+            <motion.div
+              initial={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.9, ease: EASE }}
+              style={{ y: yMain }}
+              className="absolute z-30 bottom-4 sm:bottom-5 left-[calc(34%+1rem)] sm:left-[calc(34%+1.25rem)]"
+            >
+              <div className="inline-flex items-center gap-2.5 sm:gap-3 px-3 py-2.5 sm:px-4 sm:py-3 rounded-2xl bg-white/12 backdrop-blur-md border border-white/20 shadow-lg">
+                <span className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white text-primary shrink-0">
+                  <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={2} />
+                </span>
+                <div className="leading-tight">
+                  <p className="text-xs sm:text-sm font-semibold text-white whitespace-nowrap">
+                    12 maanden garantie
+                  </p>
+                  <p className="text-[10px] sm:text-xs text-on-dark-muted whitespace-nowrap">
+                    Op al onze toestellen
+                  </p>
+                </div>
               </div>
             </motion.div>
 
