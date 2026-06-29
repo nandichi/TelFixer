@@ -17,6 +17,8 @@ declare global {
   }
 }
 
+const BAXX_DIRECT_ORIGINS = new Set(["telfixer.nl", "www.telfixer.nl"]);
+
 function parseEmbedCode(code: string): {
   containerSelector: string;
   scriptSrc: string | null;
@@ -51,14 +53,49 @@ function dispatchWidgetLoaded(detail: ShadowRoot) {
   );
 }
 
-function initBuybackWidget(containerSelector: string): boolean {
+function needsBaxxApiProxy(): boolean {
+  return !BAXX_DIRECT_ORIGINS.has(window.location.hostname);
+}
+
+function ensureFreshHost(
+  container: HTMLElement,
+  containerSelector: string
+): void {
+  const host = container.querySelector<HTMLElement>(containerSelector);
+  if (host?.shadowRoot) {
+    host.replaceWith(host.cloneNode(false));
+  }
+}
+
+function initBuybackWidget(
+  container: HTMLElement,
+  containerSelector: string
+): boolean {
   if (typeof window.BuybackWidget !== "function") return false;
-  const shadow = new window.BuybackWidget({
+
+  ensureFreshHost(container, containerSelector);
+
+  const overrides: Record<string, unknown> = {
     containerSelector,
     ...BAXX_WIDGET_OVERRIDES,
-  });
-  dispatchWidgetLoaded(shadow);
-  return true;
+  };
+
+  if (needsBaxxApiProxy()) {
+    overrides.apiUrl = `${window.location.origin}/api/baxx`;
+  }
+
+  try {
+    const shadow = new window.BuybackWidget(overrides);
+    dispatchWidgetLoaded(shadow);
+    return true;
+  } catch (err) {
+    console.error("[Baxx] BuybackWidget initialisatie mislukt:", err);
+    return false;
+  }
+}
+
+function getExistingBaxxScript(): HTMLScriptElement | null {
+  return document.querySelector('script[data-baxx="true"]');
 }
 
 /**
@@ -69,9 +106,8 @@ function initBuybackWidget(containerSelector: string): boolean {
  *
  * Baxx' script wacht intern op `DOMContentLoaded`, maar in Next.js draait
  * injectie pas na mount wanneer dat event al is afgegaan. Daarom initialiseren
- * we de widget handmatig zodra het script geladen is. Bij client-side
- * navigatie hergebruiken we de reeds geladen klasse; alleen de container-div
- * wordt opnieuw gemount.
+ * we de widget handmatig zodra het script geladen is. Het script wordt eenmalig
+ * geladen en hergebruikt bij client-side navigatie en React Strict Mode.
  */
 export function BaxxBuybackWidget({
   widgetCode,
@@ -86,6 +122,8 @@ export function BaxxBuybackWidget({
     const container = containerRef.current;
     const code = widgetCode?.trim();
     if (!container || !code) return;
+
+    let cancelled = false;
 
     const onWidgetLoaded = (event: Event) => {
       const root = (event as CustomEvent<ShadowRoot | null>).detail;
@@ -103,27 +141,25 @@ export function BaxxBuybackWidget({
 
     container.replaceChildren(markup.cloneNode(true));
 
-    let script: HTMLScriptElement | null = null;
-
     const mountWidget = () => {
-      if (!initBuybackWidget(containerSelector)) {
+      if (cancelled) return;
+      if (!initBuybackWidget(container, containerSelector)) {
         console.error(
           "[Baxx] BuybackWidget kon niet initialiseren. Controleer de widget-code in Admin -> Instellingen."
         );
       }
     };
 
-    if (typeof window.BuybackWidget === "function" && window.__BBW_CONFIG) {
+    const existingScript = getExistingBaxxScript();
+
+    if (typeof window.BuybackWidget === "function") {
       mountWidget();
+    } else if (existingScript) {
+      existingScript.addEventListener("load", mountWidget, { once: true });
     } else if (scriptSrc) {
-      delete window.__BuybackWidgetLoaded;
-
       const url = new URL(scriptSrc, window.location.href);
-      if (window.__baxxScriptLoaded) {
-        url.searchParams.set("v", String(Date.now()));
-      }
 
-      script = document.createElement("script");
+      const script = document.createElement("script");
       script.src = url.toString();
       script.async = false;
       script.dataset.baxx = "true";
@@ -142,9 +178,9 @@ export function BaxxBuybackWidget({
     }
 
     return () => {
+      cancelled = true;
       document.removeEventListener("buybackWidgetLoaded", onWidgetLoaded);
       container.replaceChildren();
-      script?.remove();
     };
   }, [widgetCode]);
 
