@@ -1,35 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-
-/**
- * TelFixer-huisstijl voor de Baxx Buyback widget. Wordt volgens de
- * Baxx-handleiding in de widget geinjecteerd zodra het
- * `buybackWidgetLoaded`-event afgaat. Alleen de door Baxx gedocumenteerde
- * classes worden gebruikt: .bbw-container, .bbw-category-section en
- * .bbw-subtitle.
- */
-const TELFIXER_WIDGET_CSS = `
-  /* Hoofdwrapper: transparant zodat de witte kaart van de site de achtergrond vormt */
-  .bbw-container {
-    background-color: transparent;
-    font-family: var(--font-sans, ui-sans-serif, system-ui, -apple-system, sans-serif);
-    color: #1A1A1A;
-  }
-
-  /* Subtitels en helperteksten in de stappen */
-  .bbw-subtitle {
-    color: #4A4A4A;
-  }
-
-  /* Vraagdetails: zachte creme-achtergrond conform het designsysteem */
-  .bbw-container[data-step=questions] .bbw-subtitle:last-child {
-    padding: 24px;
-    border-radius: 16px;
-    background: #FAF8F5;
-    border: 1px solid #E8DFD4;
-  }
-`;
+import {
+  BAXX_WIDGET_OVERRIDES,
+  TELFIXER_BAXX_THEME_CSS,
+} from "./baxx-telfixer-theme";
 
 declare global {
   interface Window {
@@ -78,7 +53,10 @@ function dispatchWidgetLoaded(detail: ShadowRoot) {
 
 function initBuybackWidget(containerSelector: string): boolean {
   if (typeof window.BuybackWidget !== "function") return false;
-  const shadow = new window.BuybackWidget({ containerSelector });
+  const shadow = new window.BuybackWidget({
+    containerSelector,
+    ...BAXX_WIDGET_OVERRIDES,
+  });
   dispatchWidgetLoaded(shadow);
   return true;
 }
@@ -116,7 +94,7 @@ export function BaxxBuybackWidget({
 
       const style = document.createElement("style");
       style.setAttribute("data-telfixer-theme", "true");
-      style.textContent = TELFIXER_WIDGET_CSS;
+      style.textContent = TELFIXER_BAXX_THEME_CSS;
       root.appendChild(style);
     };
     document.addEventListener("buybackWidgetLoaded", onWidgetLoaded);

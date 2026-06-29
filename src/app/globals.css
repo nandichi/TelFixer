@@ -920,3 +920,16 @@ button {
 #repender-repair-order-status [class*="container"] {
   padding: 0 !important;
 }
+
+/* ============================================
+   BAXX WIDGET - TelFixer host theming
+   Shadow-DOM overrides staan in baxx-telfixer-theme.ts
+   ============================================ */
+
+.inlever-widget,
+.buyback-widget {
+  display: block;
+  width: 100%;
+  font-family: var(--font-sans);
+  color: var(--color-soft-black);
+}

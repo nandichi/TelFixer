@@ -50,7 +50,7 @@ export function BaxxBuybackSection({ widgetCode }: { widgetCode: string }) {
 
           <Reveal>
             <div className="relative bg-white rounded-3xl border border-sand overflow-hidden shadow-md">
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-copper via-gold to-primary" />
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-copper to-gold" />
               <div className="p-5 sm:p-7 lg:p-8">
                 <BaxxBuybackWidget widgetCode={widgetCode} />
               </div>
